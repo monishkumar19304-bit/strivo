@@ -1,20 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Strivo logo">
-  <defs>
-    <linearGradient id="lg-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7c6cff"/>
-      <stop offset="1" stop-color="#3b2fb8"/>
-    </linearGradient>
-    <linearGradient id="lg-play" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffd27a"/>
-      <stop offset="1" stop-color="#f59e0b"/>
-    </linearGradient>
-  </defs>
-  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#lg-bg)"/>
-  <!-- screen -->
-  <rect x="22" y="30" width="84" height="58" rx="12" fill="#14123a" opacity="0.85"/>
-  <!-- play -->
-  <path d="M56 46 L78 59 L56 72 Z" fill="url(#lg-play)" stroke="url(#lg-play)" stroke-width="4" stroke-linejoin="round"/>
-  <!-- queue lines -->
-  <rect x="34" y="96" width="60" height="6" rx="3" fill="#ffffff" opacity="0.9"/>
-  <rect x="44" y="106" width="40" height="5" rx="2.5" fill="#ffffff" opacity="0.5"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Strivo">
+<defs><linearGradient id="rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff6b8b"/><stop offset=".33" stop-color="#ffb547"/><stop offset=".66" stop-color="#22c55e"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs>
+<rect width="512" height="512" rx="112" fill="#17123f"/><g transform="translate(0,-18)">
+<path d="M214 176 Q200 120 168 96" stroke="#c9c2ff" stroke-width="16" fill="none" stroke-linecap="round"/>
+<path d="M298 176 Q318 116 352 100" stroke="#c9c2ff" stroke-width="16" fill="none" stroke-linecap="round"/>
+<circle cx="168" cy="96" r="22" fill="#ffb547"/><circle cx="352" cy="100" r="22" fill="#ff6b8b"/>
+<rect x="96" y="168" width="320" height="236" rx="72" fill="url(#rim)"/>
+<rect x="114" y="186" width="284" height="200" rx="56" fill="#2a2170"/>
+<path d="M180 262 Q204 240 228 262" stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round"/>
+<ellipse cx="306" cy="258" rx="22" ry="28" fill="#fff"/><circle cx="312" cy="264" r="10" fill="#17123f"/>
+<path d="M178 312 Q256 378 334 312" stroke="#fff" stroke-width="18" fill="none" stroke-linecap="round"/>
+<path d="M206 400 L200 448 M306 400 L312 448" stroke="#c9c2ff" stroke-width="16" stroke-linecap="round"/>
+<ellipse cx="186" cy="456" rx="34" ry="16" fill="#ffb547"/><ellipse cx="326" cy="456" rx="34" ry="16" fill="#ff6b8b"/>
+</g></svg>
