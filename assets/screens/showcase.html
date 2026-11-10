@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Strivo showcase</title>
+<style>
+  html,body{margin:0}
+  body{width:1280px;height:760px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:radial-gradient(circle at 75% 60%,rgba(245,158,11,.28),transparent 55%),linear-gradient(135deg,#0d0b26 0%,#1c1650 55%,#3b2fb8 100%);}
+  .row{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:34px;padding-top:10px}
+  figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .phone{width:250px;height:541px;border-radius:42px;background:#05050c;padding:9px;box-sizing:border-box;
+    box-shadow:0 30px 60px rgba(0,0,0,.55),0 0 0 1.5px rgba(255,255,255,.12) inset}
+  .phone img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:34px;display:block}
+  .big .phone{width:282px;height:610px;border-radius:46px}
+  .big .phone img{border-radius:38px}
+  .low{transform:translateY(26px)}
+  figcaption{text-align:center;color:#fff;font-weight:700;font-size:20px;letter-spacing:-.2px}
+  figcaption span{display:block;font-weight:500;font-size:14px;color:#c7c3ff;text-align:center;margin-top:3px}
+</style></head>
+<body><div class="row">
+  <figure class="low"><div class="phone"><img src="watching-list.jpg"></div><figcaption>Your queue<span>Every show you're in, newest first</span></figcaption></figure>
+  <figure class="big"><div class="phone"><img src="what-to-watch.jpg"></div><figcaption>What to Watch<span>Picks from what you actually watch</span></figcaption></figure>
+  <figure class="big"><div class="phone"><img src="watching-posters.jpg"></div><figcaption>Swipe your shows<span>Full-screen posters, made for the couch</span></figcaption></figure>
+  <figure class="low"><div class="phone"><img src="play-on-tv.jpg"></div><figcaption>Play on TV<span>Tap, pick a TV, it opens</span></figcaption></figure>
+</div></body></html>

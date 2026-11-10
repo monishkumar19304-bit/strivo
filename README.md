@@ -18,11 +18,16 @@
   <a href="#why-strivo">Why</a> ·
   <a href="#our-philosophy-your-viewing-your-data">Philosophy</a> ·
   <a href="#what-it-does">What it does</a> ·
+  <a href="#see-it">See it</a> ·
   <a href="#does-it-work-with-my-tv">Does it work with my TV?</a> ·
   <a href="#getting-started">Getting started</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#roadmap">Roadmap</a> ·
   <a href="#get-involved">Get involved</a>
+</p>
+
+<p align="center">
+  <img src="assets/showcase.jpg" alt="Strivo on a phone: your queue, What to Watch, swipeable posters, and Play on TV" width="100%">
 </p>
 
 ---
@@ -67,7 +72,27 @@ Strivo can't stop the streaming services from seeing what you watch in their own
 | 🎞️ **Posters view** | A full-screen, swipeable poster feed for couch browsing, or a classic list. Your choice, per screen. |
 | 🔒 **Private by design** | Runs on a computer in your home. No account, no Strivo cloud, no ads, no data sold. |
 
-> 📸 *Screenshots are coming with the first public build.*
+## See it
+
+*Real screens from Strivo running in a real home, on a phone.*
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="assets/screens/what-to-watch.jpg" alt="What to Watch poster feed" width="250"><br><b>What to Watch</b><br><sub>Swipe full-screen picks, filtered to the services you pay for. Every pick says <i>why</i>.</sub></td>
+    <td align="center" width="33%"><img src="assets/screens/detail.jpg" alt="Full detail with trailer" width="250"><br><b>Everything in one place</b><br><sub>Trailer, story, cast, ratings and reviews, without opening five apps.</sub></td>
+    <td align="center" width="33%"><img src="assets/screens/where-to-watch.jpg" alt="Where to watch and reviews" width="250"><br><b>Where it's streaming</b><br><sub>Which of your services has it, plus IMDb, Rotten Tomatoes and Metacritic links.</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screens/watching-list.jpg" alt="Watching queue" width="250"><br><b>Your nighttime queue</b><br><sub>Every series you're in, across all apps. New episodes float to the top; progress shows where you stopped.</sub></td>
+    <td align="center"><img src="assets/screens/play-on-tv.jpg" alt="Play on TV picker" width="250"><br><b>Play on TV</b><br><sub>Pick a TV and Strivo opens the right app on it. It even shows which TVs are on.</sub></td>
+    <td align="center"><img src="assets/screens/tell-it-why.jpg" alt="Tell it why you passed" width="250"><br><b>Tell it why</b><br><sub>Seen it? Too dark? Kids' show? One tap teaches your picks.</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screens/daily.jpg" alt="Daily shows" width="250"><br><b>Daily</b><br><sub>Morning shows, news and late night, kept for a week and out of your queue.</sub></td>
+    <td align="center"><img src="assets/screens/saved.jpg" alt="Saved wish list" width="250"><br><b>Saved</b><br><sub>Your wish list, ready for movie night.</sub></td>
+    <td align="center"><img src="assets/screens/settings.jpg" alt="Settings" width="250"><br><b>Your rules</b><br><sub>Your services, categories, minimum rating and how long shows stay in your queue.</sub></td>
+  </tr>
+</table>
 
 ## Does it work with my TV?
 
