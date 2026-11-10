@@ -1,0 +1,44 @@
+name: 🐛 Bug report
+description: Something isn't working the way it should.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time! Please **don't paste API keys, tokens, or your full watch history**.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Watching
+        2. Tap Play on a show
+        3. ...
+  - type: dropdown
+    id: device
+    attributes:
+      label: Streaming box involved
+      multiple: true
+      options: [Apple TV, Google TV / Android TV, Fire TV, Roku, Plex, Jellyfin, Emby, Not device related]
+  - type: dropdown
+    id: host
+    attributes:
+      label: Where Strivo runs
+      options: [Docker on Linux, Docker on Mac, Docker on Windows, Raspberry Pi, NAS, Home Assistant add-on, Other]
+  - type: input
+    id: version
+    attributes:
+      label: Strivo version
+      placeholder: "v0.1.0 (shown in Settings → About)"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Settings → About → Copy diagnostics. Strip anything personal.
+      render: text

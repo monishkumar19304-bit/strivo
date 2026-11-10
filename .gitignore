@@ -13,3 +13,9 @@ build/
 .claude/settings.local.json
 # Agent worktrees (only used if an agent runs with worktree isolation)
 .claude/worktrees/
+# Strivo runtime data: never commit history, pairing credentials or keys
+data/
+dev-data/
+*.token
+.tmdb_token
+*.credentials

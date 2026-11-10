@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions and setup help
+    url: https://github.com/nickdnj/strivo/discussions/categories/q-a
+    about: Ask in Discussions, where the whole community can help.
+  - name: 💡 Ideas and feature requests
+    url: https://github.com/nickdnj/strivo/discussions/categories/ideas
+    about: Start an idea in Discussions first; agreed ideas become issues.
+  - name: 🔒 Security problem
+    url: https://github.com/nickdnj/strivo/security/advisories/new
+    about: Please report security issues privately.

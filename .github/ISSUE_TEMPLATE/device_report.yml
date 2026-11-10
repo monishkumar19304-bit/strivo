@@ -1,0 +1,33 @@
+name: 🧪 Device / app compatibility report
+description: Share what your streaming box reports, to fill in the compatibility table.
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the most useful thing you can contribute! Run `strivo probe --minutes 10`, play something for a minute in each app you use, then paste the report below.
+        The report contains no account names or network addresses.
+  - type: input
+    id: model
+    attributes:
+      label: Device model
+      placeholder: "e.g. Chromecast with Google TV (4K), Fire TV Stick 4K Max, TCL 55\" Google TV"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS version
+      placeholder: "e.g. Google TV 14, Fire OS 8, tvOS 26"
+  - type: textarea
+    id: probe
+    attributes:
+      label: strivo probe output
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: Apps that behaved oddly, setup steps that were confusing, etc.

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="Strivo: the streaming DVR feeling, for every app">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d0b26"/>
+      <stop offset="0.55" stop-color="#1c1650"/>
+      <stop offset="1" stop-color="#3b2fb8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.78" cy="0.55" r="0.55">
+      <stop offset="0" stop-color="#f59e0b" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c6cff"/>
+      <stop offset="1" stop-color="#3b2fb8"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd27a"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="p1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef4444"/><stop offset="1" stop-color="#7f1d1d"/></linearGradient>
+    <linearGradient id="p2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#155e75"/></linearGradient>
+    <linearGradient id="p3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#4c1d95"/></linearGradient>
+    <linearGradient id="p4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#065f46"/></linearGradient>
+    <linearGradient id="p5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#92400e"/></linearGradient>
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.65"/></linearGradient>
+  </defs>
+
+  <rect width="1280" height="420" rx="24" fill="url(#sky)"/>
+  <rect width="1280" height="420" rx="24" fill="url(#glow)"/>
+
+  <!-- stars -->
+  <g fill="#ffffff">
+    <circle cx="90" cy="60" r="1.6" opacity="0.7"/><circle cx="210" cy="34" r="1.2" opacity="0.5"/>
+    <circle cx="340" cy="80" r="1.4" opacity="0.6"/><circle cx="520" cy="40" r="1.1" opacity="0.5"/>
+    <circle cx="640" cy="92" r="1.5" opacity="0.6"/><circle cx="760" cy="30" r="1.2" opacity="0.5"/>
+    <circle cx="1180" cy="50" r="1.5" opacity="0.6"/><circle cx="1230" cy="120" r="1.1" opacity="0.4"/>
+    <circle cx="60" cy="360" r="1.2" opacity="0.4"/><circle cx="470" cy="380" r="1.3" opacity="0.4"/>
+  </g>
+
+  <!-- logo mark -->
+  <g transform="translate(80,118)">
+    <rect width="96" height="96" rx="22" fill="url(#mark)"/>
+    <rect x="14" y="20" width="68" height="46" rx="10" fill="#14123a" opacity="0.85"/>
+    <path d="M42 32 L60 43 L42 54 Z" fill="url(#amber)" stroke="url(#amber)" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="24" y="73" width="48" height="5" rx="2.5" fill="#fff" opacity="0.9"/>
+    <rect x="32" y="82" width="32" height="4" rx="2" fill="#fff" opacity="0.5"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="198" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="92" font-weight="800" fill="#ffffff" letter-spacing="-2">Strivo</text>
+  <text x="84" y="270" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#ffd27a">The DVR feeling, for every streaming app.</text>
+  <text x="84" y="312" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="21" fill="#c7c3ff">Automatic watch history · your nighttime queue · play it on your TV</text>
+  <text x="84" y="350" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" fill="#8f89d6">Open source · runs in your home · no cloud, no account</text>
+
+  <!-- fanned poster cards -->
+  <g transform="translate(1010,222) scale(0.8)">
+    <g transform="rotate(-16) translate(-250,-95)">
+      <rect width="120" height="180" rx="12" fill="url(#p2)"/><rect width="120" height="180" rx="12" fill="url(#shade)"/>
+      <rect x="12" y="150" width="70" height="7" rx="3.5" fill="#fff" opacity="0.85"/>
+    </g>
+    <g transform="rotate(-8) translate(-160,-108)">
+      <rect width="120" height="180" rx="12" fill="url(#p3)"/><rect width="120" height="180" rx="12" fill="url(#shade)"/>
+      <rect x="12" y="150" width="84" height="7" rx="3.5" fill="#fff" opacity="0.85"/>
+    </g>
+    <g transform="translate(-66,-115)">
+      <rect width="132" height="198" rx="14" fill="url(#p1)" stroke="#ffd27a" stroke-width="3"/><rect width="132" height="198" rx="14" fill="url(#shade)"/>
+      <circle cx="66" cy="84" r="26" fill="#000" opacity="0.35"/>
+      <path d="M58 70 L80 84 L58 98 Z" fill="url(#amber)"/>
+      <rect x="14" y="160" width="90" height="8" rx="4" fill="#fff"/>
+      <rect x="14" y="176" width="60" height="6" rx="3" fill="#fff" opacity="0.6"/>
+      <rect x="14" y="188" width="104" height="4" rx="2" fill="#fff" opacity="0.25"/>
+      <rect x="14" y="188" width="64" height="4" rx="2" fill="#f59e0b"/>
+    </g>
+    <g transform="rotate(8) translate(46,-108)">
+      <rect width="120" height="180" rx="12" fill="url(#p4)"/><rect width="120" height="180" rx="12" fill="url(#shade)"/>
+      <rect x="12" y="150" width="62" height="7" rx="3.5" fill="#fff" opacity="0.85"/>
+    </g>
+    <g transform="rotate(16) translate(136,-95)">
+      <rect width="120" height="180" rx="12" fill="url(#p5)"/><rect width="120" height="180" rx="12" fill="url(#shade)"/>
+      <rect x="12" y="150" width="78" height="7" rx="3.5" fill="#fff" opacity="0.85"/>
+    </g>
+  </g>
+</svg>
