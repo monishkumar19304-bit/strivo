@@ -3,21 +3,16 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import time
 import uuid
 
 from .adapters.base import AdapterError, Device
-from .apps import SERVICES, launch_id
+from .apps import launch_id, services, trailer
 
 log = logging.getLogger(__name__)
 
 TV_KINDS = ("appletv", "android", "roku")      # boxes that can open apps ("Play on TV")
-YOUTUBE_TRAILER = {
-    "appletv": lambda vid: ("com.google.ios.youtube", f"youtube://watch/{vid}"),
-    "android": lambda vid: ("com.google.android.youtube.tv", f"https://www.youtube.com/watch?v={vid}"),
-    "firetv": lambda vid: ("com.amazon.firetv.youtube", f"https://www.youtube.com/watch?v={vid}"),
-    "roku": lambda vid: ("837", vid),
-}
 
 
 def platform_of(d: Device) -> str:
@@ -172,17 +167,22 @@ class DeviceManager:
             return dict(id=d.id, name=d.name, kind=d.kind, online=st.online, power=st.power, app=st.app)
         return list(await asyncio.gather(*(one(d) for d in tvs)))
 
-    async def tv_play(self, dev_id: str, provider: str = "", trailer: str = "") -> str:
+    async def tv_play(self, dev_id: str, provider: str = "", trailer_id: str = "") -> str:
         d = self.get(dev_id)
         if d is None or d.kind not in TV_KINDS:
             raise AdapterError("unknown TV")
         plat = platform_of(d)
         ad = self.adapters[d.kind]
-        if trailer:
-            app, link = YOUTUBE_TRAILER[plat](trailer)
+        if trailer_id:
+            if not re.fullmatch(r"[\w-]{6,20}", trailer_id):
+                raise AdapterError("bad trailer id")
+            t = trailer(plat, trailer_id)
+            if not t:
+                raise AdapterError("trailers aren't supported on this kind of box")
+            app, link = t
             await ad.launch(d, app, link)
             return "trailer"
-        if provider not in SERVICES:
+        if provider not in services():
             raise AdapterError("unknown service")
         app = launch_id(provider, plat)
         if not app:

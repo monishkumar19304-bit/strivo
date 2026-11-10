@@ -14,10 +14,13 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
 
-from . import __version__, picks
+from . import __version__, diagnose, picks, report
+from . import rules as rules_mod
+from .health import HealthTracker
+from .updates import UpdateChecker
 from .adapters.base import AdapterError
 from .adapters.jellyfin import WEBHOOK_TEMPLATE
-from .apps import STREAMING
+from . import apps
 from .collector import Collector, Runtime
 from .config import DISC_DEFAULT, DataDir
 from .core import REASONS, Core
@@ -46,17 +49,22 @@ def parse_multipart(body: bytes, content_type: str) -> dict:
 class App:
     """Everything the server needs, wired together. Tests build one with fakes."""
 
-    def __init__(self, data_dir, transport=None, adapters=None, start_background=True):
+    def __init__(self, data_dir, transport=None, adapters=None, start_background=True, fetch=None):
         self.data = DataDir(data_dir)
+        self.rules = rules_mod.use(rules_mod.Rules(self.data.path, __version__))
         self.runtime = Runtime().start()
         self.collector = Collector(self.data, adapters)
         self.core = Core(self.data, transport, names=self.collector.name_of)
         self.devices = DeviceManager(self.data, self.collector, self.runtime)
+        self.tracker = HealthTracker(self.data)
+        self.collector.listeners.append(self.tracker.observe)
+        self.updates = UpdateChecker(self.data, self.rules, self.tracker, self.core.notify, fetch=fetch or update_fetch)
         self.started = time.time()
         if start_background:
             self.runtime.call(self.collector.start(), 10)
             threading.Thread(target=self._wishlist_loop, daemon=True).start()
             threading.Thread(target=self._picks_loop, daemon=True).start()
+            threading.Thread(target=self._health_loop, daemon=True).start()
 
     def _wishlist_loop(self):
         time.sleep(120)
@@ -74,10 +82,68 @@ class App:
             picks.build_all(self.core)
             time.sleep(24 * 3600)
 
+    def _health_loop(self):
+        """Every minute: tell the household about real state changes; once a day: look for fixes."""
+        time.sleep(60)
+        while True:
+            try:
+                self.notify_health_changes()
+                if self.data.config().get("update_checks", True) and self.updates.due():
+                    self.updates.check()
+            except Exception:  # noqa: BLE001
+                log.exception("health loop failed")
+            time.sleep(60)
+
+    def notify_health_changes(self):
+        ev, self.tracker.events = self.tracker.events, []
+        for e in ev:
+            if e["to"] == "degraded":
+                self.core.notify(f"Strivo: {e['app']} stopped reporting titles",
+                                 "Strivo will look for a fix and tell you when it's working again.")
+            elif e["to"] == "recovered":
+                self.core.notify(f"Strivo: {e['app']} is tracking again", "The fix worked.")
+
+    def doctor(self) -> dict:
+        devs = self.collector.devices()
+        boxes = self.tracker.boxes(devs, self.collector.live)
+        os_of = {b["id"]: b["os"] for b in boxes}
+        dg = diagnose.get(self.data.config())
+        problems = []
+        for b in boxes:
+            if b["state"] in ("offline", "unpaired"):
+                d = dg.diagnose(b, b["state"])
+                problems.append(dict(key=b["id"], what=b["name"], state=b["state"], summary=d.summary,
+                                     cause=d.likely_cause, steps=d.next_steps))
+        apps = self.tracker.apps()
+        for a in apps:
+            a["os"] = os_of.get(a["device"], "")
+            a["device_name"] = self.collector.name_of(a["device"])
+            if a["state"] in ("degraded", "verifying"):
+                d = dg.diagnose(a, a["state"])
+                problems.append(dict(key=a["key"], what=f"{a['app']} on {a['device_name']}", state=a["state"],
+                                     summary=d.summary, cause=d.likely_cause, steps=d.next_steps))
+        c = self.data.config()
+        return dict(boxes=boxes, apps=apps, problems=problems, rules=self.rules.summary(), updates=self.updates.state(),
+                    settings=dict(rules_updates=c.get("rules_updates", "auto"),
+                                  update_checks=c.get("update_checks", True)), diagnosis_tier=dg.tier)
+
+    def report_url(self, key: str) -> dict:
+        doc = self.doctor()
+        a = next((x for x in doc["apps"] if x["key"] == key), None)
+        if a:
+            failure = a["state"] if a["state"] in report.FAILURES else "degraded"
+        else:
+            a = next((dict(b, app=None) for b in doc["boxes"] if b["id"] == key), None)
+            if a is None:
+                raise KeyError(key)
+            failure = a["state"] if a["state"] in report.FAILURES else "offline"
+        url, fields = report.issue_url(a, failure)
+        return dict(url=url, fields=fields)
+
     def setup_state(self) -> dict:
         c = self.data.config()
         return dict(version=__version__, setup_done=bool(c.get("setup_done")), tmdb_key_set=self.core.tmdb.configured,
-                    country=c.get("country", "US"), services=c.get("services") or [], all_services=STREAMING,
+                    country=c.get("country", "US"), services=c.get("services") or [], all_services=apps.streaming(),
                     default_tv=c.get("default_tv", ""),
                     devices=[dict(d, kind_label=getattr(self.collector.adapters.get(d["kind"]), "label", d["kind"]))
                              for d in c.get("devices", [])],
@@ -155,6 +221,18 @@ def make_handler(app: App):
                     return self.ok({"ok": True, "n": app.collector.ingest("jellyfin", body)})
                 if p.startswith("/api/setup"):
                     return self.setup_post(p, body)
+                if p == "/api/doctor/check":
+                    app.updates.check(force=True)
+                    return self.ok(app.doctor())
+                if p == "/api/doctor/apply":
+                    try:
+                        app.updates.apply_pending()
+                    except rules_mod.RulesError as e:
+                        return self.send(400, {"error": str(e)})
+                    return self.ok(app.doctor())
+                if p == "/api/doctor/rollback":
+                    app.rules.rollback()
+                    return self.ok(app.doctor())
                 if p == "/api/wish":
                     items = core.wishlist()
                     if body.get("action") == "remove":
@@ -282,6 +360,13 @@ def make_handler(app: App):
                     return self.ok(pr.view()) if pr else self.send(404, {"error": "no such pairing"})
                 if p == "/api/health":
                     return self.ok(app.health())
+                if p == "/api/doctor":
+                    return self.ok(app.doctor())
+                if p == "/api/doctor/report":
+                    try:
+                        return self.ok(app.report_url(q1("key")))
+                    except KeyError:
+                        return self.send(404, {"error": "unknown"})
                 if p == "/api/poster":
                     q, typ = q1("q"), q1("type")
                     return self.ok({"url": core.poster(q, typ if typ in ("tv", "movie") else "") if q else None})
@@ -334,6 +419,11 @@ def make_handler(app: App):
                 self.send(500, {"error": type(e).__name__})
 
     return H
+
+
+def update_fetch(url, headers):
+    from .updates import http_get
+    return http_get(url, headers)
 
 
 def serve(data_dir, host: str = "0.0.0.0", port: int = 8091, advertise: bool = True):

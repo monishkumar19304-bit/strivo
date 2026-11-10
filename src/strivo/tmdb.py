@@ -19,7 +19,9 @@ class NoKey(Exception):
 
 
 def urllib_transport(url: str, headers: dict, timeout: float = 15) -> dict:
-    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout) as r:
+    from .net import ssl_context
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout,
+                                context=ssl_context()) as r:
         return json.load(r)
 
 

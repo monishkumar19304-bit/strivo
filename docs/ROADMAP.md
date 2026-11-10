@@ -42,6 +42,23 @@ Turn the household version into a public codebase.
 - [x] **Plex and Jellyfin** (webhooks and API) *(verified on real servers in Docker; Plex webhooks untested)*
 - [ ] Community-built compatibility table
 
+## Phase 3½ · Self-healing compatibility
+
+Apps will change what they report; Strivo should fix itself. Design: [SELF-HEALING.md](SELF-HEALING.md).
+
+- [x] Fragile parts as data: app ids, title rules, deep links and expectations in a versioned `compat.json`
+- [x] Health states per box and per app (healthy, degraded, offline, unpaired), with last-good versions
+- [x] `strivo doctor` and a Health section in Settings
+- [x] Daily check of GitHub releases for rules fixes (validated, rollback) and new versions (announce only)
+- [x] Verify recovery from real playback, notify only on real changes
+- [x] Opt-in, sanitized, prefilled GitHub report (no token, nothing posted by Strivo)
+- [ ] Signed rules (maintainer key) on top of the checksum
+- [ ] Probe reports that propose a rules change
+- [ ] Expectations for every platform, filled from probe reports
+- [ ] Tier 2: optional local-model diagnosis
+- [ ] Tier 3: optional bring-your-own-key cloud diagnosis and report drafting
+- [ ] Pilot with beta testers
+
 ## Phase 4 · Everywhere (ideas)
 
 - [ ] Home Assistant add-on

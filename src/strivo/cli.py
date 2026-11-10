@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import sys
+import time
 
 from . import __version__
 from .config import DataDir, default_data_dir
@@ -34,7 +35,8 @@ def cmd_setup(args):
     from .collector import Collector
     from .core import Core
     from .devices import DeviceManager
-    from .apps import STREAMING
+    from .apps import streaming
+    STREAMING = streaming()
     from .tmdb import TMDB
     data = _data(args)
     print(f"Strivo setup · data folder: {data.path}\n")
@@ -174,6 +176,70 @@ def cmd_now(args):
         print(json.dumps(row, default=str))
 
 
+def cmd_doctor(args):
+    """Is tracking healthy? Checks each box now, shows per-app health, rules version and fixes."""
+    from .adapters import all_adapters
+    from .server import App
+    data = _data(args)
+    app = App(data.path, adapters=all_adapters(data), start_background=False)
+    try:
+        for d in app.collector.devices():   # a quick live check instead of the collector's long-running watch
+            if not d.enabled:
+                continue
+            ad = app.collector.adapters.get(d.kind)
+            lv = app.collector.live.setdefault(d.id, dict(name=d.name, kind=d.kind))
+            try:
+                st = app.runtime.call(ad.status(d), 30)
+                lv.update(online=st.online, error="" if st.online else "no answer")
+            except Exception as e:  # noqa: BLE001
+                lv.update(online=False, error=str(e)[:200])
+        if args.rollback:
+            print("Rules rolled back to", app.rules.rollback())
+        if args.check:
+            app.updates.check(force=True)
+        if args.apply:
+            app.updates.apply_pending()
+        if args.report:
+            r = app.report_url(args.report)
+            print("This report contains only:", json.dumps(r["fields"]))
+            print("Review it and submit it yourself (Strivo never posts anything):\n" + r["url"])
+            return
+        doc = app.doctor()
+        if args.json:
+            print(json.dumps(doc, indent=1, default=str))
+            return
+        icon = {"healthy": "✅", "recovered": "✅", "degraded": "⚠️ ", "verifying": "⏳", "offline": "⛔", "unpaired": "🔑",
+                "paused": "⏸ ", "app-only": "⚪", "unknown": "❔"}
+        print("Boxes")
+        for b in doc["boxes"]:
+            print(f"  {icon.get(b['state'], '?')} {b['name']} ({b['platform']}): {b['state']}"
+                  + (f" · {b['error']}" if b["error"] and b["state"] != "healthy" else ""))
+        print("Apps")
+        for a in doc["apps"] or []:
+            print(f"  {icon.get(a['state'], '?')} {a['app']} on {a['device_name']}: {a['state']}"
+                  + (f" (expects {a['expected']})" if a.get("expected") else ""))
+        if not doc["apps"]:
+            print("  (nothing watched yet; health appears after things play)")
+        r, u = doc["rules"], doc["updates"]
+        print(f"Rules {r['version']} ({r['source']}; bundled {r['bundled']}) · updates: {doc['settings']['rules_updates']}")
+        when = time.strftime("%Y-%m-%d %H:%M", time.localtime(u["last_check"])) if u.get("last_check") else "never"
+        print(f"Last check for fixes: {when}" + (f" · {u.get('status')}" if u.get("status") else "")
+              + (f" · {u['error']}" if u.get("error") else ""))
+        if u.get("code_update"):
+            print(f"Strivo {u['latest_version']} is available: {u.get('release_url', '')}")
+        if u.get("rules_available"):
+            print(f"Rules {u['rules_available']} are ready: run `strivo doctor --apply`")
+        for p in doc["problems"]:
+            print(f"\n{icon.get(p['state'], '?')} {p['what']}: {p['summary']}")
+            if p["cause"]:
+                print("   likely: " + p["cause"])
+            for s in p["steps"]:
+                print("   - " + s)
+            print(f"   report it: strivo doctor --report '{p['key']}'")
+    finally:
+        app.close()
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="strivo", description="Strivo: your viewing history, automatically.")
     ap.add_argument("--version", action="version", version=f"strivo {__version__}")
@@ -200,6 +266,12 @@ def main(argv=None):
     p = add("discover", cmd_discover, "list boxes and servers found on the network")
     p.add_argument("--timeout", type=float, default=5)
     add("now", cmd_now, "print what each configured box is playing right now")
+    p = add("doctor", cmd_doctor, "is tracking healthy? check boxes, apps, rules and fixes")
+    p.add_argument("--check", action="store_true", help="check GitHub for fixes now")
+    p.add_argument("--apply", action="store_true", help="install a rules update that's waiting (rules_updates=ask)")
+    p.add_argument("--rollback", action="store_true", help="go back to the previous rules")
+    p.add_argument("--report", metavar="KEY", help="print a prefilled, sanitized GitHub issue link for a problem")
+    p.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
                         format="%(asctime)s %(levelname)s %(name)s: %(message)s")

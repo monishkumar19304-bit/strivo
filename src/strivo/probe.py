@@ -24,7 +24,7 @@ def classify(row: dict) -> str | None:
     """row: an event dict (app, state, title, series, season, episode, artist...). None = nothing playing."""
     if row.get("state") not in (PLAYING, PAUSED):
         return None
-    n = norm(row) if row.get("title") else None
+    n = norm(row)
     if n is None:
         return "app-only" if row.get("app") or row.get("app_id") else None
     return {"episode": "episode", "live": "channel", "video": "video"}.get(n["kind"], "title")

@@ -15,7 +15,7 @@ import logging
 import re
 import shlex
 
-from ..apps import display_app, service_for
+from ..apps import display_app, service_for  # noqa: F401
 from .base import IDLE, OFF, PAUSED, PLAYING, Adapter, AdapterError, Device, NowPlaying, Prompt, Status
 
 log = logging.getLogger(__name__)

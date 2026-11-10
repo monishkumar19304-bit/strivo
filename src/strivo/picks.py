@@ -53,10 +53,10 @@ def resolve(core, typ, name):
 
 
 def provider_ids(core, mine, typ="movie"):
-    from .apps import PROV_MAP
+    from .apps import prov_map
     ids = []
     for x in core.tmdb.get("/watch/providers/" + typ, watch_region=core.country()).get("results", []):
-        if PROV_MAP.get(x["provider_name"]) in mine:
+        if prov_map().get(x["provider_name"]) in mine:
             ids.append(x["provider_id"])
     return ids
 

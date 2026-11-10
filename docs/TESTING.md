@@ -47,6 +47,14 @@ boxes can always be added by address.
 The Docker image was also run end to end (non-root, healthcheck green) and tracked the Plex server from inside a
 container.
 
+## Self-healing
+
+`tests/test_selfheal.py` runs the whole loop with a fake GitHub: an app (Max) stops filling the title after an
+"update", Strivo marks it degraded after three sessions, the daily check installs a fixed rules file, the app goes
+to *verifying*, and the next real playback marks it *recovered*. It also covers rejected rules (bad checksum, bad
+regex, unknown sections, too-new), rollback, back-off, "ask" mode, and that reports contain nothing personal.
+`strivo doctor --check` was also run against the real GitHub API (no releases yet → reported cleanly).
+
 ## Reproducing the emulator checks
 
 ### Google TV / Android TV (Android SDK emulator)

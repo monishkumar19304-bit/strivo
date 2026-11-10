@@ -20,7 +20,10 @@ Lives in the data folder. Edit it with Strivo stopped. Keys you might want:
 ```jsonc
 {
   "poll_seconds": 10,            // how often polled boxes (Android, Roku, Plex, Jellyfin) are asked
-  "notify_url": "",              // also in Settings: where wishlist alerts are POSTed
+  "notify_url": "",              // also in Settings: where wishlist and health alerts are POSTed
+  "update_checks": true,         // daily anonymous check of GitHub releases for fixes
+  "rules_updates": "auto",       // auto | ask | off (also in Settings › Fixes)
+  "diagnosis": {"tier": 1},      // see SELF-HEALING.md (tiers 2 and 3 aren't built yet)
   "rules": {
     "recurring": ["Jeopardy!"],  // always treat these as daily/game shows (kept out of Watching)
     "movies": ["Some Title"],    // always treat these as movies

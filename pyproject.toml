@@ -20,6 +20,7 @@ dependencies = [
   "pyatv>=0.16",            # Apple TV
   "adb-shell[async]>=0.4.4",  # Google TV / Android TV / Fire TV
   "zeroconf>=0.130",        # discovery and the strivo.local name
+  "certifi",                # HTTPS certificates for TMDB/GitHub on every platform
 ]
 
 [project.optional-dependencies]
@@ -36,7 +37,7 @@ Issues = "https://github.com/nickdnj/strivo/issues"
 where = ["src"]
 
 [tool.setuptools.package-data]
-strivo = ["web/*", "web/pwa/*"]
+strivo = ["web/*", "web/pwa/*", "rules/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

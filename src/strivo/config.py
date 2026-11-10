@@ -76,6 +76,10 @@ DEFAULT_CONFIG = {
     "rules": DEFAULT_RULES,
     "discover": {},               # per-category overrides of DISC_DEFAULT (on, min_rating, years)
     "taste": {},                  # optional overrides for picks (see strivo.picks.DEFAULT_TASTE)
+    "update_checks": True,        # once a day, ask GitHub for compatibility fixes and new releases
+    "rules_updates": "auto",      # auto: install verified rules fixes · ask: offer them · off: ignore
+    "update_repo": "nickdnj/strivo",
+    "diagnosis": {"tier": 1},     # 1 = built-in rules (2 local model, 3 your own cloud key: not built yet)
 }
 
 

@@ -5,6 +5,8 @@ on:
     branches: [main]
     tags: ["v*"]
   pull_request:
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -64,3 +66,27 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  rules-asset:
+    # Every published release carries the compatibility rules so installs can fix themselves (docs/SELF-HEALING.md).
+    # Publishing a release is a maintainer decision; this only attaches files to one that was published.
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Validate rules
+        run: |
+          pip install -e .
+          python -c "from strivo import rules; rules.validate(open('src/strivo/rules/compat.json','rb').read()); print('rules ok')"
+      - name: Attach compat.json and its checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp src/strivo/rules/compat.json compat.json
+          sha256sum compat.json > compat.json.sha256
+          gh release upload "${{ github.event.release.tag_name }}" compat.json compat.json.sha256 --clobber

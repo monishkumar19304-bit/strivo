@@ -54,6 +54,10 @@ class Adapter:                                       # src/strivo/adapters/base.
 | Plex | `adapters/plex.py` | `/status/sessions` API, polled; Plex Pass webhooks | n/a |
 | Roku *(experimental)* | `adapters/roku.py` | ECP `/query/active-app` and `/query/media-player`, polled | ECP `/launch/<channel>` |
 
+App ids, title-parsing rules, deep-link templates and what each app is expected to report are **data**, in
+`src/strivo/rules/compat.json`, so a fix can ship as a new rules file without new code. Health tracking, the daily
+fix check and reports are described in [SELF-HEALING.md](SELF-HEALING.md).
+
 Media servers can play on many screens at once, so each playback client becomes its own source in history
 ("Bedroom TV · Jellyfin"). Per-service app ids for each platform live in `src/strivo/apps.py`.
 
@@ -84,7 +88,7 @@ Back up the folder and you have everything.
 
 ## Privacy boundary
 
-The only outside service is **TMDB**, which receives show and movie titles to look up. It never receives your history, device names, or anything identifying.
+The only outside services are **TMDB**, which receives show and movie titles to look up, and **GitHub**, which gets one anonymous request a day for compatibility fixes (can be turned off). Neither ever receives your history, device names, or anything identifying.
 
 ## Tech choices
 

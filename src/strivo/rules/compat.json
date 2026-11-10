@@ -1,0 +1,312 @@
+{
+ "schema": 1,
+ "version": "2026.11.10.1",
+ "min_strivo": "0.1.0.dev0",
+ "about": "Strivo compatibility rules: the parts of each integration that streaming apps change. Data only, never code. Fixes ship as a new copy of this file in a GitHub release; see docs/SELF-HEALING.md.",
+ "services": {
+  "Netflix": {
+   "ids": {
+    "appletv": "com.netflix.Netflix",
+    "android": "com.netflix.ninja",
+    "firetv": "com.netflix.ninja",
+    "roku": "12"
+   }
+  },
+  "Hulu": {
+   "ids": {
+    "appletv": "com.hulu.plus",
+    "android": "com.hulu.livingroomplus",
+    "firetv": "com.hulu.plus",
+    "roku": "2285"
+   }
+  },
+  "Prime Video": {
+   "ids": {
+    "appletv": "com.amazon.aiv.AIVApp",
+    "android": "com.amazon.amazonvideo.livingroom",
+    "firetv": "com.amazon.firebat",
+    "roku": "13"
+   }
+  },
+  "HBO Max": {
+   "ids": {
+    "appletv": "com.wbd.stream",
+    "android": "com.wbd.stream",
+    "firetv": "com.hbo.hbonow",
+    "roku": "61322"
+   },
+   "aliases": [
+    "Max",
+    "HBO Max"
+   ]
+  },
+  "Disney+": {
+   "ids": {
+    "appletv": "com.disney.disneyplus",
+    "android": "com.disney.disneyplus",
+    "firetv": "com.disney.disneyplus",
+    "roku": "291097"
+   }
+  },
+  "Peacock": {
+   "ids": {
+    "appletv": "com.peacocktv.peacock",
+    "android": "com.peacocktv.peacockandroid",
+    "firetv": "com.peacock.peacockfiretv",
+    "roku": "593099"
+   }
+  },
+  "Paramount+": {
+   "ids": {
+    "appletv": "com.cbsvideo.app",
+    "android": "com.cbs.ott",
+    "firetv": "com.cbs.ott",
+    "roku": "31440"
+   }
+  },
+  "Apple TV+": {
+   "ids": {
+    "appletv": "com.apple.TVWatchList",
+    "android": "com.apple.atve.androidtv.appletv",
+    "firetv": "com.apple.atve.amazon.appletv",
+    "roku": "551012"
+   },
+   "aliases": [
+    "TV",
+    "Apple TV"
+   ]
+  },
+  "YouTube": {
+   "ids": {
+    "appletv": "com.google.ios.youtube",
+    "android": "com.google.android.youtube.tv",
+    "firetv": "com.amazon.firetv.youtube",
+    "roku": "837"
+   }
+  },
+  "YouTube TV": {
+   "ids": {
+    "appletv": "com.google.ios.youtubeunplugged",
+    "android": "com.google.android.youtube.tvunplugged",
+    "firetv": "com.amazon.firetv.youtube.tv",
+    "roku": "195316"
+   }
+  },
+  "PBS": {
+   "ids": {
+    "appletv": "org.pbs.playeripad",
+    "android": "com.pbs.video",
+    "firetv": "com.pbs.video",
+    "roku": "23353"
+   }
+  },
+  "Tubi": {
+   "ids": {
+    "appletv": "com.adrise.tubitv",
+    "android": "com.tubitv",
+    "firetv": "com.tubitv",
+    "roku": "41468"
+   }
+  },
+  "Pluto TV": {
+   "ids": {
+    "appletv": "tv.pluto.ios",
+    "android": "tv.pluto.android",
+    "firetv": "tv.pluto.android",
+    "roku": "74519"
+   }
+  },
+  "Plex": {
+   "ids": {
+    "appletv": "com.plexapp.plex",
+    "android": "com.plexapp.android",
+    "firetv": "com.plexapp.android",
+    "roku": "13535"
+   }
+  },
+  "Jellyfin": {
+   "ids": {
+    "appletv": "org.jellyfin.swiftfin",
+    "android": "org.jellyfin.androidtv",
+    "firetv": "org.jellyfin.androidtv",
+    "roku": "592369"
+   }
+  },
+  "VLC": {
+   "ids": {
+    "appletv": "org.videolan.vlc-ios",
+    "android": "org.videolan.vlc",
+    "firetv": "org.videolan.vlc"
+   }
+  },
+  "Kodi": {
+   "ids": {
+    "android": "org.xbmc.kodi",
+    "firetv": "org.xbmc.kodi"
+   }
+  },
+  "The Roku Channel": {
+   "ids": {
+    "roku": "151908"
+   },
+   "aliases": [
+    "Roku Channel"
+   ]
+  }
+ },
+ "streaming": [
+  "Netflix",
+  "Hulu",
+  "Prime Video",
+  "HBO Max",
+  "Disney+",
+  "Peacock",
+  "Paramount+",
+  "Apple TV+",
+  "YouTube TV",
+  "YouTube",
+  "Tubi",
+  "Pluto TV",
+  "PBS"
+ ],
+ "providers": {
+  "Netflix": "Netflix",
+  "Netflix basic with Ads": "Netflix",
+  "Netflix Standard with Ads": "Netflix",
+  "Hulu": "Hulu",
+  "Hulu Amazon Channel": "Hulu",
+  "Paramount Plus": "Paramount+",
+  "Paramount+": "Paramount+",
+  "Paramount+ Amazon Channel": "Paramount+",
+  "Paramount Plus Apple TV Channel": "Paramount+",
+  "Paramount Plus Apple TV Channel ": "Paramount+",
+  "Paramount+ Apple TV Channel ": "Paramount+",
+  "Paramount Plus Essential": "Paramount+",
+  "Paramount Plus Premium": "Paramount+",
+  "Apple TV Plus": "Apple TV+",
+  "Apple TV+": "Apple TV+",
+  "Apple TV": "Apple TV+",
+  "Apple TV Amazon Channel": "Apple TV+",
+  "Apple TV Plus Amazon Channel": "Apple TV+",
+  "Amazon Prime Video": "Prime Video",
+  "Amazon Prime Video with Ads": "Prime Video",
+  "Prime Video": "Prime Video",
+  "Max": "HBO Max",
+  "HBO Max": "HBO Max",
+  "Max Amazon Channel": "HBO Max",
+  "HBO Max Amazon Channel": "HBO Max",
+  "Peacock": "Peacock",
+  "Peacock Premium": "Peacock",
+  "Peacock Premium Plus": "Peacock",
+  "Peacock Premium Amazon Channel": "Peacock",
+  "Disney Plus": "Disney+",
+  "Disney+": "Disney+",
+  "YouTube TV": "YouTube TV",
+  "YouTube": "YouTube",
+  "YouTube Premium": "YouTube",
+  "Tubi TV": "Tubi",
+  "Tubi": "Tubi",
+  "Pluto TV": "Pluto TV",
+  "PBS": "PBS",
+  "The Roku Channel": "Roku Channel"
+ },
+ "title_rules": {
+  "YouTube TV": [
+   {
+    "kind": "live",
+    "set": {
+     "ch": "@artist"
+    }
+   }
+  ],
+  "YouTube": [
+   {
+    "kind": "video",
+    "set": {
+     "ch": "@artist"
+    }
+   }
+  ],
+  "Hulu": [
+   {
+    "field": "title",
+    "match": "(.+?)\\s*\\|\\s*S(\\d+)\\s*E(\\d+)\\s*-\\s*(.*)",
+    "kind": "episode",
+    "set": {
+     "series": 1,
+     "season": 2,
+     "ep": 3,
+     "ept": 4
+    }
+   }
+  ],
+  "Prime Video": [
+   {
+    "field": "artist",
+    "match": "(?:Season\\s*|S)(\\d+),?\\s*(?:Ep\\.?\\s*|E)(\\d+)\\s*(.*)",
+    "kind": "episode",
+    "set": {
+     "series": "@title",
+     "season": 1,
+     "ep": 2,
+     "ept": 3
+    }
+   }
+  ],
+  "HBO Max": [
+   {
+    "field": "artist",
+    "match": "(.+)",
+    "kind": "episode",
+    "set": {
+     "series": "@artist",
+     "ept": "@title"
+    }
+   }
+  ]
+ },
+ "launch": {
+  "trailer": {
+   "appletv": {
+    "app": "com.google.ios.youtube",
+    "link": "youtube://watch/{id}"
+   },
+   "android": {
+    "app": "com.google.android.youtube.tv",
+    "link": "https://www.youtube.com/watch?v={id}"
+   },
+   "firetv": {
+    "app": "com.amazon.firetv.youtube",
+    "link": "https://www.youtube.com/watch?v={id}"
+   },
+   "roku": {
+    "app": "837",
+    "link": "{id}"
+   }
+  }
+ },
+ "expect": {
+  "_doc": "What each app is known to report on each platform: episode, title, channel, video, app-only. Missing = unknown (never flagged as broken).",
+  "appletv": {
+   "Hulu": "episode",
+   "HBO Max": "episode",
+   "Peacock": "title",
+   "Paramount+": "title",
+   "Disney+": "title",
+   "Apple TV+": "title",
+   "YouTube TV": "channel",
+   "YouTube": "video",
+   "Prime Video": "title",
+   "Netflix": "app-only"
+  },
+  "android": {
+   "VLC": "title"
+  },
+  "jellyfin": {
+   "Jellyfin": "episode"
+  },
+  "plex": {
+   "Plex": "episode"
+  }
+ }
+}

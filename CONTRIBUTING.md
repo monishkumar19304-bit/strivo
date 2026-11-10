@@ -68,6 +68,10 @@ it in the app (it's stored in your data folder's `secrets.json`, which is git-ig
 5. Run `strivo probe` against your device and include the output in your PR.
 6. Add your device to [COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
+**Fixing an app that stopped reporting** is usually not code at all: it's a change to
+`src/strivo/rules/compat.json` (an app id, a title regex, an expectation) plus a fixture test. Released rules reach
+every install within a day. See [SELF-HEALING.md](docs/SELF-HEALING.md).
+
 **The bar for a tracking adapter:** it must report the title on its own for the common apps. "App name only" devices can get "Play on TV" support, but not tracking.
 
 ## Code of conduct

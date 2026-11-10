@@ -10,7 +10,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 
-from .apps import LIVE_APPS, VIDEO_APPS
+from . import rules as rules_mod
 
 CAP = 4 * 3600          # a Playing state with no later event is trusted this long
 JOIN = 20 * 60          # same item on the same TV within this gap is one session
@@ -33,28 +33,24 @@ def norm(e: dict):
     t = (e.get("title") or "").strip()
     a = (e.get("artist") or "").strip()
     if not t:
+        # Some apps move the name to another field after an update; a rules fix can point at it.
+        for rule in rules_mod.current().title_rules(app):
+            if rule.get("field", "title") != "title":
+                hit = _apply_rule(rule, t, a, e)
+                if hit and hit.get("series"):
+                    hit["title"] = hit["series"]
+                    return hit
         return None
     kind, series, season, ep, ept, ch = "title", t, None, None, None, ""
     if e.get("series") and (e.get("season") is not None or e.get("episode") is not None):
         # The box (or media server) told us exactly: trust it.
         return dict(kind="episode", series=e["series"].strip(), season=e.get("season"), ep=e.get("episode"),
                     ept=t if t != e["series"] else None, ch="", title=t)
-    if app in LIVE_APPS:
-        kind, ch = "live", a
-    elif app in VIDEO_APPS:
-        kind, series, ch = "video", t, a
-    elif app == "Hulu":
-        m = re.match(r"(.+?)\s*\|\s*S(\d+)\s*E(\d+)\s*-\s*(.*)", t)
-        if m:
-            kind, series, season, ep, ept = "episode", m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
-    elif app == "Prime Video":
-        m = re.match(r"(?:Season\s*|S)(\d+),?\s*(?:Ep\.?\s*|E)(\d+)\s*(.*)", a)
-        if m:
-            kind, season, ep, ept = "episode", int(m.group(1)), int(m.group(2)), m.group(3)
-    elif app == "HBO Max":
-        if a:
-            kind, series, ept = "episode", a, t
-    elif e.get("series"):
+    for rule in rules_mod.current().title_rules(app):
+        hit = _apply_rule(rule, t, a, e)
+        if hit:
+            return hit
+    if e.get("series"):
         kind, series, ept = "episode", e["series"].strip(), (t if t != e["series"] else None)
     else:
         # Generic: "Show S2 E5" in the title, or "S2:E5 Name" in the subtitle with the show as title.
@@ -70,6 +66,29 @@ def norm(e: dict):
                 series = t[:m.start()].strip(" -·:|") or t
                 ept = t[m.end():].strip(" -·:|") or None
     return dict(kind=kind, series=series, season=season, ep=ep, ept=ept, ch=ch, title=t)
+
+
+def _apply_rule(rule, t, a, e):
+    """One data-driven rule from compat.json: optional regex on a field, then where each value comes from
+    (a group number, or "@title" / "@artist" / "@album")."""
+    fields = {"title": t, "artist": a, "album": (e.get("album") or "").strip()}
+    m = None
+    if rule.get("rx") is not None:
+        m = rule["rx"].match(fields[rule.get("field", "title")])
+        if not m:
+            return None
+    out = dict(kind=rule["kind"], series=t, season=None, ep=None, ept=None, ch="", title=t)
+    for k, src in (rule.get("set") or {}).items():
+        if isinstance(src, int):
+            v = m.group(src) if m and src <= (m.re.groups or 0) else None
+        else:
+            v = fields.get(str(src).lstrip("@"))
+        if k in ("season", "ep"):
+            v = int(v) if v not in (None, "") and str(v).isdigit() else None
+        out[k] = v if v is not None else ("" if k == "ch" else out.get(k))
+    if out["kind"] == "episode" and not out["series"]:
+        return None
+    return out
 
 
 def key(app, n):

@@ -13,10 +13,11 @@ import urllib.parse
 import urllib.request
 
 from . import history
-from .apps import PROV_MAP, STREAMING
+from .apps import prov_map, streaming
 from .collector import EventLog
 from .config import DISC_DEFAULT, DataDir, disc_cfg
 from .history import nm_key
+from .net import ssl_context
 from .tmdb import IMG, TMDB, NoKey
 
 log = logging.getLogger(__name__)
@@ -263,7 +264,7 @@ class Core:
         prov = {}
         for kind in ("flatrate", "free", "ads", "rent", "buy"):
             for x in pr.get(kind, []):
-                prov.setdefault(PROV_MAP.get(x["provider_name"], x["provider_name"]), kind)
+                prov.setdefault(prov_map().get(x["provider_name"], x["provider_name"]), kind)
         info = self.tmdb.get("/%s/%s" % (typ, wid), append_to_response="credits")
         cr = info.get("credits") or {}
         people = [x["name"] for x in (info.get("created_by") or [])] if typ == "tv" else \
@@ -314,7 +315,8 @@ class Core:
         try:
             urllib.request.urlopen(urllib.request.Request(
                 url, data=json.dumps({"title": title, "message": message}).encode(),
-                headers={"Content-Type": "application/json", "Title": title}), timeout=15)
+                headers={"Content-Type": "application/json", "Title": title}), timeout=15,
+                context=ssl_context() if url.startswith("https") else None)
             return True
         except Exception as e:  # noqa: BLE001
             log.warning("notify failed: %s", e)
@@ -377,9 +379,10 @@ class Core:
     def settings_view(self):
         c = self.config()
         r = c["rules"]
-        return dict(my_services=c.get("services") or [], all_services=sorted(set(STREAMING) | set(c.get("services") or [])),
+        return dict(my_services=c.get("services") or [], all_services=sorted(set(streaming()) | set(c.get("services") or [])),
                     default_tv=c.get("default_tv", ""), discover=disc_cfg(c), country=c.get("country", "US"),
                     notify_url=c.get("notify_url", ""), tmdb_key_set=self.tmdb.configured,
+                    rules_updates=c.get("rules_updates", "auto"), update_checks=c.get("update_checks", True),
                     **{k: r[k] for k in SET_RULES})
 
     def settings_save(self, body: dict):
@@ -389,7 +392,7 @@ class Core:
                 if k in body:
                     r[k] = max(lo, min(hi, typ(body[k])))
             if "my_services" in body:
-                allowed = set(STREAMING) | set(PROV_MAP.values())
+                allowed = set(streaming()) | set(prov_map().values())
                 c["services"] = [str(x) for x in body["my_services"] if str(x) in allowed]
             if "default_tv" in body:
                 c["default_tv"] = str(body["default_tv"])[:60]
@@ -398,6 +401,10 @@ class Core:
             if "notify_url" in body:
                 u = str(body["notify_url"]).strip()[:300]
                 c["notify_url"] = u if (u == "" or u.startswith(("http://", "https://"))) else c.get("notify_url", "")
+            if body.get("rules_updates") in ("auto", "ask", "off"):
+                c["rules_updates"] = body["rules_updates"]
+            if "update_checks" in body:
+                c["update_checks"] = bool(body["update_checks"])
             if isinstance(body.get("discover"), dict):
                 d = c.setdefault("discover", {})
                 for cat, v in body["discover"].items():

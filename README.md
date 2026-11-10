@@ -56,6 +56,7 @@ Strivo turns that around:
 - **Your history belongs to you.** Strivo keeps one complete record of everything you watch, across every app, on a computer in your home. You can see it, search it, export it and delete it.
 - **Recommendations that work for you, not for a catalog.** Strivo doesn't own a library, run ads or earn commissions. Its only job is to help *you* find the next thing *you'd* enjoy, on any service you pay for.
 - **Local by default.** Nothing leaves your house unless you choose to share it. There's no Strivo account and no Strivo cloud.
+- **Self-healing by design.** Streaming apps change what they report, and integrations break. Strivo notices when an app stops reporting, checks the project for a fix (data, never code), proves the fix worked and tells you. You don't do maintenance. [How it works](docs/SELF-HEALING.md).
 - **Share on your terms.** Local by default doesn't mean locked away. If you want to share your watch list with a friend, publish your year in TV, or connect another tool, that's your call, made deliberately, one choice at a time.
 
 Strivo can't stop the streaming services from seeing what you watch in their own apps. But it means **they're no longer the only ones who know**, and the most complete picture of your viewing finally belongs to you.
@@ -175,6 +176,7 @@ More detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**
 | **1 · Easy install** | Docker image, setup wizard, auto-discovery and pairing | 🔜 Built; polishing |
 | **2 · v0.1 launch** | Apple TV support, docs, screenshots, compatibility table | Planned |
 | **3 · More boxes** | Google TV / Android TV / Fire TV adapter, `strivo probe`, Plex & Jellyfin | 🧪 Built; needs real-box testers |
+| **3½ · Self-healing** | Rules as data, health states, `strivo doctor`, daily fix check, opt-in reports | 🧪 Foundations built |
 | **4 · Everywhere** | Home Assistant add-on, Raspberry Pi image, Roku (if titles hold up), Netflix history import | Ideas |
 
 👉 **[Full roadmap](docs/ROADMAP.md)**, and [tell us what matters to you](https://github.com/nickdnj/strivo/discussions/categories/ideas).
