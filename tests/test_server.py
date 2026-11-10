@@ -9,6 +9,7 @@ from http.server import ThreadingHTTPServer
 
 import pytest
 
+from conftest import read_events
 from fakes import FakeAdapter, FakeTMDB, dev
 from strivo.adapters.base import NowPlaying, PLAYING
 from strivo.adapters.jellyfin import JellyfinAdapter
@@ -90,7 +91,7 @@ def test_wizard_end_to_end(app):
     st = c.get("/api/setup")
     assert [d["name"] for d in st["devices"]] == ["Living Room"] and st["devices"][0]["model"] == "Fake Box 4K"
     # the collector picked the new box up and logged what it's playing
-    assert wait(lambda: os.path.exists(a.data.file("events.jsonl")) and "Career Day" in open(a.data.file("events.jsonl")).read())
+    assert wait(lambda: any(e.get("title") and "Career Day" in e["title"] for e in read_events(a.data)))
     # TMDB key: a bad one is refused, a good one is stored privately and never served back
     assert c.post("/api/setup/tmdb", {"key": "bad"})[0] == 400
     assert c.post("/api/setup/tmdb", {"key": "good-test-key"})[0] == 200
@@ -145,7 +146,7 @@ def test_webhooks_jellyfin_and_plex(app):
             "\r\n--XyZ\r\nContent-Disposition: form-data; name=\"thumb\"; filename=\"t.jpg\"\r\n\r\n\xff\xd8\r\n--XyZ--\r\n")
     code, r = c.post("/api/webhook/plex", raw=body.encode("latin-1"), ctype="multipart/form-data; boundary=XyZ")
     assert code == 200 and r["n"] == 1
-    rows = [json.loads(x) for x in open(a.data.file("events.jsonl"))]
+    rows = read_events(a.data)
     assert {(x["dev"], x["title"]) for x in rows if x["kind"] == "play"} >= {("home-server--bedroom-tv", "Pilot"),
                                                                              ("plex--shield", "A Film")}
     names = {h["id"]: h["name"] for h in c.get("/api/health")["devices"]}
@@ -192,3 +193,23 @@ def test_sports_api(app, tmp_path):
     assert any("YouTube TV" in g["mine"] for g in r["games"])          # NBC -> YouTube TV
     assert c.post("/api/sports/prefs", {"follow": {"league": "nba", "id": "18", "name": "New York Knicks"}})[1]["teams"]
     assert c.get("/api/sports?leagues=nba")["teams"][0]["name"] == "New York Knicks"
+
+
+def test_history_paging_api(app):
+    a, c, *_ = app
+    from conftest import write_events
+    old = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() - 200 * 86400))
+    old2 = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() - 200 * 86400 + 1800))
+    write_events(a.data, [dict(dev="lr", app="Hulu", title="Old Show | S1 E1 - A", ts=old, pos=0, total=3600),
+                          dict(dev="lr", app="Hulu", state="Idle", ts=old2)])
+    d = c.get("/api/data")
+    assert d["sessions_more"] == 1 and all(x["series"] != "Old Show" for x in d["sessions"])
+    page = c.get(f"/api/history?before={time.time()}&limit=50")
+    assert page["sessions"][0]["series"] == "Old Show" and page["more"] == 0
+    try:
+        urllib.request.urlopen(c.base + "/api/history?before=abc", timeout=5)
+        assert False, "expected 400"
+    except urllib.error.HTTPError as e:
+        assert e.code == 400
+    doc = c.get("/api/doctor")
+    assert doc["history"]["events"] >= 2 and doc["history"]["file"] == "strivo.db"

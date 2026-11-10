@@ -220,6 +220,9 @@ def cmd_doctor(args):
                   + (f" (expects {a['expected']})" if a.get("expected") else ""))
         if not doc["apps"]:
             print("  (nothing watched yet; health appears after things play)")
+        h = doc["history"]
+        print(f"History: {h['events']} events" + (f" from {h['first'][:10]} to {h['last'][:10]}" if h["first"] else "")
+              + f" ({h['file']}, {h['mb']} MB; kept forever)")
         r, u = doc["rules"], doc["updates"]
         print(f"Rules {r['version']} ({r['source']}; bundled {r['bundled']}) · updates: {doc['settings']['rules_updates']}")
         when = time.strftime("%Y-%m-%d %H:%M", time.localtime(u["last_check"])) if u.get("last_check") else "never"
@@ -238,6 +241,23 @@ def cmd_doctor(args):
             print(f"   report it: strivo doctor --report '{p['key']}'")
     finally:
         app.close()
+
+
+def cmd_export(args):
+    """Write the whole history as JSON Lines (one event per line): to a file, or to the screen with '-'."""
+    from .collector import EventLog
+    log = EventLog(_data(args))
+    try:
+        if args.out == "-":
+            n = log.store.export_jsonl(sys.stdout)
+        else:
+            tmp = args.out + ".tmp"
+            with open(tmp, "w") as f:
+                n = log.store.export_jsonl(f)
+            os.replace(tmp, args.out)
+        print(f"Exported {n} events" + ("" if args.out == "-" else f" to {args.out}"), file=sys.stderr)
+    finally:
+        EventLog.close_all()
 
 
 def main(argv=None):
@@ -266,6 +286,8 @@ def main(argv=None):
     p = add("discover", cmd_discover, "list boxes and servers found on the network")
     p.add_argument("--timeout", type=float, default=5)
     add("now", cmd_now, "print what each configured box is playing right now")
+    p = add("export", cmd_export, "write your whole history as JSON Lines (your data, never locked in)")
+    p.add_argument("out", nargs="?", default="strivo-history.jsonl", help="file to write, or - for the screen")
     p = add("doctor", cmd_doctor, "is tracking healthy? check boxes, apps, rules and fixes")
     p.add_argument("--check", action="store_true", help="check GitHub for fixes now")
     p.add_argument("--apply", action="store_true", help="install a rules update that's waiting (rules_updates=ask)")

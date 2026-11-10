@@ -1,10 +1,11 @@
 """One data folder holds everything Strivo knows: config, secrets, history, caches.
 
-Layout (all plain files, so a backup is just a copy of the folder):
+Layout (copy the folder and you have everything):
 
     config.json        settings from the setup wizard and the Settings page
     secrets.json       TMDB key and media-server tokens (mode 0600, never served)
-    events.jsonl       raw "now playing" moments from every box (the history)
+    strivo.db          the history: every "now playing" moment from every box, kept forever (SQLite)
+    events.jsonl       history from older versions; imported into strivo.db once, then left alone
     pyatv.json         Apple TV pairing credentials (pyatv storage)
     adbkey, adbkey.pub this Strivo's ADB identity for Google TV / Android TV / Fire TV
     *.json             queue, wishlist, picks, feedback and the TMDB cache

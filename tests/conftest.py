@@ -27,3 +27,16 @@ def write_events(data, rows):
                         episode=None, artist=None, album=None, genre=None, pos=None, total=None)
             base.update(r)
             f.write(json.dumps(base) + "\n")
+
+
+def read_events(data):
+    """Everything in the history (strivo.db), oldest first."""
+    from strivo.collector import EventLog
+    return EventLog(data).read()
+
+
+@pytest.fixture(autouse=True)
+def _close_stores():
+    yield
+    from strivo.collector import EventLog
+    EventLog.close_all()

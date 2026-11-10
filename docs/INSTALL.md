@@ -198,6 +198,22 @@ Strivo only listens on your home network by default. To use it on the go, the si
 
 Everything Strivo knows lives in one data folder (`/data` in Docker). Back it up and you can move Strivo to a new computer in minutes.
 
+Strivo keeps your history forever but doesn't back itself up: that's the job of the computer it runs on (Time Machine,
+a NAS, restic, your host's snapshots). Include the whole data folder. If you copy `strivo.db` by hand while Strivo is
+running, copy `strivo.db-wal` with it, or take a clean copy first:
+
+```bash
+sqlite3 /data/strivo.db ".backup /backups/strivo-$(date +%F).db"
+```
+
+To get your history out in a plain format any time (to keep, or to move):
+
+```bash
+strivo export strivo-history.jsonl        # Docker: docker exec strivo strivo export /data/strivo-history.jsonl
+```
+
+Putting that export (or an `events.jsonl` from an older install) into a new data folder imports it on first start.
+
 ---
 
 ## Getting help

@@ -98,7 +98,18 @@ def key(app, n):
 
 
 def _ts(e):
-    return datetime.fromisoformat(e["ts"]).timestamp()
+    t = e.get("_t")
+    if t is None:
+        t = e["_t"] = datetime.fromisoformat(e["ts"]).timestamp()
+    return t
+
+
+def norm_cached(e: dict):
+    """norm(e), remembered on the event until the rules change (events are kept in memory between builds)."""
+    rv = rules_mod.current().version
+    if e.get("_nv") != rv:
+        e["_n"], e["_nv"] = norm(e), rv
+    return e["_n"]
 
 
 def sessions_from_events(ev: list[dict], now: float | None = None):
@@ -113,7 +124,7 @@ def sessions_from_events(ev: list[dict], now: float | None = None):
         es.sort(key=lambda e: e["ts"])
         for i, e in enumerate(es):
             t = _ts(e)
-            n = norm(e) if e.get("title") else None
+            n = norm_cached(e) if e.get("title") else None
             if e.get("state") == "Playing" and n:
                 nxt = _ts(es[i + 1]) if i + 1 < len(es) else min(now, t + CAP)
                 dur = max(0, min(nxt - t, CAP))
@@ -124,20 +135,20 @@ def sessions_from_events(ev: list[dict], now: float | None = None):
         last = es[-1]
         if last.get("state") == "Playing" and now - _ts(last) < CAP:
             # apps that send no metadata (Netflix) still show as playing, just without a title
-            n = norm(last) or dict(kind="title", series=last.get("app"), season=None, ep=None, ept=None, ch="",
+            n = norm_cached(last) or dict(kind="title", series=last.get("app"), season=None, ep=None, ept=None, ch="",
                                    title=last.get("app"))
             last_state[dev] = dict(app=last.get("app"), n=n, pos=last.get("pos"), total=last.get("total"))
     lastpos = {}
     for dev, es in by.items():
         for e in es:
             if e.get("title") and e.get("pos") is not None:
-                n = norm(e)
+                n = norm_cached(e)
                 if n:
                     lastpos[(dev, key(e.get("app"), n))] = (e["pos"], e.get("total"), e["ts"])
     segs.sort(key=lambda s: s["t0"])
-    sessions = []
+    sessions, open_ = [], {}
     for s in segs:
-        prev = next((x for x in reversed(sessions) if x["dev"] == s["dev"] and x["key"] == s["key"]), None)
+        prev = open_.get((s["dev"], s["key"]))      # the latest session of this item on this TV
         if prev and s["t0"] - prev["t1"] <= JOIN:
             prev["t1"] = max(prev["t1"], s["t1"])
             prev["sec"] += s["t1"] - s["t0"]
@@ -145,6 +156,7 @@ def sessions_from_events(ev: list[dict], now: float | None = None):
         else:
             sessions.append(dict(dev=s["dev"], app=s["app"], n=s["n"], key=s["key"], t0=s["t0"], t1=s["t1"],
                                  sec=s["t1"] - s["t0"], pos=s["pos"], total=s["total"]))
+            open_[(s["dev"], s["key"])] = sessions[-1]
     for x in sessions:
         lp = lastpos.get((x["dev"], x["key"]))
         if lp and lp[0] is not None:
@@ -152,12 +164,111 @@ def sessions_from_events(ev: list[dict], now: float | None = None):
     return sessions, last_state, ev
 
 
+class SessionBuilder:
+    """sessions_from_events(), kept up to date one event at a time, so years of history never sit in memory.
+
+    Feed it play events per device in time order (`feed`); ask for the result at any moment (`result`). It holds
+    only finished sessions, the latest event per device and the latest position per item. An event older than its
+    device's newest one can't be placed incrementally: `feed` returns False and the caller rebuilds from scratch.
+    Gives exactly what sessions_from_events() gives for the same events (tests check this).
+    """
+
+    def __init__(self):
+        self.sessions = []          # finished sessions, in the order they started per device
+        self.open = {}              # (dev, key) -> latest session of that item on that TV
+        self.pending = {}           # dev -> (event, n): the newest event; its length depends on what comes next
+        self.lastpos = {}           # (dev, key) -> (pos, total, ts)
+        self.last_ts = {}           # dev -> newest ts string fed
+        self.first_ts = None
+        self.seen = set()           # nm_key of every series/title ever played (for picks)
+        self.count = 0
+
+    def feed(self, e: dict) -> bool:
+        if e.get("kind") != "play" or not e.get("ts"):
+            return True
+        dev, ts = e["dev"], e["ts"]
+        if dev in self.last_ts and ts < self.last_ts[dev]:
+            return False
+        self.last_ts[dev] = ts
+        if self.first_ts is None or ts < self.first_ts:
+            self.first_ts = ts
+        self.count += 1
+        t = _ts(e)
+        n = norm(e) if e.get("title") else None
+        for f in ("series", "title"):
+            if e.get(f):
+                self.seen.add(nm_key(e[f]))
+        prev = self.pending.get(dev)
+        if prev:
+            self._finish(dev, prev[0], prev[1], nxt=t)
+        self.pending[dev] = (_slim(e, t), n)
+        if n and e.get("pos") is not None:
+            self.lastpos[(dev, key(e.get("app"), n))] = (e["pos"], e.get("total"), ts)
+        return True
+
+    def _seg(self, dev, e, n, nxt):
+        t = e["_t"]
+        dur = max(0, min(nxt - t, CAP))
+        if n["kind"] != "live" and e.get("total") and e.get("pos") is not None:
+            dur = min(dur, max(0, e["total"] - e["pos"]) + 60)   # can't watch past the end
+        return dict(dev=dev, app=e.get("app"), n=n, key=key(e.get("app"), n), t0=t, t1=t + dur,
+                    pos=e.get("pos"), total=e.get("total"))
+
+    def _finish(self, dev, e, n, nxt):
+        if e.get("state") == "Playing" and n:
+            self._merge(self._seg(dev, e, n, nxt), self.sessions, self.open)
+
+    @staticmethod
+    def _merge(s, sessions, open_):
+        prev = open_.get((s["dev"], s["key"]))
+        if prev and s["t0"] - prev["t1"] <= JOIN:
+            prev["t1"] = max(prev["t1"], s["t1"])
+            prev["sec"] += s["t1"] - s["t0"]
+            prev["pos"], prev["total"] = s["pos"], s["total"]
+        else:
+            sessions.append(dict(dev=s["dev"], app=s["app"], n=s["n"], key=s["key"], t0=s["t0"], t1=s["t1"],
+                                 sec=s["t1"] - s["t0"], pos=s["pos"], total=s["total"]))
+            open_[(s["dev"], s["key"])] = sessions[-1]
+
+    def result(self, now: float | None = None):
+        """(sessions, last_state) as of `now`, like sessions_from_events(). Doesn't change the builder."""
+        now = time.time() if now is None else now
+        out = [dict(x) for x in self.sessions]
+        idx = {id(x): i for i, x in enumerate(self.sessions)}
+        open_ = {k: out[idx[id(v)]] for k, v in self.open.items()}
+        last_state = {}
+        for dev, (e, n) in self.pending.items():
+            t = e["_t"]
+            if e.get("state") == "Playing" and n:
+                self._merge(self._seg(dev, e, n, min(now, t + CAP)), out, open_)
+            if e.get("state") == "Playing" and now - t < CAP:
+                # apps that send no metadata (Netflix) still show as playing, just without a title
+                nn = n or dict(kind="title", series=e.get("app"), season=None, ep=None, ept=None, ch="",
+                               title=e.get("app"))
+                last_state[dev] = dict(app=e.get("app"), n=nn, pos=e.get("pos"), total=e.get("total"))
+        for x in out:
+            lp = self.lastpos.get((x["dev"], x["key"]))
+            if lp and lp[0] is not None:
+                x["pos"], x["total"] = lp[0], lp[1]
+        out.sort(key=lambda x: x["t0"])
+        return out, last_state
+
+
+def _slim(e, t):
+    return dict(app=e.get("app"), state=e.get("state"), pos=e.get("pos"), total=e.get("total"), _t=t)
+
+
 def build(core, now: float | None = None) -> dict:
     """Everything the phone app's main screens need, from the event log. `core` is a strivo.core.Core."""
     now = time.time() if now is None else now
-    sessions, last_state, ev = sessions_from_events(core.events(), now)
+    sessions, last_state, first_ts = core.sessions(now)
     c = core.rules()
-    name = core.device_name
+    _names = {}
+
+    def name(d):
+        if d not in _names:
+            _names[d] = core.device_name(d)
+        return _names[d]
 
     def is_movie(x):
         n = x["n"]
@@ -286,13 +397,20 @@ def build(core, now: float | None = None) -> dict:
                 t = max(t, x["t0"])
         return t
 
-    def keep(kind, nm):
+    def keep(kind, nm, sr=None):
         k = kind + ":" + nm
         if k not in dm:
             return True
         if last_watch(nm) > dm[k]:
             core.set_dismissed(k, False)
             return True
+        if sr is not None:
+            # a new season that premiered after you removed the show brings it back (removing it again hides it
+            # until the next season)
+            ns = core.season_since(nm, dm[k])
+            if ns:
+                sr["new_season"] = ns[0]
+                return True
         removed.append(dict(kind=kind, name=nm, at=dm[k]))
         return False
 
@@ -305,7 +423,7 @@ def build(core, now: float | None = None) -> dict:
     out_series = [sr for sr in out_series if sr["last"] >= act or
                   (sr["new_air"] and sr["new_air"] >= new_cut and (sr["unwatched"] or 0) > 0)]
     out_series.sort(key=lambda sr: (not (sr["new_air"] and (sr["unwatched"] or 0) > 0), -sr["last"]))
-    out_series = [sr for sr in out_series if keep("series", sr["series"])]
+    out_series = [sr for sr in out_series if keep("series", sr["series"], sr)]
     # shows added from What to Watch, not started yet (dropped once an episode is watched)
     seen = {nm_key(sr["series"]) for sr in series_all}
     all_q = core.queue()
@@ -324,7 +442,7 @@ def build(core, now: float | None = None) -> dict:
                 daily=daily, removed=removed,
                 hours={k: round(v, 2) for k, v in sorted(hours.items(), key=lambda x: -x[1])},
                 cfg=dict(recurring_keep=c["recurring_keep"], news_days=c["news_days"], daily_days=c["daily_days"]),
-                span_start=min((e["ts"] for e in ev), default=None))
+                span_start=first_ts)
 
 
 def nm_key(x):

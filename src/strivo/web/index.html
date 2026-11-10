@@ -229,7 +229,7 @@ const side=(date,kind,name,app)=>'<div class="side"><span class="date">'+date+'<
 function rowSeries(s,i){const e=s.latest,pct=e.total?Math.min(100,Math.round(100*(e.pos||0)/e.total)):0;
  const st=e.done?'<div class="s" style="color:var(--ok)">Finished · '+s.episodes.length+' watched</div>':
    (e.total?'<div class="bar"><i style="width:'+pct+'%"></i></div><div class="s">Stopped at '+mm(e.pos||0)+' of '+mm(e.total)+' · '+s.episodes.length+' watched</div>':'<div class="s">'+s.episodes.length+' watched</div>');
- return '<div class="row" data-i="'+i+'" style="cursor:pointer">'+poBox(s.series,null,s.unwatched)+'<div class="grow"><div class="t">'+esc(s.series)+'<span class="tag">'+esc(s.app)+'</span></div><div class="s">'+(epl(e)?'Latest: '+esc(epl(e)):'Watched')+'</div>'+st+'</div>'+side(ago(s.last),"series",s.series,s.app)+'</div>'}
+ return '<div class="row" data-i="'+i+'" style="cursor:pointer">'+poBox(s.series,null,s.unwatched)+'<div class="grow"><div class="t">'+esc(s.series)+'<span class="tag">'+esc(s.app)+'</span>'+(s.new_season?'<span class="tag" style="color:var(--acc)">New season '+s.new_season+'</span>':'')+'</div><div class="s">'+(epl(e)?'Latest: '+esc(epl(e)):'Watched')+'</div>'+st+'</div>'+side(ago(s.last),"series",s.series,s.app)+'</div>'}
 const norm=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 async function openShow(s){immOff();bloop();detail=s;window.scrollTo(0,0);const rec=["game","news","late","live"].includes(s.cat);const m=$("#main");m.innerHTML='<button class="btn back" id="back">‹ Back</button><div class="empty">Loading episodes…</div>';$("#back").onclick=()=>{dong();detail=null;render()};
  let info=null;if(!rec)try{info=await (await fetch("/api/show?q="+encodeURIComponent(s.series))).json()}catch(e){}
@@ -466,7 +466,7 @@ const playNow=(title,app)=>tvSheet({title,providers:[app],resume:true});
 const playAct=(title,app)=>({i:"▶",l:"Play",f:()=>{bloop();playNow(title,app)}});
 const rmAct=(kind,name)=>({i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/remove",{method:"POST",body:JSON.stringify({kind,name})});hideSlide(s);toast("Removed "+name,()=>post("/api/restore",kind,name))}});
 function cardSeries(s){const e=s.latest,pct=e.total?Math.min(100,Math.round(100*(e.pos||0)/e.total)):null;
- return{label:s.app,icon:"📺",ptype:"tv",pname:s.series,title:s.series,badge:s.unwatched>0?(s.unwatched>9?"9+":s.unwatched)+" new":"",sub:s.app+(epl(e)?" · Latest "+epl(e):""),pct:e.done?100:pct,desc:e.done?"Finished · "+s.episodes.length+" watched":(e.total?"Stopped at "+mm(e.pos||0)+" of "+mm(e.total)+" · "+s.episodes.length+" watched":s.episodes.length+" watched")+" · "+s.hours+" h",why:ago(s.last),open:()=>openShow(s),actions:[playAct(s.series,s.app),aInfo(()=>openShow(s)),rmAct("series",s.series)]}}
+ return{label:s.app,icon:"📺",ptype:"tv",pname:s.series,title:s.series,badge:s.new_season?"New season "+s.new_season:s.unwatched>0?(s.unwatched>9?"9+":s.unwatched)+" new":"",sub:s.app+(epl(e)?" · Latest "+epl(e):""),pct:e.done?100:pct,desc:e.done?"Finished · "+s.episodes.length+" watched":(e.total?"Stopped at "+mm(e.pos||0)+" of "+mm(e.total)+" · "+s.episodes.length+" watched":s.episodes.length+" watched")+" · "+s.hours+" h",why:ago(s.last),open:()=>openShow(s),actions:[playAct(s.series,s.app),aInfo(()=>openShow(s)),rmAct("series",s.series)]}}
 function cardDaily(s){return{ptype:"tv",label:s.ch||s.app,icon:{news:"📰",late:"🌙",game:"🎲",live:"📡"}[s.cat]||"📺",pname:s.cat=="game"||s.cat=="late"?s.series:"",title:s.series,sub:s.ch||s.app,desc:s.episodes.length+(s.cat=="game"?" episodes kept":" time"+(s.episodes.length==1?"":"s")+" watched")+" · "+s.hours+" h",why:ago(s.last),open:()=>openShow(s),actions:[playAct(s.series,s.app),aInfo(()=>openShow(s)),rmAct("daily",s.series)]}}
 function cardMovie(m){const pct=m.total?Math.min(100,Math.round(100*(m.pos||0)/m.total)):null;
  return{label:m.app,icon:"🎬",ptype:"movie",pname:m.title,title:m.title,sub:m.app,pct:m.done?100:pct,desc:m.done?"Finished":(m.total?"Stopped at "+mm(m.pos||0)+" of "+mm(m.total):""),why:ago(m.last),open:()=>playNow(m.title,m.app),actions:[playAct(m.title,m.app),rmAct("movie",m.title)]}}
@@ -558,11 +558,14 @@ function render(){
     return '<div class="row" data-d="'+i+'" style="cursor:pointer">'+(s.cat=="game"||s.cat=="late"?poBox(s.series,ic):'<div class="pw"><div class="po">'+ic+'</div></div>')+'<div class="grow"><div class="t">'+esc(s.series)+'<span class="tag">'+esc(s.ch||s.app)+'</span></div><div class="s">'+s.episodes.length+(s.cat=="game"?' episodes kept':' time'+(s.episodes.length==1?'':'s')+' watched')+' · '+s.hours+' h</div></div>'+side(ago(s.last),"daily",s.series,s.app)+'</div>'}).join(""):'<div class="empty">Nothing here this week.</div>')+(rcards?"":rmList("daily"))}
  else if(tab=="hist"||tab=="vid"||tab=="live"){
   const want=tab=="vid"?["video"]:tab=="live"?["live"]:null;let last="";
-  D.sessions.filter(x=>want?want.includes(x.kind):true).forEach(x=>{
+  const allS=D.sessions.concat(OLDER.filter(x=>!D.sessions.length||x.t0<D.sessions[D.sessions.length-1].t0));
+  allS.filter(x=>want?want.includes(x.kind):true).forEach(x=>{
    const d=new Date(x.t0*1e3),dl=d.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
    if(dl!=last){h+='<div class="day">'+dl+'</div>';last=dl}
    const name=x.series,sub=x.kind=="episode"?epl(x):x.kind=="video"||x.kind=="live"?x.ch:"";
    h+='<div class="row">'+(x.kind=="episode"||x.kind=="title"?poBox(name,null,0,x.kind=="episode"?"tv":"any"):'<div class="po">'+(x.kind=="live"?"📺":"▶")+'</div>')+'<div class="grow"><div class="t">'+esc(name)+'</div><div class="s">'+esc(sub)+'</div><div class="s">'+d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+' · '+mm(x.min*60)+' · '+esc(x.app)+' · '+esc(x.dev)+'</div></div></div>'});
+  const moreN=OLDER.length?OLDER_MORE:(D.sessions_more||0);
+  if(moreN>0)h+='<button class="btn" id="hmore" style="width:100%;padding:10px;margin:12px 0">Show older ('+moreN+' more)</button>';
   if(tab=="hist"&&mode=="posters"){rcards=D.sessions.filter(x=>x.kind=="episode"||x.kind=="title").slice(0,60).map(cardHist);if(rcards.length)h='<div id="rfeed"></div>';else rcards=null}
   if(!h)h='<div class="empty">Nothing yet.</div>'}
  else if(tab=="shw"){m.innerHTML='<div class="s" style="margin-bottom:8px">Shows to Watch: series picked for you from what you watch and what you like. ＋ Watch adds one to Now Playing.</div><div id="hlist"><div class="empty">Loading…</div></div>';showsLoad();return}
@@ -582,6 +585,11 @@ function render(){
  m.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>{sub=b.dataset.sub;localStorage.setItem("wl_sub",sub);bloop();render()});
  m.querySelectorAll(".sortbar [data-s]").forEach(b=>b.onclick=()=>{sort=b.dataset.s;localStorage.setItem("wl_sort",sort);bloop();render()});
  if(rcards)reelFeed($("#rfeed"),rcards)}
+let OLDER=[],OLDER_MORE=0;
+document.addEventListener("click",async e=>{if(!e.target||e.target.id!="hmore")return;e.target.textContent="Loading…";
+ const all=D.sessions.concat(OLDER),before=all.length?all[all.length-1].t0:Date.now()/1e3;
+ try{const r=await (await fetch("/api/history?before="+before+"&limit=400")).json();OLDER=OLDER.concat(r.sessions);OLDER_MORE=r.more}catch(err){toast("Couldn't load older history")}
+ const y=window.scrollY;render();window.scrollTo(0,y)});
 function nowBar(){const n=D&&showNow?Object.entries(D.now):[];$("#now").innerHTML=n.map(([d,v])=>'<div class="nowc"><span class="pulse"></span><div class="grow"><div class="t">'+esc(v.series||v.title)+'</div><div class="s">'+esc(d)+' · '+esc(v.app)+(v.ept?' · '+esc(v.ept):v.ch?' · '+esc(v.ch):'')+'</div></div></div>').join("")}
 function nav(){modeHead();const cur=MORE.some(m=>m[0]==tab)?"more":tab;
  $("#nav").innerHTML=BAR.map(([k,ic,l])=>'<button class="'+(k==cur?"on":"")+'" data-k="'+k+'"><span class="ic">'+ic+'</span>'+l+'</button>').join("");

@@ -65,10 +65,10 @@ Media servers can play on many screens at once, so each playback client becomes 
 
 ## Core
 
-- **Collector** (`collector.py`): runs every adapter's `watch()` on one asyncio loop and appends *changes* to `events.jsonl` (what, where, when). Reconnects with back-off and keeps per-box health for the Devices page.
+- **Collector** (`collector.py`): runs every adapter's `watch()` on one asyncio loop and appends *changes* to the history in `strivo.db` (what, where, when). Reconnects with back-off and keeps per-box health for the Devices page.
 - **History** (`history.py`): turns events into **watch sessions** and then into the queue, movies, Daily and stats. Per-app title rules (e.g. Hulu's "Show | S3 E4 - Name") live in `norm()`; anything that sends series/season/episode directly is trusted as-is.
 - **Library** (`core.py`, `tmdb.py`): matches raw titles to shows and movies through TMDB, and caches posters, genres, episode lists and where-to-watch.
-- **Queue & Daily**: series you're actively watching, sorted by new episodes; late-night, news and morning shows go to **Daily** instead.
+- **Queue & Daily**: series you're actively watching, sorted by new episodes; late-night, news and morning shows go to **Daily** instead. A series comes back to Watching when a new episode airs after your last watch, however long ago that was; one you removed comes back when a **new season** premieres (removing it again hides it until the next one).
 - **Picks** (`picks.py`): movies, series and documentaries similar to what you watch, filtered to your services in your country, shaped by your "not interested because…" feedback.
 - **Sports** (`sports/`): live games from a schedule provider, with where to watch mapped from the rules file. See [SPORTS.md](SPORTS.md).
 - **Web server** (`server.py`): the phone app (`web/index.html`, one page, no build step), its JSON API, the setup wizard API and the webhook endpoints. Standard library only.
@@ -81,11 +81,17 @@ One data folder (`/data` in Docker, `~/.local/share/strivo` otherwise, or `--dat
 |---|---|
 | `config.json` | Boxes, country, services, rules, picks settings |
 | `secrets.json` | TMDB key and media-server tokens (file mode 0600; never served by the API) |
-| `events.jsonl` | Your history: one line per change in what a box reported |
+| `strivo.db` | Your history, kept forever: one row per change in what a box reported (SQLite; `store.py`). `strivo export` writes it all out as JSON Lines |
+| `events.jsonl` | History from older versions (and NiVo). Imported into `strivo.db` automatically, then left as it was |
 | `pyatv.json`, `adbkey` | Apple TV pairing credentials; this Strivo's ADB identity |
 | everything else | Queue, Saved list, picks, feedback, TMDB cache |
 
 Back up the folder and you have everything.
+
+**History is never trimmed.** Screens show a window (Watching: 21 days, Daily: 7, news: 2, History: 90 days with
+*Show older* for the rest), but every event stays in `strivo.db`. A rebuild reads only new rows, parses each title
+once, and is reused while nothing changes, so five years of a busy household (about 340,000 events) refreshes in
+about a second on a MacBook Air.
 
 ## Privacy boundary
 

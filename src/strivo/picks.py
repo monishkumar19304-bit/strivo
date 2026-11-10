@@ -72,13 +72,7 @@ def _keyword_ids(core, kws):
 
 
 def _all_seen(core):
-    seen = set()
-    for e in core.events():
-        if e.get("kind") == "play":
-            for f in ("series", "title"):
-                if e.get(f):
-                    seen.add(nm_key(e[f]))
-    return seen
+    return core.seen_names()
 
 
 def suggest_build(core):

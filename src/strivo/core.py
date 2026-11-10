@@ -7,12 +7,15 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import copy
 import threading
 import time
 import urllib.parse
 import urllib.request
 
 from . import history
+from . import rules as rules_mod
 from .apps import prov_map, streaming
 from .collector import EventLog
 from .config import DISC_DEFAULT, DataDir, disc_cfg
@@ -40,6 +43,8 @@ class Core:
     def __init__(self, data: DataDir | str, transport=None, names=None):
         self.data = data if isinstance(data, DataDir) else DataDir(data)
         self.log = EventLog(self.data)
+        self._sb, self._sb_rules, self._ev_last, self._ev_lock = None, None, 0, threading.Lock()
+        self._memos, self._memo_lock = {}, threading.Lock()
         self.tmdb = TMDB(lambda: self.data.secret("tmdb_key"), transport,
                          lambda: self.config().get("language", "en-US"))
         self.lock = self.data.lock
@@ -49,7 +54,7 @@ class Core:
 
     # ---- config helpers
     def config(self) -> dict:
-        return self.data.config()
+        return copy.deepcopy(self._memo("config.json", self.data.config))
 
     def rules(self) -> dict:
         return self.config()["rules"]
@@ -61,7 +66,43 @@ class Core:
         return set(self.config().get("services") or [])
 
     def events(self) -> list[dict]:
+        """Every event, oldest first, read from the database (not kept in memory: use sessions() for screens)."""
         return self.log.read()
+
+    def _sync(self):
+        """Bring the session builder up to date with the history: new rows only, or a full rebuild when the rules
+        changed or an event arrived out of order. Returns the id of the newest row seen."""
+        rv = rules_mod.current().version
+        with self._ev_lock:
+            sb = self._sb
+            if sb is not None and self._sb_rules == rv:
+                new = self.log.read_since(self._ev_last)
+                ok = True
+                for i, e in new:
+                    if not sb.feed(e):
+                        ok = False
+                        break
+                    self._ev_last = i
+                if ok:
+                    return self._ev_last
+            self.log.store.import_legacy()
+            last = self.log.store.max_id()
+            sb = history.SessionBuilder()
+            for i, e in self.log.store.iter_plays_by_device(last):
+                sb.feed(e)
+            self._sb, self._sb_rules, self._ev_last = sb, rv, last   # rows after `last` come in via read_since
+            return self._ev_last
+
+    def sessions(self, now: float | None = None):
+        """(sessions, last_state, first event time) for the history screens."""
+        self._sync()
+        sess, last_state = self._sb.result(now)
+        return sess, last_state, self._sb.first_ts
+
+    def seen_names(self) -> set:
+        """nm_key of every series and title ever played."""
+        self._sync()
+        return set(self._sb.seen)
 
     def device_name(self, dev_id: str) -> str:
         if self._names:
@@ -71,12 +112,73 @@ class Core:
                 return d.get("name") or dev_id
         return (self.data.read("device_names.json", {}) or {}).get(dev_id, dev_id)
 
-    def build(self) -> dict:
-        return history.build(self)
+    RECENT_DAYS = 90       # /api/data carries this much history; older pages come from history_page()
+
+    def build(self, now: float | None = None) -> dict:
+        """The main screens. Sessions older than RECENT_DAYS are left out (years of history would be megabytes on
+        every refresh); `sessions_more` says how many, and history_page() serves them."""
+        fixed_now = now is not None
+        now = time.time() if now is None else now
+        self._sync()                               # pick up new rows so the reuse check below sees them
+        stamp = (self._ev_last, tuple(self._stamp(f) for f in self.BUILD_INPUTS), rules_mod.current().version,
+                 int(now // 60))
+        hit = getattr(self, "_built", None)
+        if not fixed_now and hit and hit[0] == stamp:
+            return copy.deepcopy(hit[1])           # nothing changed this minute: phones polling cost almost nothing
+        full = self._build_full(now)
+        if not fixed_now:
+            self._built = (stamp, copy.deepcopy(full))
+        return full
+
+    BUILD_INPUTS = ("config.json", "dismissed.json", "tmdb_cache.json", "queue.json", "later.json", "wishlist.json",
+                    "secrets.json", "device_names.json")
+
+    def _stamp(self, name):
+        try:
+            st = os.stat(self.data.file(name))
+            return (st.st_mtime_ns, st.st_size)
+        except FileNotFoundError:
+            return None
+
+    def _build_full(self, now: float) -> dict:
+        full = history.build(self, now)
+        allsess = full["sessions"]                 # newest first
+        self._sessions = allsess
+        cut = now - self.RECENT_DAYS * 86400
+        recent = [x for x in allsess if x["t0"] >= cut]
+        full["sessions"] = recent
+        full["sessions_more"] = len(allsess) - len(recent)
+        return full
+
+    def history_page(self, before: float, limit: int = 400) -> dict:
+        """Sessions that started before `before`, newest first: the History page's "Show older"."""
+        allsess = getattr(self, "_sessions", None)
+        if allsess is None:
+            self.build()
+            allsess = self._sessions
+        limit = max(1, min(int(limit), 2000))
+        older = [x for x in allsess if x["t0"] < before]
+        return dict(sessions=older[:limit], more=max(0, len(older) - limit))
 
     # ---- TMDB cache
     def _cache(self) -> dict:
-        return self.data.read(CACHE, {}) or {}
+        """The TMDB cache, parsed once per change of the file (it's read dozens of times per screen). Read-only."""
+        return self._memo(CACHE, lambda: self.data.read(CACHE, {}) or {})
+
+    def _memo(self, name, load):
+        try:
+            st = os.stat(self.data.file(name))
+            stamp = (st.st_mtime_ns, st.st_size)
+        except FileNotFoundError:
+            stamp = None
+        with self._memo_lock:
+            hit = self._memos.get(name)
+            if hit and hit[0] == stamp and stamp is not None:
+                return hit[1]
+        val = load()
+        with self._memo_lock:
+            self._memos[name] = (stamp, val)
+        return val
 
     def _cache_put(self, k, v):
         def fn(c):
@@ -188,6 +290,25 @@ class Core:
         airs = [e["air"] for sn in info["seasons"] for e in sn["episodes"] if e.get("air") and e["air"] <= today]
         newest = max(airs, default=None)
         return newest if newest and newest > lastday else None
+
+    def season_since(self, name: str, since: float):
+        """(season number, premiere date) of the newest season that premiered after `since` and has aired, or None.
+
+        Used to bring a show you removed from Watching back when a new season starts."""
+        info = self.show_cached(name)
+        if not info or not info.get("seasons"):
+            return None
+        today = time.strftime("%Y-%m-%d")
+        sinceday = time.strftime("%Y-%m-%d", time.localtime(since))
+        best = None
+        for sn in info["seasons"]:
+            airs = [e["air"] for e in sn["episodes"] if e.get("air")]
+            if not airs:
+                continue
+            premiere = min(airs)
+            if sinceday < premiere <= today and (best is None or sn["n"] > best[0]):
+                best = (sn["n"], premiere)
+        return best
 
     # ---- simple stores
     def queue(self):

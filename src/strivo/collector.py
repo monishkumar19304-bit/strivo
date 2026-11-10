@@ -1,4 +1,4 @@
-"""Collector: listens to every configured box and appends "now playing" changes to events.jsonl.
+"""Collector: listens to every configured box and appends "now playing" changes to the history (strivo.db).
 
 Only changes are written (position ticks alone aren't), so the log stays small: a few MB a year.
 """
@@ -13,6 +13,7 @@ from concurrent.futures import Future
 
 from . import adapters as adapters_mod
 from .adapters.base import Device, NowPlaying
+from .store import EventStore
 from .config import DataDir
 
 log = logging.getLogger(__name__)
@@ -49,28 +50,38 @@ class Runtime:
 
 
 class EventLog:
+    """The history: a thin front for `store.EventStore` (SQLite). One store per data folder, shared by everyone."""
+    _stores: dict = {}
+    _stores_lock = threading.Lock()
+
     def __init__(self, data: DataDir):
         self.data = data
-        self.path = data.file("events.jsonl")
-        self.lock = threading.Lock()
+        key = str(data.path.resolve())
+        with EventLog._stores_lock:
+            st = EventLog._stores.get(key)
+            if st is None:
+                st = EventLog._stores[key] = EventStore(data.path)
+        self.store = st
+        self.path = st.path
 
     def write(self, row: dict):
-        line = json.dumps(row, default=str) + "\n"
-        with self.lock, open(self.path, "a") as f:
-            f.write(line)
+        self.store.write(row)
 
     def read(self) -> list[dict]:
-        out = []
-        try:
-            with open(self.path) as f:
-                for line in f:
-                    try:
-                        out.append(json.loads(line))
-                    except ValueError:
-                        continue
-        except FileNotFoundError:
-            pass
-        return out
+        self.store.import_legacy()      # lines appended to events.jsonl by older tools still count
+        return self.store.read()
+
+    def read_since(self, after_id: int) -> list[tuple[int, dict]]:
+        self.store.import_legacy()
+        return self.store.read_since(after_id)
+
+    @classmethod
+    def close_all(cls, data: DataDir | None = None):
+        """Close stores (all, or one data folder's). Used by App.close() and tests."""
+        with cls._stores_lock:
+            for key in list(cls._stores):
+                if data is None or key == str(data.path.resolve()):
+                    cls._stores.pop(key).close()
 
 
 class Collector:

@@ -1,6 +1,7 @@
 import asyncio
 import json
 
+from conftest import read_events
 from fakes import FakeAdapter, dev
 from strivo.adapters.base import IDLE, NowPlaying, PLAYING
 from strivo.collector import Collector
@@ -16,7 +17,7 @@ async def test_collector_writes_only_changes(data):
     await col.start()
     await asyncio.sleep(0.3)
     await col.stop()
-    rows = [json.loads(x) for x in open(data.file("events.jsonl"))]
+    rows = read_events(data)
     plays = [r for r in rows if r["kind"] == "play"]
     assert [p["state"] for p in plays] == [PLAYING, IDLE]        # position ticks alone aren't written
     assert plays[0]["dev"] == "den" and plays[0]["src"] == "fake"
@@ -32,7 +33,7 @@ async def test_collector_backs_off_on_errors(data):
     await col.start()
     await asyncio.sleep(0.2)
     await col.stop()
-    rows = [json.loads(x) for x in open(data.file("events.jsonl"))]
+    rows = read_events(data)
     assert [r["kind"] for r in rows] == ["connected", "disconnected"]
     assert col.live["den"]["online"] is False and "unreachable" in col.live["den"]["error"]
 

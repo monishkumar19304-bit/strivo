@@ -21,7 +21,7 @@ from .updates import UpdateChecker
 from .adapters.base import AdapterError
 from .adapters.jellyfin import WEBHOOK_TEMPLATE
 from . import apps
-from .collector import Collector, Runtime
+from .collector import Collector, EventLog, Runtime
 from .config import DISC_DEFAULT, DataDir
 from .core import REASONS, Core
 from .devices import DeviceManager
@@ -127,7 +127,17 @@ class App:
         c = self.data.config()
         return dict(boxes=boxes, apps=apps, problems=problems, rules=self.rules.summary(), updates=self.updates.state(),
                     settings=dict(rules_updates=c.get("rules_updates", "auto"),
-                                  update_checks=c.get("update_checks", True)), diagnosis_tier=dg.tier)
+                                  update_checks=c.get("update_checks", True)), diagnosis_tier=dg.tier,
+                    history=self.history_info())
+
+    def history_info(self) -> dict:
+        st = self.core.log.store
+        first, last = st.span()
+        try:
+            size = sum(p.stat().st_size for p in st.folder.glob(st.path.name + "*"))
+        except OSError:
+            size = 0
+        return dict(events=st.count(), first=first, last=last, file=st.path.name, mb=round(size / 1e6, 1))
 
     def report_url(self, key: str) -> dict:
         doc = self.doctor()
@@ -177,6 +187,7 @@ class App:
         except Exception:
             pass
         self.runtime.stop()
+        EventLog.close_all(self.data)
 
 
 def make_handler(app: App):
@@ -358,6 +369,12 @@ def make_handler(app: App):
                     return self.static("pwa/" + name)
                 if p == "/api/data":
                     return self.ok(core.build())
+                if p == "/api/history":
+                    try:
+                        before, limit = float(q1("before") or time.time()), int(q1("limit") or 400)
+                    except ValueError:
+                        return self.send(400, {"error": "bad before/limit"})
+                    return self.ok(core.history_page(before, limit))
                 if p == "/api/setup":
                     return self.ok(app.setup_state())
                 if p == "/api/setup/pair":
