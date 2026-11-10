@@ -89,7 +89,7 @@ Back up the folder and you have everything.
 
 ## Privacy boundary
 
-The only outside services are **TMDB**, which receives show and movie titles to look up; **GitHub**, which gets one anonymous request a day for compatibility fixes (can be turned off); and, while the Sports tab is open, **ESPN's public scoreboard feed**, asked for each league's games by day. None of them ever receives your history, your teams, device names, or anything identifying.
+The only outside services are **TMDB**, which receives show and movie titles to look up; **GitHub**, which gets one anonymous request a day for compatibility fixes (can be turned off), plus one anonymous search when you press *Check for an existing report* (app name, box type and problem only, to avoid duplicate reports); and, while the Sports tab is open, **ESPN's public scoreboard feed**, asked for each league's games by day. None of them ever receives your history, your teams, device names, or anything identifying.
 
 ## Tech choices
 

@@ -20,6 +20,7 @@ from .updates import http_get
 
 REPO = "nickdnj/strivo"
 SEARCH_CACHE_SECONDS = 300
+SEARCH_TIMEOUT = 5
 FAILURES = {"degraded": "Titles stopped coming through", "verifying": "Still no titles after a rules update",
             "offline": "Box can't be reached", "unpaired": "Box refused Strivo's credentials"}
 _PLATFORM = {"appletv": "Apple TV", "android": "Google TV / Android TV", "firetv": "Fire TV", "roku": "Roku",
@@ -79,6 +80,11 @@ def _issue_url(url: str, repo: str) -> str | None:
     return url
 
 
+def _search_get(url, headers):
+    """A person is waiting on the button: give GitHub a few seconds, then fall back to a new report."""
+    return http_get(url, headers, timeout=SEARCH_TIMEOUT)
+
+
 def find_existing_issue(entry: dict, failure: str, repo: str = REPO, fetch=None) -> str | None:
     """Find a matching open compatibility issue without sending any report data."""
     s = sanitize(entry, failure)
@@ -86,7 +92,7 @@ def find_existing_issue(entry: dict, failure: str, repo: str = REPO, fetch=None)
         return None
     what = s["app"] or s["platform"]
     description = FAILURES.get(failure, failure)
-    fetch = fetch or http_get
+    fetch = fetch or _search_get
     cache_key = (repo, what, s["platform"], failure, id(fetch))
     now = time.monotonic()
     with _search_cache_lock:

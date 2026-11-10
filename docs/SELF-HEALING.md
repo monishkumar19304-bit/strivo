@@ -112,5 +112,9 @@ input always goes through `redact()` (addresses, MACs, long ids and credentials 
 - Reports contain only: adapter, platform, OS family, the app's public service name (unknown apps are just
   "another app"), failure type, expected vs observed, days since it last worked, Strivo and rules versions.
   **No titles, names, addresses, device ids, serials, accounts or tokens.** Tests enforce this.
+- Before offering a new report, pressing **Check for an existing report** runs one anonymous GitHub search with just
+  the app's public name, the platform and the failure type. If an open `compatibility` issue already matches, Strivo
+  links to it so you can 👍 it instead of filing a duplicate. If GitHub is slow or unreachable, you get the normal
+  report.
 - **No ads, no selling data, no covert telemetry.** Community diagnostics exist to make Strivo work in more homes.
   Every report is previewed and submitted by a person.

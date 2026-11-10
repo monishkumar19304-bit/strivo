@@ -25,11 +25,12 @@ DAY = 24 * 3600
 DEFAULT_REPO = "nickdnj/strivo"
 
 
-def http_get(url: str, headers: dict, limit: int = rules_mod.MAX_BYTES + 1024) -> tuple[int, dict, bytes]:
+def http_get(url: str, headers: dict, limit: int = rules_mod.MAX_BYTES + 1024,
+             timeout: float = 20) -> tuple[int, dict, bytes]:
     req = urllib.request.Request(url, headers=headers)
     try:
         from .net import ssl_context
-        with urllib.request.urlopen(req, timeout=20, context=ssl_context()) as r:
+        with urllib.request.urlopen(req, timeout=timeout, context=ssl_context()) as r:
             return r.status, dict(r.headers), r.read(limit)
     except urllib.error.HTTPError as e:
         return e.code, dict(e.headers or {}), b""
