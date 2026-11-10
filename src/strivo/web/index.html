@@ -341,7 +341,8 @@ async function settingsPage(){const m=$("#main");m.innerHTML='<div class="empty"
    '<div class="ln"><div>Keep news</div><select data-k="news_days">'+opt([1,2,3,7],S.news_days,v=>v+" day"+(v==1?"":"s"))+'</select></div></div>'+
   '<h3>TV</h3><div class="row"><div class="ln"><div>Default TV for Play</div><select id="dtv">'+opt([""].concat(tvs.map(x=>x.id)),S.default_tv,v=>v?(tvs.find(x=>x.id==v)||{name:v}).name:"Ask every time")+'</select></div></div>'+
   '<h3>App</h3><div class="row"><div class="ln"><div>Show lists as</div><select id="vmode">'+opt(["posters","list"],mode,v=>v=="posters"?"Posters":"List")+'</select></div>'+
-   '<div class="ln"><div>Auto-play trailers in Posters<div class="note">Muted, after you rest on a card for 2 seconds. This phone only.</div></div><input type="checkbox" class="sw" id="atsw"'+(autoTrailer?" checked":"")+'></div></div>'+
+   '<div class="ln"><div>Auto-play trailers in Posters<div class="note">Muted, after you rest on a card for 2 seconds. This phone only.</div></div><input type="checkbox" class="sw" id="atsw"'+(autoTrailer?" checked":"")+'></div>'+
+   '<div class="ln"><div>Show what\'s playing now<div class="note">The bar at the top with what\'s on each TV. Tracking keeps working when it\'s hidden. This phone only.</div></div><input type="checkbox" class="sw" id="npsw"'+(showNow?" checked":"")+'></div></div>'+
   '<div class="note" style="margin:16px 0">Settings are shared by everyone in the house.</div>'+
   extraSettings(S)+'</div>';
  m.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>{bloop();const n=b.dataset.sv,on=S.my_services.includes(n);const list=on?S.my_services.filter(x=>x!=n):S.my_services.concat([n]);stSave({my_services:list},n+(on?" off":" on")).then(draw)});
@@ -352,6 +353,7 @@ async function settingsPage(){const m=$("#main");m.innerHTML='<div class="empty"
  $("#dtv").onchange=e=>stSave({default_tv:e.target.value});
  $("#vmode").onchange=e=>{mode=e.target.value;localStorage.setItem("wl_mode",mode);modeHead();toast("Saved")};
  $("#atsw").onchange=e=>{autoTrailer=e.target.checked;localStorage.setItem("wl_autotrailer",autoTrailer?"on":"off");bloop();toast("Saved")};
+ $("#npsw").onchange=e=>{showNow=e.target.checked;localStorage.setItem("wl_nowbar",showNow?"on":"off");nowBar();bloop();toast("Saved")};
  bindExtraSettings(m,S,draw);
  $("#rebuild").onclick=async()=>{bloop();await fetch("/api/discover/refresh");toast("Rebuilding picks. Check What to Watch in a few minutes.")}};
  draw();try{tvs=(await (await fetch("/api/tvs")).json()).devices||[];if(tab=="set"&&$("#setp"))draw()}catch(e){}}
@@ -428,6 +430,7 @@ function immOn(el){const m=$("#main"),o=$("#ovtop");o.innerHTML="";
  document.body.classList.add("imm");document.body.classList.remove("imm-hide");
  const place=()=>{o.style.top=$("header").offsetHeight+"px"};place();requestAnimationFrame(place)}
 let autoTrailer=localStorage.getItem("wl_autotrailer")=="on";
+let showNow=localStorage.getItem("wl_nowbar")!="off";
 function fitFeed(el){if(!el||!el.isConnected)return;if(document.body.classList.contains("imm")){el.style.height="";return}el.style.height=Math.max(380,window.innerHeight-el.getBoundingClientRect().top-(($("#nav")||{}).offsetHeight||0)-8)+"px"}
 window.addEventListener("resize",()=>document.querySelectorAll(".rl.rf").forEach(el=>{const f=el.querySelector(".feed"),i=f&&f.clientHeight?Math.round(f.scrollTop/f.clientHeight):0;fitFeed(el);if(f)f.scrollTop=i*f.clientHeight}));
 function reelFeed(el,cards){if(!el)return;el.className="rl rf";window.scrollTo(0,0);if(cards.length)immOn(el);else immOff();fitFeed(el);
@@ -579,7 +582,7 @@ function render(){
  m.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>{sub=b.dataset.sub;localStorage.setItem("wl_sub",sub);bloop();render()});
  m.querySelectorAll(".sortbar [data-s]").forEach(b=>b.onclick=()=>{sort=b.dataset.s;localStorage.setItem("wl_sort",sort);bloop();render()});
  if(rcards)reelFeed($("#rfeed"),rcards)}
-function nowBar(){const n=D?Object.entries(D.now):[];$("#now").innerHTML=n.map(([d,v])=>'<div class="nowc"><span class="pulse"></span><div class="grow"><div class="t">'+esc(v.series||v.title)+'</div><div class="s">'+esc(d)+' · '+esc(v.app)+(v.ept?' · '+esc(v.ept):v.ch?' · '+esc(v.ch):'')+'</div></div></div>').join("")}
+function nowBar(){const n=D&&showNow?Object.entries(D.now):[];$("#now").innerHTML=n.map(([d,v])=>'<div class="nowc"><span class="pulse"></span><div class="grow"><div class="t">'+esc(v.series||v.title)+'</div><div class="s">'+esc(d)+' · '+esc(v.app)+(v.ept?' · '+esc(v.ept):v.ch?' · '+esc(v.ch):'')+'</div></div></div>').join("")}
 function nav(){modeHead();const cur=MORE.some(m=>m[0]==tab)?"more":tab;
  $("#nav").innerHTML=BAR.map(([k,ic,l])=>'<button class="'+(k==cur?"on":"")+'" data-k="'+k+'"><span class="ic">'+ic+'</span>'+l+'</button>').join("");
  const lb=(TABS.find(x=>x[0]==tab)||[0,"Strivo"])[1];$("header h1").textContent=lb;
@@ -712,6 +715,7 @@ function bindExtraSettings(m,S,draw){
 const HICON={healthy:"✅",recovered:"✅",degraded:"⚠️",verifying:"⏳",offline:"⛔",unpaired:"🔑",paused:"⏸",unknown:"❔","app-only":"⚪"};
 async function healthBox(force){const el=$("#healthbox");if(!el)return;let d;
  try{d=force?await jpost("/api/doctor/check"):await (await fetch("/api/doctor")).json()}catch(e){el.innerHTML='<div class="s">Couldn\'t load health.</div>';return}
+ if(!el.isConnected)return;   // the user left Settings while this was loading
  const u=d.updates||{},when=u.last_check?ago(u.last_check):"never";
  el.innerHTML=(d.boxes.length?d.boxes.map(b=>'<div class="ln"><div>'+HICON[b.state]+' '+esc(b.name)+'</div><span class="s">'+esc(b.state)+'</span></div>').join(""):'<div class="s">No boxes yet.</div>')+
   d.apps.filter(a=>a.state!="healthy").map(a=>'<div class="ln"><div>'+HICON[a.state]+' '+esc(a.app)+' <span class="s">on '+esc(a.device_name)+'</span></div><span class="s">'+esc(a.state=="app-only"?"app only (a known limit)":a.state)+'</span></div>').join("")+
