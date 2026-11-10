@@ -1,0 +1,36 @@
+MEDIA SESSION SERVICE (dumpsys media_session)
+
+7 sessions listeners.
+Global priority session is null
+User Records:
+Record for full_user=0
+  Volume key long-press listener: null
+  Volume key long-press listener package: 
+  Media key listener: null
+  Media key listener package: 
+  OnMediaKeyEventDispatchedListener: added 0 listener(s)
+  OnMediaKeyEventSessionChangedListener: added 1 listener(s)
+    from com.android.bluetooth
+  Last MediaButtonReceiver: MBR {pi=PendingIntent{39e1f5c: PendingIntentRecord{9460537 org.videolan.vlc broadcastIntent (allowlist: 6911ecb:+30s0ms/0/NOTIFICATION_SERVICE/NotificationManagerService)}}, type=1}
+  Media button session is org.videolan.vlc/VLC (userId=0)
+  Sessions Stack - have 1 sessions:
+    VLC org.videolan.vlc/VLC (userId=0)
+      ownerPid=3310, ownerUid=10082, userId=0
+      package=org.videolan.vlc
+      launchIntent=PendingIntent{5099265: PendingIntentRecord{7f2ed85 org.videolan.vlc startActivity (allowlist: 6911ecb:+30s0ms/0/NOTIFICATION_SERVICE/NotificationManagerService)}}
+      mediaButtonReceiver=MBR {pi=PendingIntent{39e1f5c: PendingIntentRecord{9460537 org.videolan.vlc broadcastIntent (allowlist: 6911ecb:+30s0ms/0/NOTIFICATION_SERVICE/NotificationManagerService)}}, type=1}
+      active=true
+      flags=3
+      rating type=0
+      controllers: 5
+      state=PlaybackState {state=3, position=0, buffered position=0, speed=1.0, updated=53591, actions=4472667, custom actions=[Action:mName='Shuffle mode, mIcon=2131231004, mExtras=null, Action:mName='Repeat mode, mIcon=2131230998, mExtras=null], active item id=0, error=null}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=1, controlType=2, max=0, current=0
+      metadata: size=10, description=Strivo Test Show - S01E03 - Episode 3, Unknown Album, null
+      queueTitle=Now Playing, size=1
+Audio playback (lastly played comes first)
+  uid=10082 packages=org.videolan.vlc 
+Media session config:
+  media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_callback_fgs_while_in_use_temp_allow_duration_ms: [cur: 10000, def: 10000]

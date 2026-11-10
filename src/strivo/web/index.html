@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Strivo</title>
+<meta name="theme-color" content="#0f0e1a">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/pwa/icon-180.png">
+<link rel="icon" type="image/png" href="/pwa/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Strivo">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{--bg:#0f0e1a;--card:#191729;--card2:#23203a;--tx:#ecebf5;--mut:#9a97b3;--acc:#8b7dff;--ok:#22c55e;--warn:#f59e0b;--line:#2c2945;--r:14px;--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font:15px/1.4 var(--font);padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));max-width:760px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 8px}
+h1{font-size:22px;margin:0;letter-spacing:.3px}
+.btn{background:var(--card2);color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 0 12px;position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:none}
+nav button{flex:none}
+nav button.on{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:600}
+.now{display:flex;gap:10px;flex-direction:column;margin-bottom:12px}
+.nowc{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--acc);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:center}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 var(--ok);animation:p 1.6s infinite;flex:none}
+@keyframes p{70%{box-shadow:0 0 0 9px #0000}100%{box-shadow:0 0 0 0 #0000}}
+.row{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:10px;align-items:center}
+.po{width:56px;height:84px;border-radius:8px;background:var(--card2);flex:none;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--mut);overflow:hidden}
+.po img{width:100%;height:100%;object-fit:cover}
+.grow{flex:1;min-width:0}
+.t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s{color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:5px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc)}
+.tag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-left:6px}
+.day{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:16px 0 6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.stat b{display:block;font-size:20px}
+.eps{margin:4px 0 0 68px;color:var(--mut);font-size:12.5px}
+.empty{color:var(--mut);padding:30px 0;text-align:center}
+.date{color:var(--mut);font-size:12.5px;white-space:nowrap;margin-left:6px}
+.sortbar{display:flex;gap:6px;align-items:center;margin:0 0 10px;color:var(--mut);font-size:13px}
+.back{margin-bottom:10px}
+.hd{display:flex;gap:12px;margin-bottom:12px}
+.hd .po{width:84px;height:126px}
+.ssn{color:var(--acc);font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;cursor:pointer}
+.ep{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;margin-bottom:5px}
+.ep.un{opacity:.5;background:transparent}
+.ep .ic{width:22px;text-align:center;flex:none}
+.sortbar .btn.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.pw{position:relative;flex:none}
+.badge{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;border-radius:11px;background:#ff3b30;color:#fff;font:700 13px/22px -apple-system,Helvetica,sans-serif;text-align:center;padding:0 6px;border:2px solid var(--bg);box-shadow:0 2px 4px #0007;z-index:2}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.x{background:#0003;border:1px solid var(--line);color:var(--mut);width:26px;height:26px;border-radius:50%;font-size:13px;line-height:1;cursor:pointer;padding:0}
+.x:hover{color:#fff;border-color:#fff}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom));background:var(--card2);border:1px solid var(--acc);color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 6px 20px #000a;z-index:65;display:flex;gap:12px;align-items:center}
+.toast button{background:none;border:0;color:var(--acc);font:inherit;font-weight:700;cursor:pointer}
+.rmlist{margin-top:14px}
+.rmlist .row{opacity:.75}
+.wq{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;color:#fff;font:inherit;padding:10px 12px;outline:none}
+.wq:focus{border-color:var(--acc);box-shadow:0 0 0 3px #8b7dff44}
+.chip{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut);margin:3px 4px 0 0}
+.chip.mine{background:#15803d;border-color:#4ade80;color:#fff;font-weight:600}
+.rl{position:fixed;inset:0;z-index:60;background:#000;color:#fff;font-family:var(--font)}
+.rl .feed{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.rl .sl{height:100vh;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;position:relative;overflow:hidden;background:#000}
+.rl .bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(28px) brightness(.45)}
+.rl .pst{position:absolute;inset:0 0 0 0;display:flex;align-items:center;justify-content:center;padding:0 0 150px}
+.rl .pst img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 10px 40px #000a;border-radius:10px}
+.rl .ov{position:absolute;left:0;right:0;bottom:0;padding:60px 76px 26px 16px;background:linear-gradient(transparent,#000d 55%)}
+.rl .ov .tt{font-size:22px;font-weight:700;line-height:1.15}
+.rl .ov .ds{font-size:13.5px;line-height:1.35;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:#e6e6e6}
+.rl .act{position:absolute;right:10px;bottom:34px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.rl .act button{background:#0008;border:1px solid #fff4;color:#fff;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer}
+.rl .act small{display:block;font-size:10px;margin-top:2px}
+.rl .top{position:absolute;top:0;left:0;right:0;z-index:5;padding:max(10px,env(safe-area-inset-top)) 12px 8px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(#000a,transparent)}
+.rl .top button{background:#0008;border:1px solid #fff4;color:#fff;border-radius:999px;padding:7px 14px;font-size:14px}
+.rl .hint{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:11px;color:#fff8;pointer-events:none}
+.rl .chp{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;background:#15803d;border:1px solid #4ade80;margin:6px 5px 0 0;font-weight:600}
+.rl .star{display:inline-block;font-weight:700;color:#ffd75a;margin-left:8px}
+.rl.rf{position:relative;inset:auto;z-index:auto;border-radius:12px;overflow:hidden;margin-top:8px}
+.rl.rf .top{display:none}
+.rl.rf .feed,.rl.rf .sl{height:100%}
+.rl .art{width:min(78%,340px);aspect-ratio:2/3;border-radius:12px;position:relative;overflow:hidden;box-shadow:0 12px 40px #000b;display:flex;flex-direction:column;justify-content:flex-end;padding:22px;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#fff}
+.rl .art:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 15%,#ffffff38,transparent 45%),repeating-linear-gradient(135deg,#ffffff08 0 2px,transparent 2px 14px)}
+.rl .art .wm{position:absolute;right:-18px;top:28%;font-size:190px;line-height:1;opacity:.16;filter:grayscale(.3)}
+.rl .art .lb{position:absolute;top:20px;left:22px;right:22px;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;opacity:.85}
+.rl .art .rule{width:44px;height:4px;background:#fff;border-radius:2px;margin-bottom:12px;opacity:.9}
+.rl .art .nm{font-size:32px;font-weight:800;line-height:1.05;letter-spacing:-.5px;position:relative;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 2px 12px #0005}
+/* ---- immersive Posters mode: full-bleed feed, glass chrome that fades while swiping */
+body.imm{overflow:hidden}
+body.imm .rl.rf{position:fixed;inset:0;z-index:10;border-radius:0;margin:0;height:auto!important}
+body.imm #now{display:none}
+body.imm header,#ovtop{-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);background:rgba(15,14,26,.45);transition:opacity .35s,transform .35s}
+body.imm header{position:fixed;top:0;left:0;right:0;z-index:25;margin:0;padding:calc(env(safe-area-inset-top) + 6px) 14px 6px;flex-direction:row!important;justify-content:space-between!important;gap:8px}
+body.imm header:before{display:none}
+body.imm header h1{font-size:20px;margin:0;text-shadow:0 1px 6px #0008}
+body.imm header>div{position:static!important}
+#ovtop{display:none}
+body.imm #ovtop{display:block;position:fixed;left:0;right:0;z-index:24;padding:6px 12px 2px}
+body.imm #ovtop .sortbar,body.imm #ovtop .chips{margin:0;padding:2px 0 6px}
+body.imm #ovtop>.s{display:none}
+body.imm.imm-hide header,body.imm.imm-hide #ovtop{opacity:0;transform:translateY(-12px);pointer-events:none}
+body.imm nav#nav{-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);background:rgba(15,14,26,.5)!important;border-top:1px solid #ffffff22!important}
+body.imm .rl .pst{padding:0}
+body.imm .rl .pst img{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;border-radius:0;box-shadow:none}
+body.imm .rl .ov{padding:90px 84px calc(86px + env(safe-area-inset-bottom)) 16px;background:linear-gradient(transparent,#000c 38%,#000e)}
+body.imm .rl .ov .tt{font-size:25px;text-shadow:0 2px 10px #000a}
+body.imm .rl .act{bottom:calc(92px + env(safe-area-inset-bottom));gap:14px}
+body.imm .rl .act button{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);background:#ffffff1f;border-color:#ffffff40;width:54px;height:54px}
+body.imm .rl .art{width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
+body.imm .rl .art .nm,body.imm .rl .art .rule,body.imm .rl .art .lb{display:none}
+body.imm .rl .art .wm{right:auto;left:50%;top:26%;transform:translateX(-50%);font-size:230px;opacity:.13}
+.rl .cnt{font-size:11.5px;color:#fffa;margin-top:6px;letter-spacing:.5px}
+.rl .sl .ov,.rl .sl .act{transition:opacity .45s ease,transform .45s ease}
+.rl .sl:not(.cur) .ov,.rl .sl:not(.cur) .act{opacity:.15;transform:translateY(14px)}
+@keyframes kb{from{transform:scale(1.03) translate(0,0)}to{transform:scale(1.13) translate(-2%,-1.5%)}}
+body.imm .rl .sl.cur .pst img{animation:kb 16s ease-in-out infinite alternate}
+.rl .tv{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .8s}.rl .tv.on{opacity:1}
+.rl .tv iframe{position:absolute;top:50%;left:50%;width:177.8vh;height:100vh;min-width:100%;min-height:56.25vw;transform:translate(-50%,-50%);border:0}
+.rl .ov,.rl .act{z-index:2}
+.rl .ph{padding:30px;text-align:center;font-size:22px;color:#fff9}
+.rl .bar{height:5px;background:#fff3;border-radius:3px;margin-top:8px}
+.rl .bar i{display:block;height:100%;background:var(--acc);border-radius:3px}
+.rl .bdg{display:inline-block;background:#e53935;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:2px 9px;margin-left:8px}
+.rd{position:fixed;inset:0;z-index:70;background:var(--bg);color:var(--tx);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.rd .in{max-width:640px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 14px 40px}
+.rd .vid{position:relative;padding-top:56.25%;background:#000;border-radius:10px;overflow:hidden;margin:10px 0}
+.rd .vid iframe,.rd .vid .th{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
+.rd .vid .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:54px;color:#fff;background:#0005;cursor:pointer}
+.rd .rv{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;background:var(--card)}
+.rd .rv p{white-space:pre-wrap;margin:6px 0 0;line-height:1.4;font-size:14px}
+html{background:var(--bg)}
+nav#nav{bottom:calc(-1 * var(--gapb,0px))!important;padding-bottom:calc(6px + env(safe-area-inset-bottom) + var(--gapi,0px))!important}
+body.imm .rl.rf{bottom:calc(-1 * var(--gapb,0px))!important}
+#sbprobe{position:fixed;left:0;bottom:0;height:env(safe-area-inset-bottom);width:1px;pointer-events:none;visibility:hidden}
+html:has(body.imm){background:#000}
+nav#nav:after{content:"";position:absolute;left:0;right:0;top:100%;height:240px;background:inherit;-webkit-backdrop-filter:inherit;backdrop-filter:inherit}
+nav#nav{position:fixed;left:0;right:0;bottom:0;top:auto;display:flex;justify-content:space-around;gap:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);z-index:30;overflow:visible;max-width:none}
+nav#nav button{flex:1;background:none;border:0;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 0;min-height:52px;border-radius:0;box-shadow:none;font-family:inherit;cursor:pointer}
+nav#nav button .ic{font-size:23px;line-height:1}
+nav#nav button.on{color:var(--acc);background:none;font-weight:700;box-shadow:none}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips .btn{flex:none;padding:8px 14px;border-radius:999px}
+.chips .btn.gear{font-size:24px;line-height:1;padding:3px 12px;display:flex;align-items:center;justify-content:center}
+.chips .btn.on{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.menu .row{cursor:pointer;min-height:56px}.menu .chev{font-size:22px;color:var(--mut)}
+.set h3{margin:22px 0 8px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc)}
+.set .row{display:block}.set .ln{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #ffffff14}.set .ln:last-child{border-bottom:0}
+.set select{font-size:16px;padding:6px 8px;border-radius:8px;background:#0003;color:inherit;border:1px solid var(--line)}
+.set .sw{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:15px;background:#ffffff30;position:relative;flex:none;cursor:pointer;transition:.15s}
+.set .sw:after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.15s}
+.set .sw:checked{background:#34c759}.set .sw:checked:after{left:23px}
+.set .svc .btn{margin:4px 6px 4px 0;border-radius:999px}.set .svc .btn.on{background:#15803d;border-color:#4ade80;color:#fff;font-weight:700}
+.set .note{font-size:12.5px;color:var(--mut);margin-top:4px}
+.lnk{color:var(--acc);font-size:12.5px;text-decoration:none}
+.add{white-space:nowrap}
+</style></head><body>
+<header><h1>Watching</h1><div><button class="btn" id="modebtn"></button> <button class="btn" id="snd" hidden></button> <button class="btn" id="theme" hidden></button></div></header>
+<nav id="nav"></nav>
+<div id="now" class="now"></div>
+<div id="sbprobe"></div><div id="ovtop"></div><main id="main"></main>
+<script>
+const $=s=>document.querySelector(s);
+const BAR=[["shows","📺","Watching"],["disc","✨","What to Watch"],["daily","📰","Daily"],["wish","🔖","Saved"],["more","☰","More"]];
+const MORE=[["hist","History","Everything you watched, by day"],["vid","Videos","YouTube and other videos"],["live","Live TV","Live channels you watched"],["stat","Stats","Hours by app"],["dev","Devices","Your TVs and media servers, and their health"],["set","Settings","Services, country, what to watch, rules"]];
+const TABS=BAR.map(b=>[b[0],b[2]]).concat(MORE.map(m=>[m[0],m[1]]));
+let sub=localStorage.getItem("wl_sub")||"shows";let D=null,tab=localStorage.getItem("wl_tab")||"shows",sort=localStorage.getItem("wl_sort")||"recent",detail=null;
+let dcat=localStorage.getItem("wl_dcat")||"series",dsub=localStorage.getItem("wl_dsub")||"all";
+if(tab=="shw"){tab="disc";dcat="series"}else if(tab=="sug"){tab="disc";dcat="movies"}
+if(!TABS.some(t=>t[0]==tab))tab="shows";if(sub=="daily")sub="shows";
+
+
+let snd=localStorage.getItem("wl_snd")!="off";
+// --- UI sounds (off)
+let AC=null;
+function tone(f0,f1,dur,vol,delay){return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+ o.type="sine";o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur+0.02)}catch(e){}}
+const bloop=()=>tone(260,420,.11,.25);        // move / select
+const dong=()=>{tone(520,520,.16,.22);tone(780,780,.22,.2,.09)}; // open / back
+function setTheme(n){localStorage.setItem("wl_theme",n);document.documentElement.dataset.theme=n;head()}
+function head(){$("#snd").style.display="none";$("#snd").textContent=snd?"Sound on":"Sound off"}
+$("#theme").style.display="none";
+$("#snd").onclick=()=>{snd=!snd;localStorage.setItem("wl_snd",snd?"on":"off");head();bloop()};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const mm=s=>{s=Math.round(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+"h "+m+"m":m+"m"};
+const ago=t=>{const d=(Date.now()/1e3-t);if(d<3600)return Math.max(1,Math.round(d/60))+" min ago";if(d<86400)return Math.round(d/3600)+" h ago";return new Date(t*1e3).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})};
+const sdate=t=>new Date(t*1e3).toLocaleDateString(undefined,{weekday:"short"})+" "+(new Date(t*1e3).getMonth()+1)+"/"+new Date(t*1e3).getDate();
+const posters={};
+function fillPoster(name,url){document.querySelectorAll('[data-po="'+CSS.escape(name)+'"]').forEach(e=>e.innerHTML='<img src="'+url+'" alt="">')}
+function poster(name,el,typ){if(!name)return;if(name in posters){if(posters[name])fillPoster(name,posters[name]);return}
+ posters[name]="";fetch("/api/poster?q="+encodeURIComponent(name)+(typ?"&type="+typ:"")).then(r=>r.json()).then(j=>{posters[name]=j.url||"";if(j.url)fillPoster(name,j.url)}).catch(()=>{})}
+const epl=e=>(e.season!=null?"S"+e.season+" ":"")+(e.ep!=null?"E"+e.ep:"")+(e.ept?(e.ep!=null?" · ":"")+e.ept:"");
+function poBox(name,icon,badge,typ){return '<div class="pw"><div class="po" data-po="'+esc(name)+'" data-pt="'+(typ||(icon=="🎬"?"movie":"tv"))+'">'+(icon||"▶")+'</div>'+(badge>0?'<span class="badge">'+(badge>9?"9+":badge)+'</span>':'')+'</div>'}
+const rmBtn=(kind,name)=>'<button class="x" data-rm="'+kind+'" data-name="'+esc(name)+'" title="Remove from Now Playing">✕</button>';
+const side=(date,kind,name,app)=>'<div class="side"><span class="date">'+date+'</span>'+(app?'<button class="btn add" data-play="'+esc(name)+'" data-app="'+esc(app)+'" title="Play on TV">▶ Play</button>':'')+rmBtn(kind,name)+'</div>';
+function rowSeries(s,i){const e=s.latest,pct=e.total?Math.min(100,Math.round(100*(e.pos||0)/e.total)):0;
+ const st=e.done?'<div class="s" style="color:var(--ok)">Finished · '+s.episodes.length+' watched</div>':
+   (e.total?'<div class="bar"><i style="width:'+pct+'%"></i></div><div class="s">Stopped at '+mm(e.pos||0)+' of '+mm(e.total)+' · '+s.episodes.length+' watched</div>':'<div class="s">'+s.episodes.length+' watched</div>');
+ return '<div class="row" data-i="'+i+'" style="cursor:pointer">'+poBox(s.series,null,s.unwatched)+'<div class="grow"><div class="t">'+esc(s.series)+'<span class="tag">'+esc(s.app)+'</span></div><div class="s">'+(epl(e)?'Latest: '+esc(epl(e)):'Watched')+'</div>'+st+'</div>'+side(ago(s.last),"series",s.series,s.app)+'</div>'}
+const norm=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+async function openShow(s){immOff();bloop();detail=s;window.scrollTo(0,0);const rec=["game","news","late","live"].includes(s.cat);const m=$("#main");m.innerHTML='<button class="btn back" id="back">‹ Back</button><div class="empty">Loading episodes…</div>';$("#back").onclick=()=>{dong();detail=null;render()};
+ let info=null;if(!rec)try{info=await (await fetch("/api/show?q="+encodeURIComponent(s.series))).json()}catch(e){}
+ const used=new Set(),ok=(sn,ep,nm)=>s.episodes.find(w=>!used.has(w)&&((w.season!=null&&w.ep!=null&&w.season==sn&&w.ep==ep)||(w.ept&&norm(w.ept)==norm(nm))));
+ let h='<button class="btn back" id="back">‹ Back</button><button class="btn add" style="float:right" data-shplay="'+esc(s.series)+'" data-app="'+esc(s.app)+'">▶ Play on TV</button><div class="hd">'+poBox(s.series)+'<div class="grow"><div class="t" style="font-size:19px;white-space:normal">'+esc(s.series)+'</div><div class="s">'+esc(s.app)+' · '+s.hours+' h watched · '+s.episodes.length+' episode'+(s.episodes.length==1?'':'s')+' seen</div>'+(info&&info.overview?'<div class="s" style="white-space:normal;margin-top:6px">'+esc(info.overview.slice(0,220))+'</div>':'')+'</div></div>';
+ const epRow=(w,name,label)=>{const pct=w&&w.total?Math.round(100*(w.pos||0)/w.total):0,st=!w?"un":w.done?"done":"part";
+  return '<div class="ep'+(st=="un"?" un":"")+'"><div class="ic">'+(st=="done"?"✓":st=="part"?"◐":"○")+'</div><div class="grow"><div class="t">'+esc(label)+(name?' · '+esc(name):'')+'</div>'+(w?(st=="part"?'<div class="bar"><i style="width:'+pct+'%"></i></div><div class="s">Stopped at '+mm(w.pos||0)+' of '+mm(w.total||0)+' · '+ago(w.last)+'</div>':'<div class="s">Watched '+ago(w.last)+'</div>'):'')+'</div></div>'};
+ if(info&&info.seasons&&info.seasons.length){
+  const lastW=s.episodes.slice().sort((x,y)=>y.last-x.last).find(w=>w.season!=null);
+  const blocks=info.seasons.map(sn=>{const rows=sn.episodes.map(e=>{const w=ok(sn.n,e.ep,e.name);if(w)used.add(w);return {e,w}});return {n:sn.n,rows,seen:rows.filter(r=>r.w).length}});
+  const cur=(lastW&&blocks.find(x=>x.n==lastW.season))||blocks.find(x=>x.seen)||blocks[0];
+  h+='<div class="sortbar">Season <select id="ssel" class="btn">'+blocks.map(x=>'<option value="'+x.n+'"'+(x==cur?' selected':'')+'>Season '+x.n+' — '+x.seen+' of '+x.rows.length+' watched</option>').join("")+'</select></div><div id="sbody"></div>';
+  window._blocks=blocks;window._epRow=epRow;
+  const rest=s.episodes.filter(w=>!used.has(w));if(rest.length)h+='<div class="ssn">Other watched</div>'+rest.map(w=>epRow(w,w.ept,epl({season:w.season,ep:w.ep})||"Episode")).join("")
+ }else h+=(rec?'<div class="s" style="margin-bottom:8px">'+(s.cat=="game"?'Game or daily show: only the latest '+D.cfg.recurring_keep+' episodes are kept.':'Short-lived show: kept for '+(s.cat=="news"?D.cfg.news_days:D.cfg.daily_days)+' days.')+'</div>':'')+s.episodes.slice().reverse().map(w=>epRow(w,(w.season!=null||w.ep!=null)?w.ept:"",epl({season:w.season,ep:w.ep})||w.ept||"Watched")).join("");
+ m.innerHTML=h;$("#back").onclick=()=>{dong();detail=null;render()};
+ const sel=$("#ssel");if(sel){const draw=()=>{const bl=window._blocks.find(x=>x.n==sel.value);$("#sbody").innerHTML=bl.rows.map(r=>window._epRow(r.w,r.e.name,"E"+r.e.ep)).join("")};sel.onchange=()=>{bloop();draw()};draw()}
+ m.querySelectorAll("[data-po]").forEach(el=>poster(el.dataset.po,el,el.dataset.pt))}
+function rmList(kind){const r=(D.removed||[]).filter(x=>x.kind==kind);if(!r.length)return"";
+ return '<div class="rmlist"><button class="btn" id="rmtoggle">Removed · '+r.length+'</button><div id="rmbody" hidden>'+r.map(x=>'<div class="row"><div class="grow"><div class="t">'+esc(x.name)+'</div><div class="s">Removed '+ago(x.at)+' · comes back when you watch it again</div></div><button class="btn" data-rs="'+kind+'" data-name="'+esc(x.name)+'">Restore</button></div>').join("")+'</div></div>'}
+function toast(msg,undo){const old=document.querySelector(".toast");if(old)old.remove();const d=document.createElement("div");d.className="toast";d.innerHTML='<span>'+esc(msg)+'</span>'+(undo?'<button>Undo</button>':'');document.body.appendChild(d);
+ if(undo)d.querySelector("button").onclick=()=>{undo();d.remove()};setTimeout(()=>d.remove(),6000)}
+async function post(path,kind,name){await fetch(path,{method:"POST",body:JSON.stringify({kind,name})});await load()}
+let WL=[],wtimer=null;
+const fdate=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"";
+function provGroups(w){const grp=(label,kinds)=>{const ps=(w.providers||[]).filter(p=>kinds.includes(p.kind));return ps.length?'<div class="s" style="margin-top:8px">'+label+'</div><div>'+ps.map(p=>'<span class="chip'+(p.mine&&kinds[0]=="flatrate"?' mine':'')+'">'+esc(p.name)+'</span>').join("")+'</div>':''};
+ const c=grp("Stream (included with a subscription)",["flatrate"])+grp("Free with ads",["free","ads"])+grp("Rent",["rent"])+grp("Buy",["buy"]);
+ return c||'<div class="s" style="margin-top:8px">Not streaming in your country yet. Strivo can tell you when it lands on one of your services (Settings › Notifications).</div>'}
+function wishDetail(w){immOff();const m=$("#main");const tv=w.type=="tv";
+ const rows=[["Type",tv?"TV show":"Movie"],tv?["Premiered",fdate(w.first_air)]:["Released",fdate(w.release)],tv?["Network",(w.networks||[]).join(", ")]:["Studio",(w.studios||[]).join(", ")],
+  tv?["Seasons",w.seasons?w.seasons+(w.episodes?" ("+w.episodes+" episodes)":""):""]:["Runtime",w.runtime?w.runtime+" min":""],["Status",w.status],tv?["Last aired",fdate(w.last_air)]:["",""],
+  tv?["Next episode",w.next_air?((w.next_ep?w.next_ep+" · ":"")+(w.network?w.network+" · ":"")+fdate(w.next_air)):""]:["",""],
+  [tv?"Created by":"Directed by",(w.makers||[]).join(", ")],["Cast",(w.cast||[]).join(", ")],["Genres",(w.genres||[]).join(", ")],["Rating",w.rating?"★ "+w.rating+" / 10":""]].filter(r=>r[1]);
+ m.innerHTML='<button class="btn back" id="wback">‹ Back</button><div class="hd">'+imgBox(w.poster)+'<div class="grow"><div class="t" style="font-size:19px;white-space:normal">'+esc(w.title)+'</div><div class="s">'+(w.year?esc(w.year):"")+'</div>'+(w.tagline?'<div class="s" style="white-space:normal;font-style:italic;margin-top:4px">'+esc(w.tagline)+'</div>':'')+'</div></div>'+
+  (w.overview?'<div class="row" style="display:block"><div style="white-space:normal;line-height:1.45">'+esc(w.overview)+'</div></div>':'')+
+  '<div class="row" style="display:block">'+rows.map(r=>'<div style="display:flex;gap:10px;margin:3px 0"><div class="s" style="width:92px;flex:none">'+esc(r[0])+'</div><div style="white-space:normal;flex:1">'+esc(r[1])+'</div></div>').join("")+'</div>'+
+  '<div class="day">Where to watch</div><div class="row" style="display:block">'+provGroups(w)+(w.link?'<div style="margin-top:8px"><a class="lnk" target="_blank" rel="noopener" href="'+esc(w.link)+'">All options on JustWatch ›</a></div>':'')+
+  (w.live?'<div style="margin-top:6px"><a class="lnk" target="_blank" rel="noopener" href="https://tv.youtube.com/search?q='+encodeURIComponent(w.title)+'">Open in YouTube TV to record ›</a></div>':'')+'</div>'+
+  '<div style="margin-top:12px"><button class="btn" id="wrm">Remove from wishlist</button></div>';
+ $("#wback").onclick=()=>{dong();render()};
+ $("#wrm").onclick=async()=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:w.id,type:w.type})});render()}}
+const imgBox=u=>'<div class="pw"><div class="po">'+(u?'<img src="'+esc(u)+'" alt="">':'▶')+'</div></div>';
+const inWL=(id,type)=>WL.some(w=>w.id==id&&w.type==type);
+async function wishLoad(){try{WL=await (await fetch("/api/wishlist")).json()}catch(e){WL=[]}drawWL()}
+function drawWL(){const el=$("#wlist");if(!el)return;if(mode!="posters")immOff();
+ if(mode=="posters"){reelFeed(el,WL.map(cardWL));return}
+ el.innerHTML=WL.length?WL.map((w,wi)=>{const nx=w.next_air?('Next: '+(w.next_ep?esc(w.next_ep)+' · ':'')+(w.network?esc(w.network)+' · ':'')+new Date(w.next_air+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})):"";
+  const grp=(label,kinds)=>{const ps=(w.providers||[]).filter(p=>kinds.includes(p.kind));return ps.length?'<div class="s" style="margin-top:5px">'+label+'</div><div>'+ps.map(p=>'<span class="chip'+(p.mine&&kinds[0]=="flatrate"?' mine':'')+'">'+esc(p.name)+'</span>').join("")+'</div>':''};
+  const chips=grp("Stream (included with a subscription)",["flatrate"])+grp("Free with ads",["free","ads"])+grp("Rent",["rent"])+grp("Buy",["buy"]);
+  const none=chips?'':'<div class="s" style="margin-top:5px">Not streaming in your country yet. Strivo can tell you when it lands on one of your services (Settings › Notifications).</div>';
+  const more=w.link?'<a class="lnk" target="_blank" rel="noopener" href="'+esc(w.link)+'">All options on JustWatch ›</a>':'';
+  const fd=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"";
+  const facts=w.type=="tv"?[w.first_air?'Premiered '+fd(w.first_air):'',(w.networks&&w.networks.length)?w.networks.join(", "):'',w.seasons?w.seasons+' season'+(w.seasons==1?'':'s'):'',w.status||'']:
+    [w.release?'Released '+fd(w.release):'',(w.studios&&w.studios.length)?w.studios.join(", "):'',w.runtime?w.runtime+' min':'',w.status||''];
+  const meta=[(w.genres||[]).join(" · "),w.rating?('★ '+w.rating):''].filter(Boolean).join("  ");
+  return '<div class="row" data-wi="'+wi+'" style="cursor:pointer">'+imgBox(w.poster)+'<div class="grow"><div class="t">'+esc(w.title)+'<span class="tag">'+(w.type=="tv"?"Show":"Movie")+(w.year?' · '+esc(w.year):'')+'</span></div><div class="s" style="white-space:normal">'+facts.filter(Boolean).map(esc).join(" · ")+'</div>'+(nx?'<div class="s" style="color:var(--acc);white-space:normal">'+nx+'</div>':'')+(meta?'<div class="s">'+esc(meta)+'</div>':'')+(w.overview?'<div class="s" style="white-space:normal;margin-top:3px">'+esc(w.overview.slice(0,160))+(w.overview.length>160?'… <span style="color:var(--acc)">more</span>':'')+'</div>':'')+chips+none+'<div>'+more+'</div>'+
+   (w.live?'<a class="lnk" target="_blank" rel="noopener" href="https://tv.youtube.com/search?q='+encodeURIComponent(w.title)+'">Open in YouTube TV to record ›</a>':'')+'</div><div class="side"><button class="x" data-wr="'+w.id+'" data-wt="'+w.type+'" title="Remove">✕</button></div></div>'}).join(""):'<div class="empty">Nothing here yet. Search above and add a show or movie.</div>';
+ el.querySelectorAll(".row[data-wi]").forEach(r=>r.onclick=e=>{if(e.target.closest(".x,a"))return;bloop();wishDetail(WL[+r.dataset.wi])});
+ el.querySelectorAll("[data-wr]").forEach(b=>b.onclick=async()=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:+b.dataset.wr,type:b.dataset.wt})});wishLoad();runSearch()})}
+async function runSearch(){const q=($("#wq")||{}).value||"",el=$("#wres");if(!el)return;if(q.trim().length<2){el.innerHTML="";return}
+ let r=[];try{r=await (await fetch("/api/search?q="+encodeURIComponent(q))).json()}catch(e){}
+ el.innerHTML=r.length?r.map((x,i)=>'<div class="row">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">'+(x.type=="tv"?"Show":"Movie")+(x.year?' · '+esc(x.year):'')+'</span></div><div class="s" style="white-space:normal">'+esc(x.overview)+'</div></div>'+(inWL(x.id,x.type)?'<span class="s">✓ Added</span>':'<button class="btn add" data-i="'+i+'">＋ Wish</button>')+'</div>').join(""):'<div class="empty">No matches.</div>';
+ el.querySelectorAll(".add").forEach(b=>b.onclick=async()=>{const x=r[+b.dataset.i];bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:x.type,title:x.title,year:x.year,poster:x.poster})});dong();await wishLoad();runSearch()})}
+function wishInit(){wishLoad();const q=$("#wq");q.oninput=()=>{clearTimeout(wtimer);wtimer=setTimeout(runSearch,350)}}
+let ST=null,GN=null;
+async function stLoad(){try{ST=await (await fetch("/api/settings")).json()}catch(e){}return ST}
+async function stSave(o,msg){try{ST=await (await fetch("/api/settings",{method:"POST",body:JSON.stringify(o)})).json();toast(msg||"Saved")}catch(e){toast("Could not save")}}
+async function discPage(){const m=$("#main");if(!ST){m.innerHTML='<div class="empty">Loading…</div>';await stLoad();if(tab!="disc")return}
+ const cats=Object.entries((ST&&ST.discover)||{series:{label:"Series",on:true},movies:{label:"Movies",on:true}}).filter(([k,v])=>v.on);
+ if(!cats.some(c=>c[0]==dcat))dcat=(cats[0]||["series"])[0];
+ const intro={series:"Series picked from what you watch and what you like. ＋ Watch adds one to Watching.",movies:"Recent, well-rated movies on your services, based on what you watch and what you tell it."}[dcat]||"Well-rated picks on your services. Change what shows up in More › Settings.";
+ m.innerHTML='<div class="chips">'+cats.map(([k,v])=>'<button class="btn'+(dcat==k?" on":"")+'" data-dc="'+k+'">'+esc(v.label)+'</button>').join("")+'<button class="btn gear" data-dc="__set" title="Settings" aria-label="Settings">⚙︎</button></div><div class="s" style="margin-bottom:8px">'+esc(intro)+'</div>'+
+  (dcat=="series"?'<div id="hlist"><div class="empty">Loading…</div></div>':dcat=="movies"?'<div id="slist"><div class="empty">Loading…</div></div>':'<div id="glist"><div class="empty">Loading…</div></div>');
+ m.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>{bloop();if(b.dataset.dc=="__set")return go("set");dcat=b.dataset.dc;localStorage.setItem("wl_dcat",dcat);discPage()});
+ if(dcat=="series")showsLoad();else if(dcat=="movies")sugLoad();else discLoad(dcat)}
+async function discLoad(cat){try{GN=await (await fetch("/api/discover?cat="+cat)).json()}catch(e){GN={items:[],dismissed:[],built:0}}GN.cat=cat;drawGen()}
+const genLater=async(x,on)=>fetch("/api/discover/later",{method:"POST",body:JSON.stringify({id:x.id,type:x.type,on})});
+const genAdd=async x=>{if(x.type=="tv")await queueAdd(x);else await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})})};
+function cardGen(x){const tv=x.type=="tv";return{tid:x.id,ttype:x.type,poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[tv?"Series":"Movie",x.year,tv&&x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):(x.runtime?x.runtime+" min":""),(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,open:()=>reelDetail(x),
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:tv?"Watch":"Save",f:async(b,s)=>{bloop();await genAdd(x);dong();hideSlide(s);toast(x.title+(tv?" added to Watching":" saved"))}},
+  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(x,false);discLoad(x.cat)})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+function drawGen(){const el=$("#glist");if(!el||!GN)return;if(mode!="posters")immOff();
+ if(mode=="posters"&&GN.items.length){reelFeed(el,GN.items.map(cardGen));return}
+ el.className="";
+ const it=GN.items.map((x,i)=>'<div class="row" data-gi="'+i+'" style="cursor:pointer'+(x.later?';opacity:.6':'')+'">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">'+(x.type=="tv"?"Series":"Movie")+(x.year?' · '+esc(x.year):'')+'</span>'+(x.rating?'<span class="tag" style="color:var(--acc);border-color:var(--acc);font-weight:700">★ '+x.rating+'</span>':'')+(x.later?'<span class="tag">Later</span>':'')+'</div>'+
+  '<div class="s">'+esc((x.genres||[]).slice(0,3).join(" · "))+'</div>'+(x.overview?'<div class="s" style="white-space:normal;margin-top:3px">'+esc(x.overview)+'</div>':'')+
+  '<div>'+(x.providers||[]).map(p=>'<span class="chip mine">'+esc(p)+'</span>').join("")+'</div></div>'+
+  '<div class="side"><button class="x" data-gx="'+i+'" title="Not interested">✕</button><button class="btn" data-gl="'+i+'">Later</button><button class="btn add" data-ga="'+i+'">'+(x.type=="tv"?"＋ Watch":"＋ Save")+'</button></div></div>').join("");
+ const dm=GN.dismissed.length?'<div class="rmlist"><button class="btn" id="gdtoggle">Dismissed · '+GN.dismissed.length+'</button><div id="gdbody" hidden>'+GN.dismissed.map((x,i)=>'<div class="row"><div class="grow"><div class="t">'+esc(x.title)+'</div></div><button class="btn" data-gr="'+i+'">Restore</button></div>').join("")+'</div></div>':"";
+ el.innerHTML=(it||'<div class="empty">'+(GN.built?'Nothing new right now.':'Building this list. Check back in a few minutes.')+'</div>')+dm;
+ el.querySelectorAll(".row[data-gi]").forEach(r=>r.onclick=e=>{if(e.target.closest("button,a"))return;bloop();reelDetail(GN.items[+r.dataset.gi])});
+ el.querySelectorAll("[data-gx]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();reasonSheet(GN.items[+b.dataset.gx])});
+ el.querySelectorAll("[data-gl]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=GN.items[+b.dataset.gl];bloop();await genLater(x,!x.later);discLoad(GN.cat)});
+ el.querySelectorAll("[data-ga]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=GN.items[+b.dataset.ga];bloop();await genAdd(x);dong();discLoad(GN.cat);toast(x.title+(x.type=="tv"?" added to Watching":" saved"))});
+ el.querySelectorAll("[data-gr]").forEach(b=>b.onclick=async()=>{const x=GN.dismissed[+b.dataset.gr];bloop();await fetch("/api/discover/restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});discLoad(GN.cat)});
+ const t=$("#gdtoggle");if(t)t.onclick=()=>{bloop();$("#gdbody").hidden=!$("#gdbody").hidden}}
+const opt=(vals,cur,lab)=>vals.map(v=>'<option value="'+v+'"'+(String(v)==String(cur)?" selected":"")+'>'+esc(lab?lab(v):v)+'</option>').join("");
+async function settingsPage(){const m=$("#main");m.innerHTML='<div class="empty">Loading…</div>';await stLoad();if(tab!="set"||!ST)return;
+ let tvs=[];
+ const yrs=v=>v==0?"Any year":"Last "+v+" year"+(v==1?"":"s"),rt=v=>"★ "+Number(v).toFixed(1)+"+";
+ const draw=()=>{const S=ST;
+ m.innerHTML='<div class="set" id="setp">'+
+  '<h3>My streaming services</h3><div class="row"><div class="svc">'+S.all_services.map(n=>'<button class="btn'+(S.my_services.includes(n)?" on":"")+'" data-sv="'+esc(n)+'">'+esc(n)+'</button>').join("")+'</div><div class="note">Picks only show what is included with these. Tap to turn one on or off.</div></div>'+
+  '<h3>What to Watch</h3><div class="row">'+Object.entries(S.discover).map(([k,v])=>'<div class="ln"><div class="grow"><div class="t">'+esc(v.label)+'</div>'+(v.on?'<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><select data-dr="'+k+'">'+opt([6,6.5,7,7.2,7.5,8,8.5],v.min_rating,rt)+'</select><select data-dy="'+k+'">'+opt([0,1,3,5,10,20],v.years,yrs)+'</select></div>':'<div class="s">Off</div>')+'</div><input type="checkbox" class="sw" data-don="'+k+'"'+(v.on?" checked":"")+'></div>').join("")+
+   '<div style="margin-top:10px"><button class="btn add" id="rebuild">↻ Refresh picks now</button></div><div class="note">Picks rebuild every day. Refresh after changing services or filters (takes a few minutes).</div></div>'+
+  '<h3>Watching</h3><div class="row"><div class="ln"><div>Keep a show after the last episode you watched</div><select data-k="queue_days">'+opt([7,14,21,28,42],S.queue_days,v=>(v/7)+" week"+(v==7?"":"s"))+'</select></div>'+
+   '<div class="ln"><div>Bring a show back when a new episode aired within</div><select data-k="queue_new_days">'+opt([30,60,90,180],S.queue_new_days,v=>v+" days")+'</select></div></div>'+
+  '<h3>Daily</h3><div class="row"><div class="ln"><div>Keep late night, game and daily shows</div><select data-k="daily_days">'+opt([3,5,7,10,14],S.daily_days,v=>v+" days")+'</select></div>'+
+   '<div class="ln"><div>Keep news</div><select data-k="news_days">'+opt([1,2,3,7],S.news_days,v=>v+" day"+(v==1?"":"s"))+'</select></div></div>'+
+  '<h3>TV</h3><div class="row"><div class="ln"><div>Default TV for Play</div><select id="dtv">'+opt([""].concat(tvs.map(x=>x.id)),S.default_tv,v=>v?(tvs.find(x=>x.id==v)||{name:v}).name:"Ask every time")+'</select></div></div>'+
+  '<h3>App</h3><div class="row"><div class="ln"><div>Show lists as</div><select id="vmode">'+opt(["posters","list"],mode,v=>v=="posters"?"Posters":"List")+'</select></div>'+
+   '<div class="ln"><div>Auto-play trailers in Posters<div class="note">Muted, after you rest on a card for 2 seconds. This phone only.</div></div><input type="checkbox" class="sw" id="atsw"'+(autoTrailer?" checked":"")+'></div></div>'+
+  '<div class="note" style="margin:16px 0">Settings are shared by everyone in the house.</div>'+
+  extraSettings(S)+'</div>';
+ m.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>{bloop();const n=b.dataset.sv,on=S.my_services.includes(n);const list=on?S.my_services.filter(x=>x!=n):S.my_services.concat([n]);stSave({my_services:list},n+(on?" off":" on")).then(draw)});
+ m.querySelectorAll("[data-don]").forEach(i=>i.onchange=()=>{bloop();stSave({discover:{[i.dataset.don]:{on:i.checked}}}).then(draw)});
+ m.querySelectorAll("[data-dr]").forEach(s=>s.onchange=()=>stSave({discover:{[s.dataset.dr]:{min_rating:+s.value}}}));
+ m.querySelectorAll("[data-dy]").forEach(s=>s.onchange=()=>stSave({discover:{[s.dataset.dy]:{years:+s.value}}}));
+ m.querySelectorAll("select[data-k]").forEach(s=>s.onchange=()=>stSave({[s.dataset.k]:+s.value}).then(load));
+ $("#dtv").onchange=e=>stSave({default_tv:e.target.value});
+ $("#vmode").onchange=e=>{mode=e.target.value;localStorage.setItem("wl_mode",mode);modeHead();toast("Saved")};
+ $("#atsw").onchange=e=>{autoTrailer=e.target.checked;localStorage.setItem("wl_autotrailer",autoTrailer?"on":"off");bloop();toast("Saved")};
+ bindExtraSettings(m,S,draw);
+ $("#rebuild").onclick=async()=>{bloop();await fetch("/api/discover/refresh");toast("Rebuilding picks. Check What to Watch in a few minutes.")}};
+ draw();try{tvs=(await (await fetch("/api/tvs")).json()).devices||[];if(tab=="set"&&$("#setp"))draw()}catch(e){}}
+let HS=null;
+async function queueAdd(x){await fetch("/api/queue/add",{method:"POST",body:JSON.stringify({id:x.id,title:x.title,year:x.year,poster:x.poster,providers:x.providers||[]})})}
+async function showsLoad(){try{HS=await (await fetch("/api/shows")).json()}catch(e){HS={items:[],dismissed:[],built:0}}drawShows()}
+async function laterSet(x,on){await fetch("/api/shows/later",{method:"POST",body:JSON.stringify({id:x.id,on})})}
+function cardShow(x){return{tid:x.id,ttype:"tv",poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[x.year,x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):"",(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"Watch",f:async(b,s)=>{bloop();await queueAdd(x);dong();hideSlide(s);toast(x.title+" added to Watching")}},
+  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await laterSet(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await laterSet(x,false);showsLoad()})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+function drawShows(){const el=$("#hlist");if(!el||!HS)return;if(mode!="posters")immOff();
+ if(mode=="posters"&&HS.items.length){reelFeed(el,HS.items.map(cardShow));return}
+ el.className="";
+ const it=HS.items.map((x,i)=>'<div class="row" data-hi="'+i+'" style="cursor:pointer'+(x.later?';opacity:.6':'')+'">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">Show'+(x.year?' · '+esc(x.year):'')+'</span>'+(x.rating?'<span class="tag" style="color:var(--acc);border-color:var(--acc);font-weight:700">★ '+x.rating+'</span>':'')+(x.later?'<span class="tag">Later</span>':'')+'</div>'+
+  '<div class="s" style="white-space:normal">Why: '+(x.why||[]).map(esc).join(" · ")+'</div>'+
+  '<div class="s">'+esc([x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):"",(x.genres||[]).slice(0,3).join(" · ")].filter(Boolean).join(" · "))+'</div>'+
+  (x.overview?'<div class="s" style="white-space:normal;margin-top:3px">'+esc(x.overview)+'</div>':'')+
+  '<div>'+(x.providers||[]).map(p=>'<span class="chip mine">'+esc(p)+'</span>').join("")+'</div></div>'+
+  '<div class="side"><button class="x" data-hx="'+i+'" title="Not interested">✕</button><button class="btn" data-hl="'+i+'">Later</button><button class="btn add" data-hq="'+i+'">＋ Watch</button></div></div>').join("");
+ const dm=HS.dismissed.length?'<div class="rmlist"><button class="btn" id="hdtoggle">Dismissed · '+HS.dismissed.length+'</button><div id="hdbody" hidden>'+HS.dismissed.map(x=>'<div class="row"><div class="grow"><div class="t">'+esc(x.title)+'</div></div><button class="btn" data-hr="'+x.id+'">Restore</button></div>').join("")+'</div></div>':"";
+ el.innerHTML=(it||'<div class="empty">'+(HS.built?'Nothing new right now.':'Building your list of shows. Check back in a few minutes.')+'</div>')+dm;
+ el.querySelectorAll(".row[data-hi]").forEach(r=>r.onclick=e=>{if(e.target.closest("button,a"))return;bloop();reelDetail(HS.items[+r.dataset.hi])});
+ el.querySelectorAll("[data-hx]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();reasonSheet(HS.items[+b.dataset.hx])});
+ el.querySelectorAll("[data-hl]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=HS.items[+b.dataset.hl];bloop();await laterSet(x,!x.later);showsLoad()});
+ el.querySelectorAll("[data-hq]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=HS.items[+b.dataset.hq];bloop();await queueAdd(x);dong();showsLoad();toast(x.title+" added to Watching")});
+ el.querySelectorAll("[data-hr]").forEach(b=>b.onclick=async()=>{bloop();await fetch("/api/shows/restore",{method:"POST",body:JSON.stringify({id:+b.dataset.hr})});showsLoad()});
+ const t=$("#hdtoggle");if(t)t.onclick=()=>{bloop();$("#hdbody").hidden=!$("#hdbody").hidden}}
+function cardQueued(q){return{tid:q.id,ttype:"tv",poster:q.poster,title:q.title,badge:"Not started",sub:"Show"+(q.year?" · "+q.year:""),chips:q.providers,desc:"Added from What to Watch. It becomes a regular show here after the first episode.",open:()=>reelDetail(Object.assign({type:"tv"},q)),
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(Object.assign({type:"tv"},q))},aInfo(()=>reelDetail(Object.assign({type:"tv"},q))),{i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/queue/remove",{method:"POST",body:JSON.stringify({id:q.id})});hideSlide(s);toast("Removed "+q.title)}}]}}
+const rowQueued=(q,i)=>'<div class="row" data-qi="'+i+'" style="cursor:pointer">'+imgBox(q.poster)+'<div class="grow"><div class="t">'+esc(q.title)+'<span class="tag">Not started</span></div><div class="s">'+(q.providers||[]).map(esc).join(" · ")+'</div></div><div class="side"><button class="x" data-qr="'+q.id+'" title="Remove">✕</button></div></div>';
+let SG=null;
+async function sugLoad(){try{SG=await (await fetch("/api/suggest")).json()}catch(e){SG={items:[],dismissed:[],built:0}}drawSug()}
+function provHTML(w,x){const p=w.providers;if(!p||Array.isArray(p))return(x.providers||[]).map(n=>'<span class="chip mine">'+esc(n)+'</span>').join("");
+ const mine=new Set(x.providers||[]);const L=[["flatrate","Stream"],["free","Free"],["ads","Free with ads"],["rent","Rent"],["buy","Buy"]];
+ return L.map(([k,l])=>{const ns=Object.keys(p).filter(n=>p[n]==k);return ns.length?'<div class="s" style="margin-top:6px">'+l+'</div><div>'+ns.map(n=>'<span class="chip'+(k=="flatrate"&&mine.has(n)?' mine':'')+'">'+esc(n)+'</span>').join("")+'</div>':''}).join("")||'<div class="s">Not listed.</div>'}
+async function tvSheet(x){const old=document.querySelector(".tvs");if(old)old.remove();
+ const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:flex-end;justify-content:center";
+ const box=h=>{d.innerHTML='<div style="background:var(--card,#171b22);color:var(--tx,#fff);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box;max-height:80vh;overflow:auto">'+h+'<button class="btn" id="tvx" style="width:100%;padding:10px;margin-top:8px">Cancel</button></div>';d.onclick=e=>{if(e.target===d)d.remove()};d.querySelector("#tvx").onclick=()=>d.remove()};
+ document.body.appendChild(d);box('<div class="t" style="white-space:normal;margin-bottom:8px">Play '+esc(x.title)+' on…</div><div class="s">Looking for your TVs…</div>');
+ let tvs=[];try{tvs=(await (await fetch("/api/tvs")).json()).devices||[]}catch(e){}
+ const dtv=(ST||{}).default_tv;if(dtv)tvs.sort((a,b)=>(b.id==dtv)-(a.id==dtv));
+ if(!tvs.length){box('<div class="t">No TVs reachable</div><div class="s" style="margin:8px 0">No TVs are set up, or none answered. Add or check them in More › Devices.</div>');return}
+ const st=v=>!v.online?"Not reachable":(v.power=="on"?"On"+(v.app?" · "+v.app:""):"Off / asleep");
+ box('<div class="t" style="white-space:normal;margin-bottom:8px">Play '+esc(x.title)+' on…</div>'+tvs.map((v,i)=>'<button class="btn" style="display:block;width:100%;text-align:left;margin:6px 0;padding:12px" data-tv="'+i+'"><b>'+esc(v.name)+(v.id==dtv?' · default':'')+'</b><div class="s">'+esc(st(v))+'</div></button>').join(""));
+ d.querySelectorAll("[data-tv]").forEach(b=>b.onclick=async()=>{const tv=tvs[+b.dataset.tv];bloop();
+  let ex=null;if(x.id)try{ex=await (await fetch("/api/suggest/extras?id="+x.id+(x.type=="tv"?"&type=tv":""))).json()}catch(e){}
+  const go=async(body,label)=>{box('<div class="s">Sending to '+esc(tv.name)+'… (a sleeping TV can take up to a minute)</div>');
+   try{const r=await fetch("/api/tv/play",{method:"POST",body:JSON.stringify(Object.assign({dev:tv.id},body))});const j=await r.json();
+    if(r.ok){d.remove();dong();toast(label+" on "+tv.name)}else box('<div class="t">Did not work</div><div class="s" style="margin:8px 0">'+esc(j.result||j.error||"TV did not respond")+'</div>')}catch(e){box('<div class="t">Did not work</div>')}};
+  box('<div class="t" style="margin-bottom:8px">'+esc(tv.name)+'</div>'+(ex&&ex.trailer?'<button class="btn add" style="display:block;width:100%;margin:6px 0;padding:12px" id="tvt">▶ Play trailer</button>':'')+
+   (x.providers||[]).map((p,i)=>'<button class="btn" style="display:block;width:100%;text-align:left;margin:6px 0;padding:12px" data-p="'+i+'">'+(x.resume?'▶ Open '+esc(p)+' and pick up where you left off':'Open '+esc(p)+' (find the '+(x.type=="tv"?"show":"movie")+' there)')+'</button>').join("")+'<div class="s" style="margin-top:6px">'+(x.resume?'Opens '+esc(x.title)+'&#39;s app on the TV. It is usually first in the app&#39;s Continue Watching row.':'Opens the app on the TV. You pick the title with the remote.')+'</div>');
+  const tt=d.querySelector("#tvt");if(tt)tt.onclick=()=>go({trailer:ex.trailer},"Trailer playing");
+  d.querySelectorAll("[data-p]").forEach(pb=>pb.onclick=()=>{const p=x.providers[+pb.dataset.p];go({provider:p},p+" opened")})})}
+let mode=localStorage.getItem("wl_mode")=="list"?"list":"posters";const REELTABS=["shows","disc","daily","hist","wish"];
+function modeHead(){const b=$("#modebtn");b.style.display=REELTABS.includes(tab)?"":"none";b.textContent=mode=="posters"?"☰ List":"▦ Posters";b.title="Switch to "+(mode=="posters"?"List":"Posters")+" view"}
+$("#modebtn").onclick=()=>{mode=mode=="posters"?"list":"posters";localStorage.setItem("wl_mode",mode);bloop();modeHead();render()};
+function hue(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h%360}
+function artGrad(c){const a=hue(c.title),b=(a+40+hue(c.label||"x")%60)%360;return "linear-gradient(160deg,hsl("+a+",62%,40%) 0%,hsl("+b+",58%,22%) 55%,hsl("+b+",55%,10%) 100%)"}
+function artHTML(c){return '<div class="art" style="background:'+artGrad(c)+'"><div class="lb">'+esc(c.label||"")+'</div><div class="wm">'+(c.icon||"▶")+'</div><div class="rule"></div><div class="nm">'+esc(c.title)+'</div></div>'}
+function artify(slide,c){slide.querySelector(".bg").style.backgroundImage=artGrad(c);slide.querySelector(".pst").innerHTML=artHTML(c)}
+const rposters={};
+function reelPoster(slide,name,c){const set=u=>{if(!slide.isConnected)return;if(!u)return artify(slide,c);const big=u.replace("/w185/","/w780/");slide.querySelector(".bg").style.backgroundImage="url("+big+")";slide.querySelector(".pst").innerHTML='<img src="'+esc(big)+'" alt="">'};
+ if(name in rposters){if(typeof rposters[name]=="string")set(rposters[name]);else rposters[name].then(set);return}
+ rposters[name]=fetch("/api/poster?q="+encodeURIComponent(name)+(c&&c.ptype?"&type="+c.ptype:"")).then(r=>r.json()).then(j=>{rposters[name]=j.url||"";return j.url}).catch(()=>"");rposters[name].then(set)}
+function fixBottom(){const st=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
+ const portrait=innerHeight>innerWidth,sh=portrait?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);
+ const gap=st?Math.round(sh-innerHeight):0,ok=gap>8&&gap<160;const r=document.documentElement.style;
+ r.setProperty("--gapb",(ok?gap:0)+"px");const ins=($("#sbprobe")||{}).offsetHeight||0;r.setProperty("--gapi",(ok&&ins<10?Math.min(22,gap):0)+"px");
+ window.__scr={standalone:!!st,innerH:innerHeight,screenH:sh,gap,used:ok?gap:0,insetB:ins,vv:Math.round((window.visualViewport||{}).height||0)}}
+window.addEventListener("resize",fixBottom);window.addEventListener("orientationchange",()=>setTimeout(fixBottom,300));
+function immOff(){document.body.classList.remove("imm","imm-hide");const o=$("#ovtop");if(o)o.innerHTML=""}
+function immOn(el){const m=$("#main"),o=$("#ovtop");o.innerHTML="";
+ for(const ch of [...m.children]){if(ch===el||ch.contains(el))break;o.appendChild(ch)}
+ document.body.classList.add("imm");document.body.classList.remove("imm-hide");
+ const place=()=>{o.style.top=$("header").offsetHeight+"px"};place();requestAnimationFrame(place)}
+let autoTrailer=localStorage.getItem("wl_autotrailer")=="on";
+function fitFeed(el){if(!el||!el.isConnected)return;if(document.body.classList.contains("imm")){el.style.height="";return}el.style.height=Math.max(380,window.innerHeight-el.getBoundingClientRect().top-(($("#nav")||{}).offsetHeight||0)-8)+"px"}
+window.addEventListener("resize",()=>document.querySelectorAll(".rl.rf").forEach(el=>{const f=el.querySelector(".feed"),i=f&&f.clientHeight?Math.round(f.scrollTop/f.clientHeight):0;fitFeed(el);if(f)f.scrollTop=i*f.clientHeight}));
+function reelFeed(el,cards){if(!el)return;el.className="rl rf";window.scrollTo(0,0);if(cards.length)immOn(el);else immOff();fitFeed(el);
+ el.innerHTML='<div class="feed">'+(cards.length?cards.map((c,i)=>'<div class="sl" data-i="'+i+'"><div class="bg"'+(c.poster?' style="background-image:url('+esc(bigp(c.poster))+')"':'')+'></div><div class="pst" data-open="'+i+'">'+(c.poster?'<img loading="'+(i<3?"eager":"lazy")+'" src="'+esc(bigp(c.poster))+'" alt="">':'')+'</div>'+
+  '<div class="ov" data-open="'+i+'"><div class="tt">'+esc(c.title)+(c.star?'<span class="star">★ '+esc(c.star)+'</span>':'')+(c.badge?'<span class="bdg">'+esc(c.badge)+'</span>':'')+'</div>'+(c.sub?'<div class="s" style="color:#ccc;font-size:13px;white-space:normal">'+esc(c.sub)+'</div>':'')+
+  '<div>'+(c.chips||[]).map(p=>'<span class="chp">'+esc(p)+'</span>').join("")+'</div>'+(c.pct!=null?'<div class="bar"><i style="width:'+c.pct+'%"></i></div>':'')+(c.desc?'<div class="ds">'+esc(c.desc)+'</div>':'')+(c.why?'<div class="s" style="color:#aaa;font-size:12px;margin-top:5px;white-space:normal">'+esc(c.why)+'</div>':'')+'<div class="cnt">'+(i+1)+' of '+cards.length+'</div></div>'+
+  '<div class="act">'+(c.actions||[]).map((a,j)=>'<button data-a="'+j+'">'+a.i+'<small>'+esc(a.l)+'</small></button>').join("")+'</div></div>').join(""):'<div class="sl"><div class="pst" style="padding:0"><div class="ph">Nothing here yet.</div></div></div>')+'</div>';
+ fitFeed(el);
+ {const f=el.querySelector(".feed");let touched=false;["touchstart","wheel","mousedown"].forEach(ev=>f.addEventListener(ev,()=>{touched=true},{passive:true}));
+  const top=()=>{if(!touched&&f.isConnected){f.scrollTop=0;window.scrollTo(0,0)}};top();requestAnimationFrame(top);setTimeout(top,300);setTimeout(top,1000)}
+ el.querySelectorAll(".sl[data-i]").forEach(s=>{const c=cards[+s.dataset.i];if(!c.poster&&c.pname)reelPoster(s,c.pname,c);else if(!c.poster)artify(s,c)});
+ el.querySelectorAll("[data-open]").forEach(e=>e.onclick=()=>{if(document.body.classList.contains("imm-hide")){document.body.classList.remove("imm-hide");return}bloop();cards[+e.dataset.open].open()});
+ {const f=el.querySelector(".feed");let tmr=null;
+  f.addEventListener("scroll",()=>{if(!document.body.classList.contains("imm"))return;document.body.classList.toggle("imm-hide",f.scrollTop>40)},{passive:true});
+  const io=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target;if(e.isIntersecting){s.classList.add("cur");clearTimeout(tmr);if(autoTrailer)tmr=setTimeout(()=>slideTrailer(s,cards[+s.dataset.i]),2000)}else{s.classList.remove("cur");const v=s.querySelector(".tv");if(v)v.remove()}}),{root:f,threshold:.6});
+  el.querySelectorAll(".sl[data-i]").forEach(s=>io.observe(s))}
+ el.querySelectorAll("[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();const s=b.closest(".sl");cards[+s.dataset.i].actions[+b.dataset.a].f(b,s)})}
+async function slideTrailer(s,c){if(!c||!c.tid||!s.classList.contains("cur")||s.querySelector(".tv"))return;
+ let ex=null;try{ex=await (await fetch("/api/suggest/extras?id="+c.tid+(c.ttype=="tv"?"&type=tv":""))).json()}catch(e){}
+ if(!ex||!ex.trailer||!s.classList.contains("cur"))return;const k=ex.trailer;
+ const d=document.createElement("div");d.className="tv";d.innerHTML='<iframe src="https://www.youtube.com/embed/'+k+'?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist='+k+'&modestbranding=1&rel=0" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
+ s.querySelector(".pst").after(d);setTimeout(()=>d.classList.add("on"),1200)}
+const bigp=u=>(u||"").replace("/w185/","/w780/");
+const hideSlide=s=>{s.style.display="none"};
+const aInfo=f=>({i:"ⓘ",l:"Info",f});
+function cardSug(x){return{tid:x.id,ttype:"movie",poster:x.poster,title:x.title,star:x.rating||"",sub:[x.year,x.runtime?x.runtime+" min":"",(x.genres||[]).slice(0,3).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"Wish",f:async b=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();b.innerHTML='✓<small>Added</small>'}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+function cardWL(w){const on=(w.providers||[]).filter(p=>p.mine&&p.kind=="flatrate").map(p=>p.name);const nx=w.next_air?"Next: "+(w.next_ep?w.next_ep+" · ":"")+fdate(w.next_air):"";
+ return{tid:w.id,ttype:w.type,poster:w.poster,title:w.title,star:w.rating||"",sub:[w.type=="tv"?"Show":"Movie",w.year,nx].filter(Boolean).join(" · "),chips:on.length?on:(w.providers||[]).filter(p=>p.kind=="flatrate").map(p=>p.name).slice(0,4),desc:w.overview,open:()=>wishDetail(w),
+ actions:[aInfo(()=>wishDetail(w)),{i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:w.id,type:w.type})});hideSlide(s);toast("Removed "+w.title)}}]}}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-shplay]");if(b){bloop();playNow(b.dataset.shplay,b.dataset.app)}});
+const playNow=(title,app)=>tvSheet({title,providers:[app],resume:true});
+const playAct=(title,app)=>({i:"▶",l:"Play",f:()=>{bloop();playNow(title,app)}});
+const rmAct=(kind,name)=>({i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/remove",{method:"POST",body:JSON.stringify({kind,name})});hideSlide(s);toast("Removed "+name,()=>post("/api/restore",kind,name))}});
+function cardSeries(s){const e=s.latest,pct=e.total?Math.min(100,Math.round(100*(e.pos||0)/e.total)):null;
+ return{label:s.app,icon:"📺",ptype:"tv",pname:s.series,title:s.series,badge:s.unwatched>0?(s.unwatched>9?"9+":s.unwatched)+" new":"",sub:s.app+(epl(e)?" · Latest "+epl(e):""),pct:e.done?100:pct,desc:e.done?"Finished · "+s.episodes.length+" watched":(e.total?"Stopped at "+mm(e.pos||0)+" of "+mm(e.total)+" · "+s.episodes.length+" watched":s.episodes.length+" watched")+" · "+s.hours+" h",why:ago(s.last),open:()=>openShow(s),actions:[playAct(s.series,s.app),aInfo(()=>openShow(s)),rmAct("series",s.series)]}}
+function cardDaily(s){return{ptype:"tv",label:s.ch||s.app,icon:{news:"📰",late:"🌙",game:"🎲",live:"📡"}[s.cat]||"📺",pname:s.cat=="game"||s.cat=="late"?s.series:"",title:s.series,sub:s.ch||s.app,desc:s.episodes.length+(s.cat=="game"?" episodes kept":" time"+(s.episodes.length==1?"":"s")+" watched")+" · "+s.hours+" h",why:ago(s.last),open:()=>openShow(s),actions:[playAct(s.series,s.app),aInfo(()=>openShow(s)),rmAct("daily",s.series)]}}
+function cardMovie(m){const pct=m.total?Math.min(100,Math.round(100*(m.pos||0)/m.total)):null;
+ return{label:m.app,icon:"🎬",ptype:"movie",pname:m.title,title:m.title,sub:m.app,pct:m.done?100:pct,desc:m.done?"Finished":(m.total?"Stopped at "+mm(m.pos||0)+" of "+mm(m.total):""),why:ago(m.last),open:()=>playNow(m.title,m.app),actions:[playAct(m.title,m.app),rmAct("movie",m.title)]}}
+function cardHist(x){const d=new Date(x.t0*1e3);return{label:x.app,icon:x.kind=="episode"?"📺":"🎬",ptype:x.kind=="episode"?"tv":"",pname:x.series,title:x.series,sub:(x.kind=="episode"?epl(x)+" · ":"")+x.app+" · "+x.dev,desc:d.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})+" "+d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" · "+mm(x.min*60),open:()=>{},actions:[]}}
+let RL=null,rlOpen=false;
+const big=u=>(u||"").replace("/w185/","/w780/");
+async function reelDetail(x){const d=document.createElement("div");d.className="rd";document.body.appendChild(d);let w=Object.assign({},x),ex=null;
+ const draw=()=>{const tv=x.type=="tv";const rows=[tv?["First aired",fdate(w.first_air)||w.year]:["Released",fdate(w.release)||w.year],tv?["Seasons",w.seasons?w.seasons+(w.episodes?" ("+w.episodes+" episodes)":"")+(w.status?" · "+w.status:""):""]:["Runtime",w.runtime?w.runtime+" min":""],[tv?"Created by":"Directed by",(w.makers||[]).join(", ")],["Cast",(w.cast||[]).join(", ")],["Genres",(w.genres||[]).join(", ")],["Rating",w.rating?"★ "+w.rating+" / 10"+(x.votes?" · "+x.votes.toLocaleString()+" ratings":""):""],["Why suggested",(x.why||[]).join(" · ")]].filter(r=>r[1]);
+  d.innerHTML='<div class="in"><button class="btn back" id="rdc">‹ Back</button><div class="hd">'+imgBox(x.poster)+'<div class="grow"><div class="t" style="font-size:19px;white-space:normal">'+esc(x.title)+'</div><div class="s">'+esc(x.year||"")+'</div>'+(w.tagline?'<div class="s" style="white-space:normal;font-style:italic;margin-top:4px">'+esc(w.tagline)+'</div>':'')+'</div></div>'+
+  (ex&&ex.trailer?'<div class="vid" id="vid"><img class="th" src="https://img.youtube.com/vi/'+esc(ex.trailer)+'/hqdefault.jpg" alt=""><div class="pl" id="vpl">▶</div></div><a class="lnk" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v='+esc(ex.trailer)+'">Open trailer in YouTube ›</a>':(ex?'<div class="s" style="margin:10px 0">No trailer found.</div>':'<div class="s" style="margin:10px 0">Loading trailer…</div>'))+
+  (w.overview?'<div class="row" style="display:block;margin-top:10px"><div style="white-space:normal;line-height:1.45">'+esc(w.overview)+'</div></div>':'')+
+  '<div class="row" style="display:block">'+rows.map(r=>'<div style="display:flex;gap:10px;margin:3px 0"><div class="s" style="width:92px;flex:none">'+esc(r[0])+'</div><div style="white-space:normal;flex:1">'+esc(r[1])+'</div></div>').join("")+'</div>'+
+  '<div class="day">Where to watch</div><div class="row" style="display:block">'+provHTML(w,x)+'</div>'+
+  '<div class="day">Reviews</div>'+(ex?(ex.reviews.length?ex.reviews.map(r=>'<div class="rv"><div class="s"><b>'+esc(r.author)+'</b>'+(r.rating?' · ★ '+r.rating+'/10':'')+(r.date?' · '+esc(r.date):'')+'</div><p>'+esc(r.text)+(r.text.length>=700?'…':'')+'</p>'+(r.url?'<a class="lnk" target="_blank" rel="noopener" href="'+esc(r.url)+'">Read full review ›</a>':'')+'</div>').join(""):'<div class="s">No written reviews on TMDB yet.</div>')+'<div class="day">Review links</div><div class="row" style="display:block">'+ex.links.map(l=>'<div style="margin:6px 0"><a class="lnk" target="_blank" rel="noopener" href="'+esc(l.url)+'">'+esc(l.name)+' ›</a></div>').join("")+'</div>':'<div class="s">Loading reviews…</div>')+
+  '<div style="margin-top:12px;display:flex;gap:8px"><button class="btn add" id="rdp">▶ Play on TV</button><button class="btn add" id="rdw">'+(tv?"＋ Watching":"＋ Wish")+'</button><button class="btn" id="rdx">✕ Pass…</button></div></div>';
+  d.querySelector("#rdc").onclick=()=>{dong();d.remove()};
+  const pl=d.querySelector("#vpl");if(pl)pl.onclick=()=>{d.querySelector("#vid").innerHTML='<iframe src="https://www.youtube.com/embed/'+ex.trailer+'?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'};
+  d.querySelector("#rdp").onclick=()=>{bloop();tvSheet(x)};
+  d.querySelector("#rdw").onclick=async()=>{bloop();if(tv)await queueAdd(x);else await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();d.querySelector("#rdw").textContent="✓ Added"};
+  d.querySelector("#rdx").onclick=()=>reasonSheet(x,()=>{d.remove();const L=x.cat?(GN||{items:[]}).items:tv?(HS||{items:[]}).items:SG.items;const s=document.querySelector('.rl [data-i="'+L.indexOf(x)+'"]');if(s)s.style.display="none"})};
+ draw();
+ fetch("/api/suggest/detail?id="+x.id+(x.type=="tv"?"&type=tv":"")).then(r=>r.json()).then(r=>{if(r&&r.providers){w=Object.assign({},x,r);if(d.isConnected)draw()}}).catch(()=>{});
+ fetch("/api/suggest/extras?id="+x.id+(x.type=="tv"?"&type=tv":"")).then(r=>r.json()).then(r=>{ex=r.reviews?r:{trailer:"",reviews:[],links:[]};if(d.isConnected)draw()}).catch(()=>{ex={trailer:"",reviews:[],links:[]};if(d.isConnected)draw()})}
+let sdetail=false;
+function reasonSheet(x,done){const old=document.querySelector(".sheet");if(old)old.remove();const tv=x.type=="tv",api=x.cat?"/api/discover/":tv?"/api/shows/":"/api/suggest/",reload=()=>x.cat?discLoad(x.cat):tv?showsLoad():sugLoad();
+ const R=[["liked","Watched it, liked it"],["disliked","Watched it, didn't like it"],["want",tv?"Haven't seen it, add to Watching":"Haven't seen it, want to watch it"],["no","Not interested"]];
+ const d=document.createElement("div");d.className="sheet";d.style.cssText="position:fixed;inset:0;background:#0009;z-index:90;display:flex;align-items:flex-end;justify-content:center";
+ d.innerHTML='<div style="background:var(--card);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box"><div class="t" style="white-space:normal;margin-bottom:4px">Remove '+esc(x.title)+'?</div><div class="s" style="margin-bottom:10px">Why? This helps pick better '+(tv?"shows":"movies")+'.</div>'+
+  R.map(r=>'<button class="btn" style="display:block;width:100%;text-align:left;margin:6px 0;padding:11px" data-r="'+r[0]+'">'+esc(r[1])+'</button>').join("")+
+  '<div class="s" style="margin:8px 0 2px">Because… (optional)</div><div id="rtags">'+[["genre","Wrong genre"],["dark","Too dark or violent"],["kids",tv?"Kids' show":"Kids' movie"]].concat(tv?[]:[["sequel","Sequel"]]).concat([["bad","Looks bad"],["other","Other"]]).map(r=>'<button class="btn" style="margin:3px 4px 3px 0" data-t="'+r[0]+'">'+esc(r[1])+'</button>').join("")+'</div><input id="rnote" placeholder="Add a note (optional)" style="width:100%;box-sizing:border-box;margin:8px 0;padding:10px;border-radius:8px;border:1px solid var(--line);background:#0003;color:inherit;font-size:16px"><button class="btn" id="rcancel" style="width:100%;padding:10px">Cancel</button></div>';
+ document.body.appendChild(d);
+ d.onclick=e=>{if(e.target===d)d.remove()};$("#rcancel").onclick=()=>d.remove();
+ d.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{bloop();b.classList.toggle("on")});
+ d.querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const reason=b.dataset.r,note=$("#rnote").value,tags=[...d.querySelectorAll("[data-t].on")].map(e=>e.dataset.t);d.remove();bloop();
+  await fetch("/api/suggest/feedback",{method:"POST",body:JSON.stringify({id:x.id,title:x.title,reason,note,tags,genres:x.genres||[],type:tv?"tv":"movie"})});
+  if(reason=="want"){if(tv)await queueAdd(x);else await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();if(done)done();else reload();toast("Added "+x.title+(tv?" to Watching":" to wishlist"));return}
+  await fetch(api+"dismiss",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});if(done)done();else reload();
+  toast("Removed "+x.title,async()=>{await fetch(api+"restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});reload()})})}
+async function sugDetail(x){immOff();const m=$("#main");sdetail=true;let w=Object.assign({},x);
+ const draw=()=>{const rows=[["Released",fdate(w.release)||w.year],["Runtime",w.runtime?w.runtime+" min":""],["Directed by",(w.makers||[]).join(", ")],["Cast",(w.cast||[]).join(", ")],["Studio",(w.studios||[]).join(", ")],["Genres",(w.genres||[]).join(", ")],["Rating",w.rating?"★ "+w.rating+" / 10"+(x.votes?" · "+x.votes.toLocaleString()+" ratings":""):""],["Why suggested",(x.why||[]).join(" · ")]].filter(r=>r[1]);
+ m.innerHTML='<button class="btn back" id="sback">‹ Back</button><div class="hd">'+imgBox(x.poster)+'<div class="grow"><div class="t" style="font-size:19px;white-space:normal">'+esc(x.title)+'</div><div class="s">'+esc(x.year||"")+'</div>'+(w.tagline?'<div class="s" style="white-space:normal;font-style:italic;margin-top:4px">'+esc(w.tagline)+'</div>':'')+'</div></div>'+
+  (w.overview?'<div class="row" style="display:block"><div style="white-space:normal;line-height:1.45">'+esc(w.overview)+'</div></div>':'')+
+  '<div class="row" style="display:block">'+rows.map(r=>'<div style="display:flex;gap:10px;margin:3px 0"><div class="s" style="width:92px;flex:none">'+esc(r[0])+'</div><div style="white-space:normal;flex:1">'+esc(r[1])+'</div></div>').join("")+'</div>'+
+  '<div class="day">Where to watch</div><div class="row" style="display:block">'+provHTML(w,x)+(w.link?'<div style="margin-top:8px"><a class="lnk" target="_blank" rel="noopener" href="'+esc(w.link)+'">All options on JustWatch ›</a></div>':'')+'</div>'+
+  '<div style="margin-top:12px;display:flex;gap:8px"><button class="btn add" id="sdp">▶ Play on TV</button><button class="btn add" id="sdw">＋ Wish</button><button class="btn" id="sdx">✕ Remove…</button></div>';
+ $("#sback").onclick=()=>{sdetail=false;dong();render()};
+ $("#sdp").onclick=()=>{bloop();tvSheet(x)};
+ $("#sdw").onclick=async()=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();sdetail=false;render()};
+ $("#sdx").onclick=()=>reasonSheet(x)};
+ draw();try{const r=await (await fetch("/api/suggest/detail?id="+x.id)).json();if(sdetail&&r&&r.providers){w=Object.assign({},x,r);draw()}}catch(e){}}
+function drawSug(){const el=$("#slist");if(!el||!SG)return;if(mode!="posters")immOff();
+ if(mode=="posters"){reelFeed(el,SG.items.map(cardSug));return}
+ const it=SG.items.map((x,i)=>'<div class="row" data-si="'+i+'" style="cursor:pointer">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">Movie'+(x.year?' · '+esc(x.year):'')+'</span>'+(x.rating?'<span class="tag" style="color:var(--acc);border-color:var(--acc);font-weight:700">★ '+x.rating+'</span>':'')+'</div>'+
+  '<div class="s" style="white-space:normal">Why: '+x.why.map(esc).join(" · ")+'</div>'+
+  ((x.genres||[]).length?'<div class="s">'+esc((x.genres||[]).slice(0,3).join(" · "))+(x.runtime?' · '+x.runtime+' min':'')+(x.votes?' · '+x.votes.toLocaleString()+' ratings':'')+'</div>':'')+
+  (x.overview?'<div class="s" style="white-space:normal;margin-top:3px">'+esc(x.overview)+'</div>':'')+
+  '<div>'+x.providers.map(p=>'<span class="chip mine">'+esc(p)+'</span>').join("")+'</div></div>'+
+  '<div class="side"><button class="x" data-sd="'+i+'" title="Not interested">✕</button><button class="btn add" data-sw="'+i+'">＋ Wish</button></div></div>').join("");
+ const dm=SG.dismissed.length?'<div class="rmlist"><button class="btn" id="sdtoggle">Dismissed · '+SG.dismissed.length+'</button><div id="sdbody" hidden>'+SG.dismissed.map(x=>'<div class="row"><div class="grow"><div class="t">'+esc(x.title)+'</div></div><button class="btn" data-sr="'+x.id+'">Restore</button></div>').join("")+'</div></div>':"";
+ el.innerHTML=(it||"")?it+dm:'<div class="empty">'+(SG.built?'Nothing new right now.':'Still building your list. Check back in a few minutes.')+'</div>'+dm;
+ el.querySelectorAll("[data-sd]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();reasonSheet(SG.items[+b.dataset.sd])});
+ el.querySelectorAll(".row[data-si]").forEach(r=>r.onclick=e=>{if(e.target.closest("button,a"))return;bloop();reelDetail(SG.items[+r.dataset.si])});
+ el.querySelectorAll("[data-sw]").forEach(b=>b.onclick=async()=>{const x=SG.items[+b.dataset.sw];bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();sugLoad()});
+ el.querySelectorAll("[data-sr]").forEach(b=>b.onclick=async()=>{bloop();await fetch("/api/suggest/restore",{method:"POST",body:JSON.stringify({id:+b.dataset.sr})});sugLoad()});
+ const t=$("#sdtoggle");if(t)t.onclick=()=>{bloop();$("#sdbody").hidden=!$("#sdbody").hidden}}
+function render(){
+ immOff();sdetail=false;modeHead();let rcards=null;const m=$("#main");let h="";
+ if(!D){m.innerHTML='<div class="empty">Loading…</div>';return}
+ if(detail)return;
+ if(tab=="shows"){const seg='<div class="sortbar">'+[["shows","Shows",D.series.length+(D.queued||[]).length],["movies","Movies",D.movies.length]].map(([k,l,n])=>'<button class="btn'+(sub==k?" on":"")+'" data-sub="'+k+'">'+l+' · '+n+'</button>').join("")+'</div>';
+  if(sub=="shows"){const ser=sort=="hours"?D.series.slice().sort((a,b)=>b.hours-a.hours):D.series.slice();
+   h=seg+'<div class="sortbar">Sort <button class="btn'+(sort=="recent"?" on":"")+'" data-s="recent">New first</button><button class="btn'+(sort=="hours"?" on":"")+'" data-s="hours">Most watched</button></div>'+
+    (mode=="posters"&&(ser.length||(D.queued||[]).length)?(rcards=(D.queued||[]).map(cardQueued).concat(ser.map(cardSeries)),'<div id="rfeed"></div>'):(ser.length||(D.queued||[]).length)?(D.queued||[]).map(rowQueued).join("")+ser.map(s=>rowSeries(s,D.series.indexOf(s))).join(""):'<div class="empty">No shows yet.</div>')+(rcards?"":rmList("series"))}
+  else if(sub=="daily"){h=seg+(mode=="posters"&&D.daily.length?(rcards=D.daily.map(cardDaily),'<div id="rfeed"></div>'):D.daily.length?D.daily.map((s,i)=>{const ic={news:"📰",late:"🌙",game:"🎲",live:"📺"}[s.cat]||"📺";
+    return '<div class="row" data-d="'+i+'" style="cursor:pointer">'+(s.cat=="game"||s.cat=="late"?poBox(s.series,ic):'<div class="pw"><div class="po">'+ic+'</div></div>')+'<div class="grow"><div class="t">'+esc(s.series)+'<span class="tag">'+esc(s.ch||s.app)+'</span></div><div class="s">'+s.episodes.length+(s.cat=="game"?' episodes kept':' time'+(s.episodes.length==1?'':'s')+' watched')+' · '+s.hours+' h</div></div>'+side(ago(s.last),"daily",s.series,s.app)+'</div>'}).join(""):'<div class="empty">Nothing recent.</div>')+(rcards?"":rmList("daily"))}
+  else{h=seg+(mode=="posters"&&D.movies.length?(rcards=D.movies.map(cardMovie),'<div id="rfeed"></div>'):D.movies.length?D.movies.map(m=>{const pct=m.total?Math.min(100,Math.round(100*(m.pos||0)/m.total)):0;
+    return '<div class="row">'+poBox(m.title,"🎬")+'<div class="grow"><div class="t">'+esc(m.title)+'<span class="tag">'+esc(m.app)+'</span></div>'+(m.done?'<div class="s" style="color:var(--ok)">Finished</div>':(m.total?'<div class="bar"><i style="width:'+pct+'%"></i></div><div class="s">Stopped at '+mm(m.pos||0)+' of '+mm(m.total)+'</div>':''))+'</div>'+side(ago(m.last),"movie",m.title,m.app)+'</div>'}).join(""):'<div class="empty">No movies yet. Anything over 75 minutes without episode info counts as a movie.</div>')+(rcards?"":rmList("movie"))}}
+ else if(tab=="more"){m.innerHTML='<div class="menu" id="morep">'+MORE.map(([k,l,d])=>'<div class="row" data-go="'+k+'"><div class="grow"><div class="t">'+esc(l)+'</div><div class="s">'+esc(d)+'</div></div><span class="chev">›</span></div>').join("")+'</div>';m.querySelectorAll("[data-go]").forEach(r=>r.onclick=()=>{bloop();go(r.dataset.go)});return}
+ else if(tab=="set"){settingsPage();return}
+ else if(tab=="dev"){devicesPage();return}
+ else if(tab=="disc"){discPage();return}
+ else if(tab=="daily"){const hr=t=>new Date(t*1e3).getHours();
+  const F={all:s=>true,morning:s=>s.cat!="late"&&hr(s.last)>=5&&hr(s.last)<12,daytime:s=>s.cat!="late"&&hr(s.last)>=12&&hr(s.last)<18,news:s=>s.cat=="news",late:s=>s.cat=="late",game:s=>s.cat=="game"};
+  const L=[["all","All"],["morning","Morning"],["daytime","Daytime"],["news","News"],["late","Late Night"],["game","Game Shows"]];if(!F[dsub])dsub="all";
+  const list=D.daily.filter(F[dsub]);
+  h='<div class="chips">'+L.map(([k,l])=>{const n=D.daily.filter(F[k]).length;return '<button class="btn'+(dsub==k?" on":"")+'" data-ds="'+k+'">'+l+' · '+n+'</button>'}).join("")+'</div>'+
+   (mode=="posters"&&list.length?(rcards=list.map(cardDaily),'<div id="rfeed"></div>'):list.length?list.map(s=>{const i=D.daily.indexOf(s),ic={news:"📰",late:"🌙",game:"🎲",live:"📺"}[s.cat]||"📺";
+    return '<div class="row" data-d="'+i+'" style="cursor:pointer">'+(s.cat=="game"||s.cat=="late"?poBox(s.series,ic):'<div class="pw"><div class="po">'+ic+'</div></div>')+'<div class="grow"><div class="t">'+esc(s.series)+'<span class="tag">'+esc(s.ch||s.app)+'</span></div><div class="s">'+s.episodes.length+(s.cat=="game"?' episodes kept':' time'+(s.episodes.length==1?'':'s')+' watched')+' · '+s.hours+' h</div></div>'+side(ago(s.last),"daily",s.series,s.app)+'</div>'}).join(""):'<div class="empty">Nothing here this week.</div>')+(rcards?"":rmList("daily"))}
+ else if(tab=="hist"||tab=="vid"||tab=="live"){
+  const want=tab=="vid"?["video"]:tab=="live"?["live"]:null;let last="";
+  D.sessions.filter(x=>want?want.includes(x.kind):true).forEach(x=>{
+   const d=new Date(x.t0*1e3),dl=d.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
+   if(dl!=last){h+='<div class="day">'+dl+'</div>';last=dl}
+   const name=x.series,sub=x.kind=="episode"?epl(x):x.kind=="video"||x.kind=="live"?x.ch:"";
+   h+='<div class="row">'+(x.kind=="episode"||x.kind=="title"?poBox(name,null,0,x.kind=="episode"?"tv":"any"):'<div class="po">'+(x.kind=="live"?"📺":"▶")+'</div>')+'<div class="grow"><div class="t">'+esc(name)+'</div><div class="s">'+esc(sub)+'</div><div class="s">'+d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+' · '+mm(x.min*60)+' · '+esc(x.app)+' · '+esc(x.dev)+'</div></div></div>'});
+  if(tab=="hist"&&mode=="posters"){rcards=D.sessions.filter(x=>x.kind=="episode"||x.kind=="title").slice(0,60).map(cardHist);if(rcards.length)h='<div id="rfeed"></div>';else rcards=null}
+  if(!h)h='<div class="empty">Nothing yet.</div>'}
+ else if(tab=="shw"){m.innerHTML='<div class="s" style="margin-bottom:8px">Shows to Watch: series picked for you from what you watch and what you like. ＋ Watch adds one to Now Playing.</div><div id="hlist"><div class="empty">Loading…</div></div>';showsLoad();return}
+ else if(tab=="sug"){m.innerHTML='<div class="s" style="margin-bottom:8px">Movie picks: recent, well-rated movies on your services, based on what you watch.</div><div id="slist"><div class="empty">Loading…</div></div>';sugLoad();return}
+ else if(tab=="wish"){m.innerHTML='<div class="sortbar"><input id="wq" class="wq" type="search" placeholder="Search shows and movies to add" autocomplete="off"></div><div id="wres"></div><div class="day">Your wishlist</div><div id="wlist"><div class="empty">Loading…</div></div>';wishInit();return}
+ else{h='<div class="stats">'+Object.entries(D.hours).map(([a,v])=>'<div class="stat"><b>'+v.toFixed(1)+' h</b>'+esc(a)+'</div>').join("")+'</div><div class="s" style="margin-top:12px">Logging since '+esc((D.span_start||"").replace("T"," ").slice(0,16))+'</div>'}
+ m.innerHTML=h;m.querySelectorAll("[data-po]").forEach(el=>poster(el.dataset.po,el,el.dataset.pt));
+ m.querySelectorAll(".row[data-i]").forEach(r=>r.onclick=()=>openShow(D.series[+r.dataset.i]));
+ m.querySelectorAll(".row[data-qi]").forEach(r=>r.onclick=e=>{if(e.target.closest("button"))return;bloop();reelDetail(Object.assign({type:"tv"},D.queued[+r.dataset.qi]))});
+ m.querySelectorAll("[data-qr]").forEach(b=>b.onclick=async e=>{e.stopPropagation();bloop();await fetch("/api/queue/remove",{method:"POST",body:JSON.stringify({id:+b.dataset.qr})});await load();render()});
+ m.querySelectorAll(".row[data-d]").forEach(r=>r.onclick=()=>openShow(D.daily[+r.dataset.d]));
+ m.querySelectorAll("[data-play]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();playNow(b.dataset.play,b.dataset.app)});
+ m.querySelectorAll(".x[data-rm]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const k=b.dataset.rm,n=b.dataset.name;bloop();await post("/api/remove",k,n);toast("Removed "+n,()=>post("/api/restore",k,n))});
+ m.querySelectorAll("[data-rs]").forEach(b=>b.onclick=()=>{bloop();post("/api/restore",b.dataset.rs,b.dataset.name)});
+ const rt=$("#rmtoggle");if(rt)rt.onclick=()=>{bloop();$("#rmbody").hidden=!$("#rmbody").hidden};
+ m.querySelectorAll("[data-ds]").forEach(b=>b.onclick=()=>{dsub=b.dataset.ds;localStorage.setItem("wl_dsub",dsub);bloop();render()});
+ m.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>{sub=b.dataset.sub;localStorage.setItem("wl_sub",sub);bloop();render()});
+ m.querySelectorAll(".sortbar [data-s]").forEach(b=>b.onclick=()=>{sort=b.dataset.s;localStorage.setItem("wl_sort",sort);bloop();render()});
+ if(rcards)reelFeed($("#rfeed"),rcards)}
+function nowBar(){const n=D?Object.entries(D.now):[];$("#now").innerHTML=n.map(([d,v])=>'<div class="nowc"><span class="pulse"></span><div class="grow"><div class="t">'+esc(v.series||v.title)+'</div><div class="s">'+esc(d)+' · '+esc(v.app)+(v.ept?' · '+esc(v.ept):v.ch?' · '+esc(v.ch):'')+'</div></div></div>').join("")}
+function nav(){modeHead();const cur=MORE.some(m=>m[0]==tab)?"more":tab;
+ $("#nav").innerHTML=BAR.map(([k,ic,l])=>'<button class="'+(k==cur?"on":"")+'" data-k="'+k+'"><span class="ic">'+ic+'</span>'+l+'</button>').join("");
+ const lb=(TABS.find(x=>x[0]==tab)||[0,"Strivo"])[1];$("header h1").textContent=lb;
+ $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>{bloop();tab=b.dataset.k;detail=null;sdetail=false;localStorage.setItem("wl_tab",tab);nav();render();window.scrollTo(0,0)})}
+function go(k){tab=k;detail=null;localStorage.setItem("wl_tab",tab);nav();render();window.scrollTo(0,0)}
+async function load(){try{D=await (await fetch("/api/data")).json()}catch(e){}nowBar();const hold=["wish","disc","set","more","dev"].includes(tab)&&document.querySelector("#wlist,#slist,#hlist,#glist,#setp,#morep,#devp");if(!detail&&!sdetail&&!document.querySelector("#rfeed .sl")&&!hold)render()}
+// ---- Setup wizard, Devices page and extra settings (Strivo)
+let SU=null,wstep=0;
+const KINDS=[["appletv","Apple TV",""],["android","Google TV / Android TV","android"],["android","Fire TV","firetv"],["roku","Roku (experimental)",""],["plex","Plex server",""],["jellyfin","Jellyfin / Emby server",""]];
+const COUNTRIES=[["US","United States"],["CA","Canada"],["GB","United Kingdom"],["IE","Ireland"],["AU","Australia"],["NZ","New Zealand"],["DE","Germany"],["AT","Austria"],["CH","Switzerland"],["FR","France"],["BE","Belgium"],["NL","Netherlands"],["ES","Spain"],["PT","Portugal"],["IT","Italy"],["SE","Sweden"],["NO","Norway"],["DK","Denmark"],["FI","Finland"],["PL","Poland"],["BR","Brazil"],["MX","Mexico"],["AR","Argentina"],["IN","India"],["JP","Japan"],["KR","South Korea"],["ZA","South Africa"]];
+const HOWTO={appletv:"You'll type a 4-digit code shown on the TV (twice: once for what's playing, once for Play on TV).",
+ android:"On the TV: Settings › Device Preferences › About › press Build 7 times. Then Developer options › turn on Network debugging (or USB debugging). When the TV asks, tick Always allow and press Allow.",
+ firetv:"On the Fire TV: Settings › My Fire TV › Developer options › ADB debugging On (tap About › your device name 7 times to show Developer options). Press Allow when asked.",
+ roku:"On the Roku: Settings › System › Advanced system settings › Control by mobile apps › Network access: Permissive.",
+ plex:"Address of your Plex server (port 32400). You may be asked for your X-Plex-Token.",
+ jellyfin:"Address of your Jellyfin server (port 8096). You'll paste an API key from Dashboard › API Keys."};
+async function suLoad(){try{SU=await (await fetch("/api/setup")).json()}catch(e){SU=null}return SU}
+async function jpost(p,o){const r=await fetch(p,{method:"POST",body:JSON.stringify(o||{})});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||("HTTP "+r.status));return j}
+const kindLabel=(k,pl)=>(KINDS.find(x=>x[0]==k&&(!pl||x[2]==pl))||KINDS.find(x=>x[0]==k)||[0,k])[1];
+function devRows(health){const H={};(health||[]).forEach(h=>H[h.id]=h);
+ return (SU.devices||[]).map(d=>{const h=H[d.id]||{};const st=!d.enabled?"Paused":h.online?("Connected"+(h.app?" · "+h.app:"")):(h.error?"Not reachable":"Connecting…");
+  return '<div class="row"><div class="grow"><input class="wq" data-dn="'+esc(d.id)+'" value="'+esc(d.name)+'" aria-label="TV name" style="padding:6px 10px"><div class="s" style="margin-top:4px;white-space:normal">'+esc(kindLabel(d.kind,d.platform))+(d.model?' · '+esc(d.model):'')+' · <span style="color:'+(h.online?"var(--ok)":"var(--mut)")+'">'+esc(st)+'</span></div>'+(h.error&&!h.online?'<div class="s" style="white-space:normal;color:var(--warn)">'+esc(h.error)+'</div>':'')+'</div><div class="side"><button class="btn" data-den="'+esc(d.id)+'">'+(d.enabled?"Pause":"Resume")+'</button><button class="x" data-drm="'+esc(d.id)+'" title="Remove">✕</button></div></div>'}).join("")||'<div class="empty">No boxes yet.</div>'}
+function bindDevRows(el,redraw){
+ el.querySelectorAll("[data-dn]").forEach(i=>i.onchange=async()=>{try{SU=await jpost("/api/setup/device",{id:i.dataset.dn,name:i.value});toast("Renamed")}catch(e){toast(e.message)}});
+ el.querySelectorAll("[data-den]").forEach(b=>b.onclick=async()=>{const d=SU.devices.find(x=>x.id==b.dataset.den);SU=await jpost("/api/setup/device",{id:d.id,enabled:!d.enabled});redraw()});
+ el.querySelectorAll("[data-drm]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this box from Strivo? Its history stays."))return;SU=await jpost("/api/setup/device",{id:b.dataset.drm,remove:true});redraw()})}
+function addBox(el,redraw){
+ el.innerHTML='<div class="row" style="display:block"><button class="btn add" id="scan">🔎 Find boxes on my network</button><div id="found" style="margin-top:8px"></div>'+
+  '<details style="margin-top:10px"><summary class="s" style="cursor:pointer">Add one by address</summary><div style="display:grid;gap:8px;margin-top:8px"><select id="mk" class="wq">'+KINDS.map((k,i)=>'<option value="'+i+'">'+esc(k[1])+'</option>').join("")+'</select><input id="mn" class="wq" placeholder="Name, e.g. Living Room"><input id="mh" class="wq" placeholder="Address, e.g. 192.168.1.20" autocapitalize="off"><div class="note" id="mhow"></div><button class="btn add" id="madd">Add and pair</button></div></details></div>';
+ const how=()=>{const k=KINDS[+$("#mk").value];$("#mhow").textContent=HOWTO[k[2]||k[0]]||""};$("#mk").onchange=how;how();
+ $("#madd").onclick=()=>{const k=KINDS[+$("#mk").value];if(!$("#mh").value.trim())return toast("Type the address");pairFlow({kind:k[0],platform:k[2],name:$("#mn").value.trim()||k[1],host:$("#mh").value.trim()},redraw)};
+ $("#scan").onclick=async()=>{const f=$("#found");f.innerHTML='<div class="s">Looking for Apple TV, Google TV, Fire TV, Roku, Plex and Jellyfin… (about 10 seconds)</div>';
+  try{const j=await jpost("/api/setup/discover",{timeout:5});const L=j.found||[];
+   f.innerHTML=L.length?L.map((d,i)=>'<div class="row"><div class="grow"><div class="t">'+esc(d.name)+'</div><div class="s">'+esc(kindLabel(d.kind,d.platform))+(d.model?' · '+esc(d.model):'')+(d.experimental?' · experimental':'')+'</div></div>'+(d.added?'<span class="s">Added</span>':'<button class="btn add" data-fi="'+i+'">Add</button>')+'</div>').join(""):'<div class="s">Nothing found. Check the box is on and on the same network (not a guest network), or add it by address.</div>';
+   f.querySelectorAll("[data-fi]").forEach(b=>b.onclick=()=>pairFlow(L[+b.dataset.fi],redraw))}catch(e){f.innerHTML='<div class="s">Scan failed: '+esc(e.message)+'</div>'}}}
+function pairFlow(spec,done){const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:120;display:flex;align-items:flex-end;justify-content:center";document.body.appendChild(d);
+ let pid=null,stopped=false,lastState="";
+ const box=(h,btns)=>{d.innerHTML='<div style="background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box">'+'<div class="t" style="margin-bottom:6px">'+esc(spec.name)+'</div>'+h+(btns||'<button class="btn" id="px" style="width:100%;padding:10px;margin-top:10px">Close</button>')+'</div>';const x=d.querySelector("#px");if(x)x.onclick=()=>{stopped=true;d.remove();done&&done()}};
+ const tip=HOWTO[spec.platform||spec.kind];box('<div class="s" style="white-space:normal">'+esc(tip||"")+'</div><div class="s" style="margin-top:8px">Connecting…</div>');
+ const poll=async()=>{if(stopped)return;let v;try{v=await (await fetch("/api/setup/pair?id="+pid)).json()}catch(e){return setTimeout(poll,1500)}
+  if(v.state=="need_input"&&lastState!="need_input"){box('<div class="s" style="white-space:normal;margin-bottom:8px">'+esc(v.message)+'</div><input class="wq" id="pin" autocomplete="off" '+(/code/i.test(v.message)?'inputmode="numeric" maxlength="4"':'')+'><button class="btn add" id="psend" style="width:100%;padding:10px;margin-top:10px">Continue</button>',' ');
+   $("#pin").focus();$("#psend").onclick=async()=>{await jpost("/api/setup/pair/input",{id:pid,value:$("#pin").value});lastState="sent";box('<div class="s">Checking…</div>',' ');setTimeout(poll,800)};lastState="need_input";return}
+  if(v.state=="running"){if(lastState!="need_input")box('<div class="s" style="white-space:normal">'+esc(v.message)+'</div>',' ');setTimeout(poll,1000);return}
+  if(v.state=="done"){stopped=true;box('<div class="s" style="color:var(--ok)">✓ '+esc(v.message)+'</div>'+((spec.kind=="plex"||spec.kind=="jellyfin")?'<div class="note" style="white-space:normal;margin-top:6px">Tracking works now by asking the server every few seconds. For instant updates, add a webhook (see docs/INSTALL.md › Media servers).</div>':''));await suLoad();done&&done();return}
+  if(v.state=="error"){stopped=true;box('<div class="s" style="white-space:normal;color:var(--warn)">'+esc(v.error)+'</div>')}};
+ jpost("/api/setup/pair",spec).then(v=>{pid=v.id;poll()}).catch(e=>box('<div class="s" style="color:var(--warn)">'+esc(e.message)+'</div>'))}
+function extraSettings(S){const cs=COUNTRIES.some(c=>c[0]==S.country)?COUNTRIES:COUNTRIES.concat([[S.country,S.country]]);
+ return '<h3>Where you live</h3><div class="row"><div class="ln"><div>Country (for what is streaming where)</div><select id="ctry">'+cs.map(c=>'<option value="'+c[0]+'"'+(c[0]==S.country?' selected':'')+'>'+esc(c[1])+'</option>').join("")+'</select></div></div>'+
+  '<h3>Notifications</h3><div class="row"><div class="note" style="margin:0 0 6px">Optional. When something on your Saved list lands on one of your services or airs tomorrow, Strivo POSTs a short message here (an ntfy topic, a Home Assistant webhook…).</div><input class="wq" id="nurl" placeholder="https://ntfy.sh/your-topic" value="'+esc(S.notify_url||"")+'" autocapitalize="off"></div>'+
+  '<h3>Show and movie info</h3><div class="row"><div class="ln"><div>TMDB key<div class="note">'+(S.tmdb_key_set?'Set. Posters, episodes and picks come from TMDB.':'Not set. Posters and picks need a free TMDB key.')+'</div></div><button class="btn" id="tmdbset">'+(S.tmdb_key_set?"Change":"Add key")+'</button></div></div>'+
+  '<div class="note" style="margin:16px 0">Settings are shared by everyone in the house.</div><div class="note" style="margin:0 0 16px;opacity:.6">Strivo '+esc((SU&&SU.version)||"")+' · <a class="lnk" href="https://github.com/nickdnj/strivo" target="_blank" rel="noopener">github.com/nickdnj/strivo</a></div>'}
+function bindExtraSettings(m,S,draw){
+ $("#ctry").onchange=e=>stSave({country:e.target.value},"Country saved. Refresh picks to update.");
+ $("#nurl").onchange=e=>stSave({notify_url:e.target.value.trim()});
+ $("#tmdbset").onclick=()=>tmdbSheet(()=>stLoad().then(draw))}
+function tmdbSheet(done){const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:120;display:flex;align-items:flex-end;justify-content:center";document.body.appendChild(d);
+ d.innerHTML='<div style="background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box">'+tmdbForm()+'<button class="btn" id="tx" style="width:100%;padding:10px;margin-top:10px">Close</button></div>';
+ bindTmdb(d,()=>{d.remove();done&&done()});d.querySelector("#tx").onclick=()=>d.remove()}
+const tmdbForm=()=>'<div class="s" style="white-space:normal;margin-bottom:8px">Strivo gets posters, episode lists and picks from TMDB. Only show and movie titles are sent, never your history. A key is free: sign up at <a class="lnk" href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, then copy the <b>API Read Access Token</b> from <a class="lnk" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Settings › API</a>.</div><input class="wq" id="tkey" placeholder="Paste the token" autocomplete="off" autocapitalize="off"><button class="btn add" id="tsave" style="width:100%;padding:10px;margin-top:8px">Save key</button><div class="note" id="tmsg"></div>';
+function bindTmdb(el,ok){el.querySelector("#tsave").onclick=async()=>{const k=el.querySelector("#tkey").value.trim();if(!k)return;el.querySelector("#tmsg").textContent="Checking…";
+ try{await jpost("/api/setup/tmdb",{key:k});el.querySelector("#tmsg").textContent="✓ Key works.";await suLoad();ok&&ok()}catch(e){el.querySelector("#tmsg").textContent=e.message}}}
+async function devicesPage(){const m=$("#main");m.innerHTML='<div class="set" id="devp"><div class="empty">Loading…</div></div>';await suLoad();
+ const draw=async()=>{let hl=[];try{hl=(await (await fetch("/api/health")).json()).devices}catch(e){}
+  const el=$("#devp");if(!el)return;el.innerHTML='<h3>Your boxes</h3>'+devRows(hl)+'<h3>Add a box or media server</h3><div id="addb"></div><div class="note" style="margin-top:14px">Tap a name to rename it. History stays when you rename or remove a box.</div>';
+  bindDevRows(el,async()=>{await suLoad();draw()});addBox($("#addb"),async()=>{await suLoad();draw()})};
+ draw()}
+// ---- first-run wizard
+const WSTEPS=["Welcome","Your boxes","Show info","Your services","Your TVs"];
+function wizard(){let w=$("#wiz");if(!w){w=document.createElement("div");w.id="wiz";w.className="rd";document.body.appendChild(w)}
+ const S=SU,nav=(back,next,label)=>'<div style="display:flex;gap:8px;margin-top:18px">'+(back?'<button class="btn" id="wb" style="flex:1;padding:12px">‹ Back</button>':'')+'<button class="btn add" id="wn" style="flex:2;padding:12px;background:var(--acc);color:#fff;border-color:var(--acc)">'+(label||"Next ›")+'</button></div>';
+ const dots='<div class="s" style="margin:4px 0 14px">Step '+(wstep+1)+' of '+WSTEPS.length+' · '+WSTEPS[wstep]+'</div>';
+ let h='<div class="in set"><h1 style="margin:14px 0 2px">Set up Strivo</h1>'+dots;
+ if(wstep==0)h+='<div class="row" style="display:block"><div class="t" style="white-space:normal;font-size:17px">Strivo remembers everything you watch, across every app, by itself.</div><p class="s" style="white-space:normal">It listens to your streaming boxes on your home network, builds your history and queue, and finds what to watch next. Everything stays on this computer. There is no Strivo account and no Strivo cloud.</p><p class="s" style="white-space:normal">This takes about 3 minutes: find your boxes, add a free TMDB key for posters, pick your services, and name your TVs.</p></div>'+nav(false,true,"Let's go ›");
+ else if(wstep==1)h+='<div class="s" style="white-space:normal">Apple TV, Google TV / Android TV and Fire TV track what you watch. Plex and Jellyfin servers report exactly what plays on any screen. Roku support is experimental.</div><h3>Added</h3><div id="wdev">'+devRows([])+'</div><h3>Add</h3><div id="waddb"></div>'+nav(true,true,(S.devices||[]).length?"Next ›":"Skip for now ›");
+ else if(wstep==2)h+=(S.tmdb_key_set?'<div class="row"><div class="t" style="color:var(--ok)">✓ TMDB key saved</div><div class="s">You can change it later in Settings.</div></div>':'<div class="row" style="display:block">'+tmdbForm()+'</div>')+nav(true,true,S.tmdb_key_set?"Next ›":"Skip for now ›");
+ else if(wstep==3)h+='<div class="row"><div class="ln"><div>Country</div><select id="wct">'+COUNTRIES.map(c=>'<option value="'+c[0]+'"'+(c[0]==S.country?' selected':'')+'>'+esc(c[1])+'</option>').join("")+'</select></div></div><h3>Services you pay for</h3><div class="row"><div class="svc">'+S.all_services.map(n=>'<button class="btn'+(S.services.includes(n)?" on":"")+'" data-wsv="'+esc(n)+'">'+esc(n)+'</button>').join("")+'</div><div class="note">Picks only show what is included with these.</div></div>'+nav(true,true);
+ else{const tv=(S.devices||[]).filter(d=>["appletv","android","roku"].includes(d.kind));
+  h+=(tv.length?'<div class="s" style="white-space:normal;margin-bottom:8px">Give each TV the name you use at home, and pick the one Play on TV uses first.</div>'+tv.map(d=>'<div class="row"><input class="wq" data-wn="'+esc(d.id)+'" value="'+esc(d.name)+'"><label class="s" style="display:flex;gap:6px;align-items:center;margin-left:8px;white-space:nowrap"><input type="radio" name="wdef" value="'+esc(d.id)+'"'+(S.default_tv==d.id?' checked':'')+'> Default</label></div>').join(""):'<div class="row"><div class="s" style="white-space:normal">No TVs added yet. You can add them any time in More › Devices.</div></div>')+nav(true,true,"Finish ✓")}
+ w.innerHTML=h+'</div>';
+ const go2=n=>{wstep=n;wizard();w.scrollTop=0};
+ if($("#wb"))$("#wb").onclick=()=>go2(wstep-1);
+ $("#wn").onclick=async()=>{if(wstep==4){for(const i of w.querySelectorAll("[data-wn]"))if(i.value.trim())await jpost("/api/setup/device",{id:i.dataset.wn,name:i.value.trim()});const r=w.querySelector('input[name=wdef]:checked');if(r)await jpost("/api/setup/prefs",{default_tv:r.value});await jpost("/api/setup/done");w.remove();ST=null;load();toast("You're set. Now just watch TV.");return}go2(wstep+1)};
+ if(wstep==1){const hl=async()=>{try{return (await (await fetch("/api/health")).json()).devices}catch(e){return []}};hl().then(h=>{if($("#wdev")){$("#wdev").innerHTML=devRows(h);bindDevRows($("#wdev"),redraw)}});const redraw=async()=>{await suLoad();$("#wdev").innerHTML=devRows(await hl());bindDevRows($("#wdev"),redraw);const b=$("#wn");if(b)b.textContent=(SU.devices||[]).length?"Next ›":"Skip for now ›"};bindDevRows($("#wdev"),redraw);addBox($("#waddb"),redraw)}
+ if(wstep==2&&!S.tmdb_key_set)bindTmdb(w,()=>go2(3));
+ if(wstep==3){$("#wct").onchange=async e=>{SU=await jpost("/api/setup/prefs",{country:e.target.value})};
+  w.querySelectorAll("[data-wsv]").forEach(b=>b.onclick=async()=>{const n=b.dataset.wsv,on=SU.services.includes(n);SU=await jpost("/api/setup/prefs",{my_services:on?SU.services.filter(x=>x!=n):SU.services.concat([n])});b.classList.toggle("on",!on)})}}
+async function boot(){await suLoad();if(SU&&!SU.setup_done){wstep=0;wizard()}load()}
+
+fixBottom();head();nav();boot();if("serviceWorker" in navigator&&window.isSecureContext)navigator.serviceWorker.register("/sw.js").catch(()=>{});setInterval(load,30000);
+</script></body></html>

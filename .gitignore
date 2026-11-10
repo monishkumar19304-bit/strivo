@@ -19,3 +19,8 @@ dev-data/
 *.token
 .tmdb_token
 *.credentials
+
+# local dev
+.venv/
+*.egg-info/
+.pytest_cache/

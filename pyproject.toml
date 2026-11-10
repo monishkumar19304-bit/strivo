@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "strivo"
+version = "0.1.0.dev0"
+description = "Remembers everything you watch, across every streaming app, automatically. Local by default."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Strivo contributors" }]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Home Automation",
+  "Topic :: Multimedia :: Video",
+]
+dependencies = [
+  "pyatv>=0.16",            # Apple TV
+  "adb-shell[async]>=0.4.4",  # Google TV / Android TV / Fire TV
+  "zeroconf>=0.130",        # discovery and the strivo.local name
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[project.scripts]
+strivo = "strivo.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/nickdnj/strivo"
+Issues = "https://github.com/nickdnj/strivo/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+strivo = ["web/*", "web/pwa/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+  "integration: needs real software running (emulator, container, fake device); skipped by default",
+]
+addopts = "-m 'not integration'"

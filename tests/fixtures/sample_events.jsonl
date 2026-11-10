@@ -1,0 +1,4 @@
+{"ts": "2026-01-05T20:00:00", "dev": "living-room", "src": "appletv", "kind": "play", "app": "Hulu", "state": "Playing", "title": "Sample Show | S1 E1 - Pilot", "pos": 0, "total": 1500}
+{"ts": "2026-01-05T20:25:00", "dev": "living-room", "src": "appletv", "kind": "play", "app": "Hulu", "state": "Idle", "title": null}
+{"ts": "2026-01-05T21:00:00", "dev": "living-room", "src": "appletv", "kind": "play", "app": "Netflix", "state": "Playing", "title": null}
+{"ts": "2026-01-05T22:00:00", "dev": "den", "src": "android", "kind": "play", "app": "VLC", "app_id": "org.videolan.vlc", "state": "Playing", "title": "Sample Show - S01E02 - Second", "pos": 10}

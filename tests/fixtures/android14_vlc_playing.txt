@@ -1,0 +1,93 @@
+MEDIA SESSION SERVICE (dumpsys media_session)
+
+7 sessions listeners.
+Global priority session is null
+User Records:
+Record for full_user=0
+  Volume key long-press listener: null
+  Volume key long-press listener package: 
+  Media key listener: null
+  Media key listener package: 
+  OnMediaKeyEventDispatchedListener: added 0 listener(s)
+  OnMediaKeyEventSessionChangedListener: added 2 listener(s)
+    from com.google.android.bluetooth
+    from com.google.android.bluetooth
+  Last MediaButtonReceiver: MBR {pi=PendingIntent{998cfc2: PendingIntentRecord{3747f69 org.videolan.vlc broadcastIntent (allowlist: 75f3653:+30s0ms/0/NOTIFICATION_SERVICE/NotificationManagerService)}}, componentName=ComponentInfo{org.videolan.vlc/androidx.media.session.MediaButtonReceiver}, type=1, pkg=org.videolan.vlc}
+  Media button session is org.videolan.vlc/VLC (userId=0)
+  Sessions Stack - have 5 sessions:
+    VLC org.videolan.vlc/VLC (userId=0)
+      ownerPid=3740, ownerUid=10122, userId=0
+      package=org.videolan.vlc
+      launchIntent=PendingIntent{769c1d3: PendingIntentRecord{d480110 org.videolan.vlc startActivity}}
+      mediaButtonReceiver=MBR {pi=PendingIntent{998cfc2: PendingIntentRecord{3747f69 org.videolan.vlc broadcastIntent (allowlist: 75f3653:+30s0ms/0/NOTIFICATION_SERVICE/NotificationManagerService)}}, componentName=ComponentInfo{org.videolan.vlc/androidx.media.session.MediaButtonReceiver}, type=1, pkg=org.videolan.vlc}
+      active=true
+      flags=3
+      rating type=0
+      controllers: 5
+      state=PlaybackState {state=PLAYING(3), position=0, buffered position=0, speed=1.0, updated=120195, actions=4210523, custom actions=[Action:mName='Rewind, mIcon=2131231002, mExtras=Bundle[mParcelledData.dataSize=144], Action:mName='Fast forward, mIcon=2131230985, mExtras=Bundle[mParcelledData.dataSize=144]], active item id=0, error=null}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: size=10, description=Strivo Test Show - S01E02 - Episode 2, Unknown Album, null
+      queueTitle=Now Playing, size=1
+    BluetoothMediaBrowserService com.google.android.bluetooth/BluetoothMediaBrowserService (userId=0)
+      ownerPid=920, ownerUid=1002, userId=0
+      package=com.google.android.bluetooth
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=false
+      flags=3
+      rating type=0
+      controllers: 0
+      state=PlaybackState {state=ERROR(7), position=0, buffered position=0, speed=0.0, updated=16807, actions=0, custom actions=[], active item id=-1, error=Bluetooth audio disconnected}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: null
+      queueTitle=Now Playing, size=0
+    BluetoothMediaBrowserService com.google.android.bluetooth/BluetoothMediaBrowserService (userId=0)
+      ownerPid=920, ownerUid=1002, userId=0
+      package=com.google.android.bluetooth
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=false
+      flags=3
+      rating type=0
+      controllers: 0
+      state=PlaybackState {state=ERROR(7), position=0, buffered position=0, speed=0.0, updated=16812, actions=0, custom actions=[], active item id=-1, error=Bluetooth audio disconnected}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: null
+      queueTitle=Now Playing, size=0
+    BluetoothMediaBrowserService com.google.android.bluetooth/BluetoothMediaBrowserService (userId=0)
+      ownerPid=920, ownerUid=1002, userId=0
+      package=com.google.android.bluetooth
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=false
+      flags=3
+      rating type=0
+      controllers: 0
+      state=PlaybackState {state=ERROR(7), position=0, buffered position=0, speed=0.0, updated=17617, actions=0, custom actions=[], active item id=-1, error=Bluetooth audio disconnected}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: null
+      queueTitle=Now Playing, size=0
+    BluetoothMediaBrowserService com.google.android.bluetooth/BluetoothMediaBrowserService (userId=0)
+      ownerPid=920, ownerUid=1002, userId=0
+      package=com.google.android.bluetooth
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=false
+      flags=3
+      rating type=0
+      controllers: 0
+      state=PlaybackState {state=ERROR(7), position=0, buffered position=0, speed=0.0, updated=17655, actions=0, custom actions=[], active item id=-1, error=Bluetooth audio disconnected}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: null
+      queueTitle=Now Playing, size=0
+Audio playback (lastly played comes first)
+  uid=10122 packages=org.videolan.vlc 
+Media session config:
+  media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_callback_fgs_while_in_use_temp_allow_duration_ms: [cur: 10000, def: 10000]
