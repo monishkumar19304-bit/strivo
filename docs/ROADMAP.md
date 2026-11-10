@@ -59,6 +59,17 @@ Apps will change what they report; Strivo should fix itself. Design: [SELF-HEALI
 - [ ] Tier 3: optional bring-your-own-key cloud diagnosis and report drafting
 - [ ] Pilot with beta testers
 
+## Phase 3¾ · Sports
+
+Live games across every service, in one place. Design: [SPORTS.md](SPORTS.md).
+
+- [ ] **Sports tab:** live now, later today, this week; filter by sport, league and team; "on my services"
+- [ ] Where to watch each game, mapped from channels to your services (rules data)
+- [ ] Play on TV opens the right app for the game
+- [ ] Learn your teams automatically from what you watch; games in history
+- [ ] No spoilers by default; optional "game starting" notice for your teams
+- [ ] Local channels and blackouts by ZIP code
+
 ## Phase 4 · Everywhere (ideas)
 
 - [ ] Home Assistant add-on
