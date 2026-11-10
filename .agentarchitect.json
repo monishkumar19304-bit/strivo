@@ -1,0 +1,29 @@
+{
+  "provisionedFrom": "/Users/nickd/Workspaces/AgentArchitect",
+  "kind": "project",
+  "team": "software-project",
+  "teams": [
+    "software-project"
+  ],
+  "projectType": "software",
+  "projectName": "Strivo",
+  "agents": [
+    "dev-planning",
+    "legal",
+    "marketing",
+    "product-requirements",
+    "qa-strategy",
+    "sales",
+    "software-architecture",
+    "software-developer",
+    "ux-design",
+    "wiki-ingest"
+  ],
+  "skills": [
+    "software-project"
+  ],
+  "mcp": [],
+  "provisionedAt": "2026-11-10",
+  "aaCommit": "92258634ce98fd32dde6fd94fa2ddbd6c7378ae5",
+  "syncedAt": "2026-11-10"
+}
