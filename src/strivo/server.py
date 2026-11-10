@@ -140,7 +140,8 @@ class App:
                 raise KeyError(key)
             failure = a["state"] if a["state"] in report.FAILURES else "offline"
         url, fields = report.issue_url(a, failure)
-        return dict(url=url, fields=fields)
+        existing = report.find_existing_issue(a, failure)
+        return dict(url=existing or url, fields=fields, existing=bool(existing))
 
     def setup_state(self) -> dict:
         c = self.data.config()

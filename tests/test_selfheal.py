@@ -12,7 +12,7 @@ from strivo.adapters.base import NowPlaying, PLAYING
 from strivo.diagnose import CloudModelDiagnoser, RulesDiagnoser, redact
 from strivo.health import HealthTracker
 from strivo.history import norm
-from strivo.report import issue_url, os_family
+from strivo.report import find_existing_issue, issue_url, os_family
 from strivo.updates import UpdateChecker
 
 
@@ -200,6 +200,75 @@ def test_report_contains_nothing_personal(rules):
     _, f2 = issue_url(dict(entry, app="com.private.sideloaded"), "degraded")
     assert f2["app"] == "another app"
     assert os_family("27.3") == "27" and os_family("Android 14") == "Android 14"
+
+
+def test_report_reuses_matching_open_compatibility_issue(rules):
+    calls = []
+
+    def fetch(url, headers):
+        calls.append((url, headers))
+        return 200, {}, json.dumps({"items": [{
+            "state": "open", "labels": [{"name": "compatibility"}],
+            "title": "[compat] Hulu on Apple TV: titles stopped coming through",
+            "body": "| failure | degraded |", "html_url": "https://github.com/test/repo/issues/42"
+        }]}).encode()
+
+    entry = dict(kind="appletv", platform="appletv", app="Hulu")
+    assert find_existing_issue(entry, "degraded", repo="test/repo", fetch=fetch).endswith("/issues/42")
+    assert find_existing_issue(entry, "degraded", repo="test/repo", fetch=fetch).endswith("/issues/42")
+    assert len(calls) == 1
+    assert "is%3Aissue" in calls[0][0] and "Authorization" not in calls[0][1]
+
+
+def test_report_does_not_reuse_nonmatching_or_unlabelled_issue(rules):
+    def fetch(url, headers):
+        return 200, {}, json.dumps({"items": [
+            {"state": "closed", "labels": [{"name": "compatibility"}],
+             "title": "Hulu on Apple TV: titles stopped coming through",
+             "body": "degraded", "html_url": "https://example.test/closed"},
+            {"state": "open", "labels": [{"name": "bug"}],
+             "title": "Hulu on Apple TV: titles stopped coming through",
+             "body": "degraded", "html_url": "https://example.test/unlabelled"},
+        ]}).encode()
+
+    assert find_existing_issue(dict(kind="appletv", platform="appletv", app="Hulu"),
+                               "degraded", repo="test/nonmatching", fetch=fetch) is None
+
+
+@pytest.mark.parametrize("item", [
+    {"state": "open", "pull_request": {"url": "https://api.github.com/pulls/42"},
+     "labels": [{"name": "compatibility"}], "title": "Hulu on Apple TV: titles stopped coming through",
+     "body": "degraded", "html_url": "https://github.com/test/repo/issues/42"},
+    {"state": "open", "labels": [{"name": "compatibility"}],
+     "title": "Hulu on Apple TV: titles stopped coming through", "body": "degraded",
+     "html_url": "https://evil.example/issues/42"},
+])
+def test_report_rejects_pull_requests_and_untrusted_urls(item, rules):
+    def fetch(url, headers):
+        return 200, {}, json.dumps({"items": [item]}).encode()
+
+    assert find_existing_issue(dict(kind="appletv", platform="appletv", app="Hulu"),
+                               "degraded", repo="test/restricted", fetch=fetch) is None
+
+
+def test_report_does_not_match_private_app_as_another_app(rules):
+    calls = []
+
+    def fetch(url, headers):
+        calls.append(url)
+        return 200, {}, b'{"items":[]}'
+
+    assert find_existing_issue(dict(kind="appletv", platform="appletv", app="com.private.sideloaded"),
+                               "degraded", repo="test/private", fetch=fetch) is None
+    assert calls == []
+
+
+def test_report_search_failure_falls_back_to_new_issue(rules):
+    def fetch(url, headers):
+        raise OSError("offline")
+
+    assert find_existing_issue(dict(kind="appletv", platform="appletv", app="Hulu"),
+                               "degraded", repo="test/failure", fetch=fetch) is None
 
 
 def test_ai_tiers_are_stubs_with_redaction():
