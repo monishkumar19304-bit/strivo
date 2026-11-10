@@ -28,7 +28,7 @@ MAX_BYTES = 512 * 1024
 PLATFORMS = ("appletv", "android", "firetv", "roku")
 LEVELS = ("app-only", "title", "video", "channel", "episode")
 _TOP_KEYS = {"schema", "version", "min_strivo", "about", "services", "streaming", "providers", "title_rules",
-             "launch", "expect"}
+             "launch", "expect", "sports"}
 
 
 class RulesError(ValueError):
@@ -97,7 +97,31 @@ def validate(raw: bytes, expected_sha256: str | None = None, strivo_version: str
         for app, lvl in apps.items():
             if not app.startswith("_") and lvl not in LEVELS:
                 raise RulesError(f"bad expectation {app}={lvl}")
+    _validate_sports(r.get("sports"))
     return r
+
+
+def _validate_sports(s):
+    if s is None:
+        return
+    if not isinstance(s, dict):
+        raise RulesError("bad sports section")
+    ids = set()
+    for lg in s.get("leagues", []):
+        if not isinstance(lg, dict) or not re.fullmatch(r"[a-z0-9]{1,20}", str(lg.get("id", ""))) \
+                or not re.fullmatch(r"[a-z\-]{1,40}/[a-z0-9.\-]{1,60}", str(lg.get("path", ""))) \
+                or not isinstance(lg.get("name"), str) or lg["id"] in ids:
+            raise RulesError(f"bad sports league {lg!r:.80}")
+        ids.add(lg["id"])
+    for k in ("networks", "aliases", "play_as"):
+        v = s.get(k, {})
+        if not isinstance(v, dict):
+            raise RulesError(f"bad sports {k}")
+        for name, val in v.items():
+            ok = isinstance(val, list) and all(isinstance(x, str) for x in val) if k == "networks" \
+                else isinstance(val, str)
+            if not ok or not isinstance(name, str):
+                raise RulesError(f"bad sports {k} entry {name!r:.40}")
 
 
 class Rules:
@@ -207,6 +231,15 @@ class Rules:
 
     def expect(self, platform, app) -> str | None:
         return ((self.r.get("expect") or {}).get(platform) or {}).get(app)
+
+    def sports(self) -> dict:
+        s = self.r.get("sports") or {}
+        return dict(leagues=list(s.get("leagues", [])), networks=dict(s.get("networks", {})),
+                    aliases=dict(s.get("aliases", {})), play_as=dict(s.get("play_as", {})))
+
+    def play_as(self, service: str) -> str:
+        """Some services open another service's app (Hulu + Live TV lives in the Hulu app)."""
+        return ((self.r.get("sports") or {}).get("play_as") or {}).get(service, service)
 
     def summary(self) -> dict:
         return dict(version=self.version, source=self.source, bundled=self.bundled["version"])

@@ -63,11 +63,12 @@ Apps will change what they report; Strivo should fix itself. Design: [SELF-HEALI
 
 Live games across every service, in one place. Design: [SPORTS.md](SPORTS.md).
 
-- [ ] **Sports tab:** live now, later today, this week; filter by sport, league and team; "on my services"
-- [ ] Where to watch each game, mapped from channels to your services (rules data)
-- [ ] Play on TV opens the right app for the game
+- [x] **Sports tab:** live now, later today, this week; filter by sport, league and team; "on my services"
+- [x] Where to watch each game, mapped from channels to your services (rules data)
+- [x] Play on TV opens the right app for the game *(app ids still missing for Fox One, DirecTV Stream, NFL+)*
 - [ ] Learn your teams automatically from what you watch; games in history
-- [ ] No spoilers by default; optional "game starting" notice for your teams
+- [x] No spoilers by default
+- [ ] Optional "game starting" notice for your teams
 - [ ] Local channels and blackouts by ZIP code
 
 ## Phase 4 · Everywhere (ideas)

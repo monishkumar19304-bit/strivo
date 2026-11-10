@@ -25,6 +25,7 @@ from .collector import Collector, Runtime
 from .config import DISC_DEFAULT, DataDir
 from .core import REASONS, Core
 from .devices import DeviceManager
+from .sports import Sports
 
 log = logging.getLogger(__name__)
 WEB = resources.files("strivo") / "web"
@@ -49,7 +50,7 @@ def parse_multipart(body: bytes, content_type: str) -> dict:
 class App:
     """Everything the server needs, wired together. Tests build one with fakes."""
 
-    def __init__(self, data_dir, transport=None, adapters=None, start_background=True, fetch=None):
+    def __init__(self, data_dir, transport=None, adapters=None, start_background=True, fetch=None, sports_provider=None):
         self.data = DataDir(data_dir)
         self.rules = rules_mod.use(rules_mod.Rules(self.data.path, __version__))
         self.runtime = Runtime().start()
@@ -59,6 +60,7 @@ class App:
         self.tracker = HealthTracker(self.data)
         self.collector.listeners.append(self.tracker.observe)
         self.updates = UpdateChecker(self.data, self.rules, self.tracker, self.core.notify, fetch=fetch or update_fetch)
+        self.sports = Sports(self.data, sports_provider)
         self.started = time.time()
         if start_background:
             self.runtime.call(self.collector.start(), 10)
@@ -257,6 +259,8 @@ def make_handler(app: App):
                     return self.ok()
                 if p == "/api/settings":
                     return self.ok(core.settings_save(body))
+                if p == "/api/sports/prefs":
+                    return self.ok(app.sports.prefs() if not isinstance(body, dict) else app.sports.save_prefs(body))
                 if p in ("/api/discover/dismiss", "/api/discover/restore") and body.get("id") \
                         and body.get("type") in ("tv", "movie"):
                     core.set_dismissed("disc:%s:%d" % (body["type"], int(body["id"])), p.endswith("dismiss"))
@@ -382,6 +386,9 @@ def make_handler(app: App):
                         return self.send(502, {"error": type(e).__name__, "devices": []})
                 if p == "/api/settings":
                     return self.ok(core.settings_view())
+                if p == "/api/sports":
+                    lg = [x for x in q1("leagues").split(",") if x]
+                    return self.ok(app.sports.games(lg or None, int(q1("days", "7") or 7)))
                 if p == "/api/discover":
                     cat = q1("cat")
                     if cat == "series":

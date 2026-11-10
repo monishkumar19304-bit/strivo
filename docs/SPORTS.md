@@ -1,6 +1,6 @@
 # Sports (design)
 
-> **Status:** proposed. Tracked in the issue linked from the [roadmap](ROADMAP.md) (Phase 3¾).
+> **Status:** first version built (Sports tab, filters, where to watch, follow teams, Play on TV). Learned teams, games in history and local channels by ZIP are next. See the [roadmap](ROADMAP.md) (Phase 3¾).
 
 Live sports have scattered across more services than shows and movies have. One week of NFL games airs on Fox, CBS,
 NBC, ESPN, NFL Network, Prime Video, Peacock and Netflix. Nobody can remember where tonight's game is. Strivo already
@@ -39,24 +39,35 @@ knows which services you pay for and can open apps on your TV, so it can answer 
 | "Which of my services carries that channel" | **`networks` section of the rules file** (`compat.json`) | Maps channels to services, for example *Fox → YouTube TV, Hulu + Live TV, Fubo, Fox One*; *ABC → Hulu + Live TV, YouTube TV, ESPN app*. It's data, so it's fixed by a rules update, like everything else that breaks ([SELF-HEALING.md](SELF-HEALING.md)). |
 | Local channels and blackouts | Your country and ZIP code (optional) | Regional sports networks and MLB/NBA/NHL blackouts depend on where you live. Without a ZIP code, local games are marked *"local channel"* rather than guessed. |
 
-**Privacy:** the schedule is fetched the same way for everyone: by league, never by team or by user. Your teams, your
-history and your ZIP code never leave the house.
+**Privacy:** the schedule is fetched the same way for everyone: by league and day, never by team or by user. Your
+teams, your history and your ZIP code never leave the house. Team logos load on your phone straight from ESPN's image
+server, the same as on any sports site.
 
 ## How it fits the code
 
-- `sports/provider.py`: an interface (`leagues()`, `games(league, date)`, `game(id)`), with `espn.py` and `thesportsdb.py`.
-- `sports/service.py`: caches each league's scoreboard (every 30 s while a game is live, hourly otherwise), adds
-  "where to watch" from the rules file and the user's services, and learns teams from history.
+- `sports/espn.py`: the schedule provider. One method, `day(league_path, yyyymmdd)`, returns plain game dicts; everything
+  that depends on the feed's shape is in this file, so a second provider (TheSportsDB) can slot in beside it.
+- `sports/__init__.py` (`Sports`): fetches each enabled league for yesterday through the next 6 days in parallel, caches
+  each day (45 s while a game is live or about to start, 10 min for the rest of today, 3 h for later days), keeps the
+  last good copy if the feed fails, and adds "where to watch" from the rules file and the household's services.
+- Rules (`compat.json` → `sports`): `leagues` (id, feed path, name, sport, on by default), `networks` (channel →
+  services), `aliases` (how the feed spells channels, e.g. *NFL Net*, *Golf Chnl*) and `play_as` (*Hulu + Live TV*
+  opens the Hulu app). Validated like the rest of the rules file.
+- API: `GET /api/sports` (games, leagues, followed teams, errors), `POST /api/sports/prefs` (`leagues`, `follow`, `unfollow`).
+- Followed teams and enabled leagues are in `config.json` (`sports_teams`, `sports_leagues`).
 - History: per-app title rules recognise matchups (`"Giants at Cowboys"`, `"NFL Football: Giants vs. Cowboys"`) and
   link the session to the game.
 - Web: a new **Sports** tab in `web/index.html`, using the same card and Play on TV components as the rest of the app.
 
-## First version (small and useful)
+## First version ✅
 
-1. NFL, college football, NBA, MLB, NHL and PGA golf from the ESPN feed.
-2. Live / later / this week, with sport and team filters and "on my services".
-3. Network → service table for the US national channels and the major streamers.
-4. Play on TV opens the right app (the app's home or live page; a deep link to the game where one is known).
+1. NFL, college football, NBA, MLB, NHL and PGA golf on by default; WNBA, college basketball, LPGA, Premier League and
+   MLS one tap away (⚙︎ in the Sports tab).
+2. Live now / later today / this week / final, with league, team and "on my services" filters, and a My teams row.
+3. Channel → service table for the US national channels and the major streamers.
+4. Scores hidden by default (one switch, or "Show score" per game).
+5. Play on TV opens the right app. ESPN, Sling TV and Fubo app ids are known for some boxes; Fox One, DirecTV Stream
+   and NFL+ still need theirs (a rules update, once someone captures them with `strivo probe`).
 
 Later: learned teams, games in history, spoiler control, local channels by ZIP, more leagues and countries,
 a "game starting" notification for your teams (opt-in).

@@ -1,0 +1,282 @@
+{
+ "events": [
+  {
+   "id": "401873037",
+   "name": "Jacksonville Jaguars at Baltimore Ravens",
+   "shortName": "JAX @ BAL",
+   "date": "2026-11-06T01:15Z",
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 4,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   },
+   "competitions": [
+    {
+     "date": "2026-11-06T01:15Z",
+     "broadcasts": [
+      {
+       "market": "national",
+       "names": [
+        "Prime Video"
+       ]
+      }
+     ],
+     "geoBroadcasts": [
+      {
+       "type": {
+        "id": "4",
+        "shortName": "Streaming"
+       },
+       "market": {
+        "id": "1",
+        "type": "National"
+       },
+       "media": {
+        "shortName": "Prime Video"
+       },
+       "lang": "en",
+       "region": "us"
+      }
+     ],
+     "status": {
+      "type": {
+       "state": "post",
+       "shortDetail": "Final",
+       "detail": "Final",
+       "description": "Final",
+       "completed": true
+      }
+     },
+     "venue": {
+      "fullName": "M&T Bank Stadium"
+     },
+     "competitors": [
+      {
+       "homeAway": "home",
+       "score": "10",
+       "winner": false,
+       "order": 0,
+       "team": {
+        "id": "33",
+        "displayName": "Baltimore Ravens",
+        "shortDisplayName": "Ravens",
+        "abbreviation": "BAL",
+        "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/bal.png",
+        "name": "Ravens"
+       }
+      },
+      {
+       "homeAway": "away",
+       "score": "33",
+       "winner": true,
+       "order": 1,
+       "team": {
+        "id": "30",
+        "displayName": "Jacksonville Jaguars",
+        "shortDisplayName": "Jaguars",
+        "abbreviation": "JAX",
+        "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/jax.png",
+        "name": "Jaguars"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "401873038",
+   "name": "Cincinnati Bengals at Atlanta Falcons",
+   "shortName": "CIN VS ATL",
+   "date": "2026-11-08T14:30Z",
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 4,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   },
+   "competitions": [
+    {
+     "date": "2026-11-08T14:30Z",
+     "broadcasts": [
+      {
+       "market": "national",
+       "names": [
+        "NFL Net"
+       ]
+      }
+     ],
+     "geoBroadcasts": [
+      {
+       "type": {
+        "id": "1",
+        "shortName": "TV"
+       },
+       "market": {
+        "id": "1",
+        "type": "National"
+       },
+       "media": {
+        "shortName": "NFL Net",
+        "logo": "https://a.espncdn.com/guid/8281947e-bd6c-3a8a-9b1d-6fc957d1709a/logos/default.png",
+        "darkLogo": "https://a.espncdn.com/guid/8281947e-bd6c-3a8a-9b1d-6fc957d1709a/logos/default-dark.png"
+       },
+       "lang": "en",
+       "region": "us"
+      }
+     ],
+     "status": {
+      "type": {
+       "state": "post",
+       "shortDetail": "Final",
+       "detail": "Final",
+       "description": "Final",
+       "completed": true
+      }
+     },
+     "venue": {
+      "fullName": "Santiago Bernab\u00e9u"
+     },
+     "competitors": [
+      {
+       "homeAway": "home",
+       "score": "17",
+       "winner": false,
+       "order": 0,
+       "team": {
+        "id": "1",
+        "displayName": "Atlanta Falcons",
+        "shortDisplayName": "Falcons",
+        "abbreviation": "ATL",
+        "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/atl.png",
+        "name": "Falcons"
+       }
+      },
+      {
+       "homeAway": "away",
+       "score": "34",
+       "winner": true,
+       "order": 1,
+       "team": {
+        "id": "4",
+        "displayName": "Cincinnati Bengals",
+        "shortDisplayName": "Bengals",
+        "abbreviation": "CIN",
+        "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/cin.png",
+        "name": "Bengals"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "401873040",
+   "name": "Dallas Cowboys at Indianapolis Colts",
+   "shortName": "DAL @ IND",
+   "date": "2026-11-08T18:00Z",
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 4,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   },
+   "competitions": [
+    {
+     "date": "2026-11-08T18:00Z",
+     "broadcasts": [
+      {
+       "market": "national",
+       "names": [
+        "Fox"
+       ]
+      }
+     ],
+     "geoBroadcasts": [
+      {
+       "type": {
+        "id": "1",
+        "shortName": "TV"
+       },
+       "market": {
+        "id": "1",
+        "type": "National"
+       },
+       "media": {
+        "shortName": "Fox"
+       },
+       "lang": "en",
+       "region": "us"
+      }
+     ],
+     "status": {
+      "type": {
+       "state": "post",
+       "shortDetail": "Final",
+       "detail": "Final",
+       "description": "Final",
+       "completed": true
+      }
+     },
+     "venue": {
+      "fullName": "Lucas Oil Stadium"
+     },
+     "competitors": [
+      {
+       "homeAway": "home",
+       "score": "23",
+       "winner": false,
+       "order": 0,
+       "team": {
+        "id": "11",
+        "displayName": "Indianapolis Colts",
+        "shortDisplayName": "Colts",
+        "abbreviation": "IND",
+        "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png",
+        "name": "Colts"
+       }
+      },
+      {
+       "homeAway": "away",
+       "score": "27",
+       "winner": true,
+       "order": 1,
+       "team": {
+        "id": "6",
+        "displayName": "Dallas Cowboys",
+        "shortDisplayName": "Cowboys",
+        "abbreviation": "DAL",
+        "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png",
+        "name": "Cowboys"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

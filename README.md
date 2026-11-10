@@ -69,6 +69,7 @@ Strivo can't stop the streaming services from seeing what you watch in their own
 | ▶️ **Play on TV** | Tap a show on your phone, pick a TV, and it opens in the right app. |
 | ✨ **What to Watch** | Movie, series and documentary picks based on what you actually watched, filtered to the services you pay for. Tell it *why* you passed ("seen it", "too dark", "not for kids") and it learns. |
 | 📰 **Daily** | Morning shows, news, late night and game shows, kept separate so they don't crowd your queue. |
+| 🏟️ **Sports** | Every live game across every service, in one place: NFL, college football, NBA, MLB, NHL, golf, soccer and more. Filter by league or team, see which of *your* services carries each game, and open it on your TV. Scores stay hidden until you want them. |
 | 🔖 **Saved** | Your wish list, with trailers, reviews and where it's streaming. |
 | 🕰️ **History & Stats** | Everything you've watched, on which TV, and when. |
 | 🎞️ **Posters view** | A full-screen, swipeable poster feed for couch browsing, or a classic list. Your choice, per screen. |
@@ -93,6 +94,11 @@ Strivo can't stop the streaming services from seeing what you watch in their own
     <td align="center"><img src="assets/screens/daily.jpg" alt="Daily shows" width="250"><br><b>Daily</b><br><sub>Morning shows, news and late night, kept for a week and out of your queue.</sub></td>
     <td align="center"><img src="assets/screens/saved.jpg" alt="Saved wish list" width="250"><br><b>Saved</b><br><sub>Your wish list, ready for movie night.</sub></td>
     <td align="center"><img src="assets/screens/settings.jpg" alt="Settings" width="250"><br><b>Your rules</b><br><sub>Your services, categories, minimum rating and how long shows stay in your queue.</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screens/sports.jpg" alt="Sports tab with live games" width="250"><br><b>Sports</b><br><sub>Tonight's games across every league, with the services <i>you</i> have in green. Follow your teams; scores hidden until you ask.</sub></td>
+    <td align="center"><img src="assets/screens/sports-game.jpg" alt="A game's where-to-watch sheet" width="250"><br><b>Where's the game?</b><br><sub>Every channel and service carrying it, local channels flagged, and one tap to open it on your TV.</sub></td>
+    <td></td>
   </tr>
 </table>
 

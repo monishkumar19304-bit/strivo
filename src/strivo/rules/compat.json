@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "version": "2026.11.10.1",
+ "version": "2026.11.10.2",
  "min_strivo": "0.1.0.dev0",
  "about": "Strivo compatibility rules: the parts of each integration that streaming apps change. Data only, never code. Fixes ship as a new copy of this file in a GitHub release; see docs/SELF-HEALING.md.",
  "services": {
@@ -152,6 +152,44 @@
    "aliases": [
     "Roku Channel"
    ]
+  },
+  "ESPN": {
+   "ids": {
+    "appletv": "com.espn.ScoreCenter",
+    "android": "com.espn.score_center",
+    "roku": "34376"
+   },
+   "aliases": [
+    "ESPN+"
+   ]
+  },
+  "Fox One": {
+   "ids": {}
+  },
+  "Fubo": {
+   "ids": {
+    "firetv": "com.fubo.firetv.screen",
+    "roku": "43465"
+   },
+   "aliases": [
+    "fuboTV"
+   ]
+  },
+  "Sling TV": {
+   "ids": {
+    "android": "com.sling",
+    "firetv": "com.sling",
+    "roku": "46041"
+   },
+   "aliases": [
+    "Sling"
+   ]
+  },
+  "DirecTV Stream": {
+   "ids": {}
+  },
+  "NFL+": {
+   "ids": {}
   }
  },
  "streaming": [
@@ -167,7 +205,14 @@
   "YouTube",
   "Tubi",
   "Pluto TV",
-  "PBS"
+  "PBS",
+  "ESPN",
+  "Fox One",
+  "Hulu + Live TV",
+  "Fubo",
+  "Sling TV",
+  "DirecTV Stream",
+  "NFL+"
  ],
  "providers": {
   "Netflix": "Netflix",
@@ -307,6 +352,91 @@
   },
   "plex": {
    "Plex": "episode"
+  }
+ },
+ "sports": {
+  "_doc": "Live sports. leagues: what the Sports tab can show (path = the schedule feed's sport/league). networks: which services carry each channel in the US (best effort; fix by rules update). aliases: how the schedule spells channels. play_as: services that open another service's app.",
+  "leagues": [
+   {"id": "nfl", "path": "football/nfl", "name": "NFL", "sport": "Football", "default": true},
+   {"id": "cfb", "path": "football/college-football", "name": "College Football", "sport": "Football", "default": true},
+   {"id": "nba", "path": "basketball/nba", "name": "NBA", "sport": "Basketball", "default": true},
+   {"id": "wnba", "path": "basketball/wnba", "name": "WNBA", "sport": "Basketball"},
+   {"id": "cbb", "path": "basketball/mens-college-basketball", "name": "College Basketball", "sport": "Basketball"},
+   {"id": "mlb", "path": "baseball/mlb", "name": "MLB", "sport": "Baseball", "default": true},
+   {"id": "nhl", "path": "hockey/nhl", "name": "NHL", "sport": "Hockey", "default": true},
+   {"id": "pga", "path": "golf/pga", "name": "PGA Tour", "sport": "Golf", "default": true},
+   {"id": "lpga", "path": "golf/lpga", "name": "LPGA", "sport": "Golf"},
+   {"id": "epl", "path": "soccer/eng.1", "name": "Premier League", "sport": "Soccer"},
+   {"id": "mls", "path": "soccer/usa.1", "name": "MLS", "sport": "Soccer"}
+  ],
+  "networks": {
+   "ABC": ["YouTube TV", "Hulu + Live TV", "Fubo", "DirecTV Stream"],
+   "CBS": ["Paramount+", "YouTube TV", "Hulu + Live TV", "Fubo", "DirecTV Stream"],
+   "NBC": ["Peacock", "YouTube TV", "Hulu + Live TV", "Fubo", "DirecTV Stream"],
+   "Fox": ["Fox One", "YouTube TV", "Hulu + Live TV", "Fubo", "DirecTV Stream"],
+   "ESPN": ["ESPN", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "ESPN2": ["ESPN", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "ESPNU": ["ESPN", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "ESPNEWS": ["ESPN", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "SEC Network": ["ESPN", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "ACC Network": ["ESPN", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "ESPN+": ["ESPN"],
+   "FS1": ["Fox One", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "FS2": ["Fox One", "Fubo", "DirecTV Stream"],
+   "Big Ten Network": ["Fox One", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "TNT": ["HBO Max", "YouTube TV", "Hulu + Live TV", "Sling TV", "DirecTV Stream"],
+   "TBS": ["HBO Max", "YouTube TV", "Hulu + Live TV", "Sling TV", "DirecTV Stream"],
+   "truTV": ["HBO Max", "YouTube TV", "Hulu + Live TV", "Sling TV", "DirecTV Stream"],
+   "NFL Network": ["NFL+", "YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "NFL RedZone": ["NFL+", "YouTube TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "MLB Network": ["YouTube TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "NBA TV": ["YouTube TV", "Sling TV", "DirecTV Stream"],
+   "NHL Network": ["YouTube TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "Golf Channel": ["YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "USA Network": ["YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "CBS Sports Network": ["YouTube TV", "Hulu + Live TV", "Fubo", "Sling TV", "DirecTV Stream"],
+   "Prime Video": ["Prime Video"],
+   "Peacock": ["Peacock"],
+   "Netflix": ["Netflix"],
+   "Paramount+": ["Paramount+"],
+   "Apple TV+": ["Apple TV+"],
+   "YouTube": ["YouTube"],
+   "HBO Max": ["HBO Max"],
+   "Fox One": ["Fox One"],
+   "Disney+": ["Disney+"],
+   "Hulu": ["Hulu"],
+   "CW": ["YouTube TV", "Hulu + Live TV", "Fubo", "DirecTV Stream"],
+   "NBCSN": ["YouTube TV", "Hulu + Live TV", "DirecTV Stream"]
+  },
+  "aliases": {
+   "FOX": "Fox",
+   "ESPN Unlmtd": "ESPN",
+   "SECN": "SEC Network",
+   "SEC Net": "SEC Network",
+   "ACCN": "ACC Network",
+   "ACC Net": "ACC Network",
+   "BTN": "Big Ten Network",
+   "TRUTV": "truTV",
+   "NFL Net": "NFL Network",
+   "NFL Netwrk": "NFL Network",
+   "MLB Net": "MLB Network",
+   "MLBN": "MLB Network",
+   "NHL Net": "NHL Network",
+   "Golf Chnl": "Golf Channel",
+   "GOLF": "Golf Channel",
+   "USA Net": "USA Network",
+   "USA": "USA Network",
+   "CBSSN": "CBS Sports Network",
+   "Prime": "Prime Video",
+   "Amazon Prime Video": "Prime Video",
+   "Apple TV": "Apple TV+",
+   "MLS Season Pass": "Apple TV+",
+   "Paramount Plus": "Paramount+",
+   "Max": "HBO Max",
+   "FOX One": "Fox One"
+  },
+  "play_as": {
+   "Hulu + Live TV": "Hulu"
   }
  }
 }

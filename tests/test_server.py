@@ -120,6 +120,8 @@ def test_play_on_tv(app):
     assert c.post("/api/tv/play", {"dev": "living-room", "trailer": "abcdefghijk"})[0] == 200
     assert fake.launched == [("living-room", "com.hulu.plus", None),
                              ("living-room", "com.google.ios.youtube", "youtube://watch/abcdefghijk")]
+    assert c.post("/api/tv/play", {"dev": "living-room", "provider": "Hulu + Live TV"})[0] == 200   # opens Hulu
+    assert fake.launched[-1] == ("living-room", "com.hulu.plus", None)
     assert c.post("/api/tv/play", {"dev": "living-room", "provider": "Nope"})[0] == 502
     assert c.post("/api/tv/play", {"dev": "ghost", "provider": "Hulu"})[0] == 502
 
@@ -172,3 +174,17 @@ def test_picks_build_with_fake_tmdb(app):
     assert c.get("/api/suggest")["items"][0]["title"] == "Picked Movie"
     assert c.get("/api/shows")["items"][0]["title"] == "Picked Show"
     assert c.get("/api/discover?cat=docs")["items"]
+
+
+def test_sports_api(app, tmp_path):
+    from test_sports import FakeProvider, fixture
+    a, c, *_ = app
+    a.sports.provider = FakeProvider({"basketball/nba": fixture("espn_nba_day.json")})
+    a.data.update_config(lambda cfg: cfg.update(services=["YouTube TV"]))
+    st, p = c.post("/api/sports/prefs", {"leagues": ["nba"]})
+    assert st == 200 and p["leagues"] == ["nba"]
+    r = c.get("/api/sports")
+    assert r["games"] and all(g["league"] == "nba" for g in r["games"])
+    assert any("YouTube TV" in g["mine"] for g in r["games"])          # NBC -> YouTube TV
+    assert c.post("/api/sports/prefs", {"follow": {"league": "nba", "id": "18", "name": "New York Knicks"}})[1]["teams"]
+    assert c.get("/api/sports?leagues=nba")["teams"][0]["name"] == "New York Knicks"

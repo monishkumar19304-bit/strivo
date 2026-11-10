@@ -70,6 +70,7 @@ Media servers can play on many screens at once, so each playback client becomes 
 - **Library** (`core.py`, `tmdb.py`): matches raw titles to shows and movies through TMDB, and caches posters, genres, episode lists and where-to-watch.
 - **Queue & Daily**: series you're actively watching, sorted by new episodes; late-night, news and morning shows go to **Daily** instead.
 - **Picks** (`picks.py`): movies, series and documentaries similar to what you watch, filtered to your services in your country, shaped by your "not interested because…" feedback.
+- **Sports** (`sports/`): live games from a schedule provider, with where to watch mapped from the rules file. See [SPORTS.md](SPORTS.md).
 - **Web server** (`server.py`): the phone app (`web/index.html`, one page, no build step), its JSON API, the setup wizard API and the webhook endpoints. Standard library only.
 
 ## Data
@@ -88,7 +89,7 @@ Back up the folder and you have everything.
 
 ## Privacy boundary
 
-The only outside services are **TMDB**, which receives show and movie titles to look up, and **GitHub**, which gets one anonymous request a day for compatibility fixes (can be turned off). Neither ever receives your history, device names, or anything identifying.
+The only outside services are **TMDB**, which receives show and movie titles to look up; **GitHub**, which gets one anonymous request a day for compatibility fixes (can be turned off); and, while the Sports tab is open, **ESPN's public scoreboard feed**, asked for each league's games by day. None of them ever receives your history, your teams, device names, or anything identifying.
 
 ## Tech choices
 

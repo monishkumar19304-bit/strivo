@@ -8,6 +8,7 @@ import time
 import uuid
 
 from .adapters.base import AdapterError, Device
+from . import rules as _rules
 from .apps import launch_id, services, trailer
 
 log = logging.getLogger(__name__)
@@ -182,6 +183,7 @@ class DeviceManager:
             app, link = t
             await ad.launch(d, app, link)
             return "trailer"
+        provider = _rules.current().play_as(provider)
         if provider not in services():
             raise AdapterError("unknown service")
         app = launch_id(provider, plat)

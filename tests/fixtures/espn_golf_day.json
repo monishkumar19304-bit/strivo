@@ -1,0 +1,123 @@
+{
+ "events": [
+  {
+   "id": "401850980",
+   "name": "Austin Championship pres. by Compliance Solutions",
+   "shortName": "Austin Championship pres. by Compliance Solutions",
+   "date": "2026-11-12T05:00Z",
+   "status": {
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled"
+    }
+   },
+   "competitions": [
+    {
+     "date": "2026-11-12T05:00Z",
+     "broadcasts": [
+      {
+       "market": "national",
+       "names": [
+        "ESPN+",
+        "Golf Chnl"
+       ]
+      }
+     ],
+     "geoBroadcasts": [
+      {
+       "type": {
+        "id": "1",
+        "shortName": "TV"
+       },
+       "market": {
+        "id": "1",
+        "type": "National"
+       },
+       "media": {
+        "shortName": "ESPN+",
+        "logo": "https://a.espncdn.com/guid/322a7e47-3cdb-3b5c-ab1b-678e1f2c27e5/logos/default.png",
+        "darkLogo": "https://a.espncdn.com/guid/322a7e47-3cdb-3b5c-ab1b-678e1f2c27e5/logos/default-dark.png"
+       },
+       "lang": "en",
+       "region": "us"
+      },
+      {
+       "type": {
+        "id": "1",
+        "shortName": "TV"
+       },
+       "market": {
+        "id": "1",
+        "type": "National"
+       },
+       "media": {
+        "shortName": "Golf Chnl"
+       },
+       "lang": "en",
+       "region": "us"
+      }
+     ],
+     "status": {
+      "type": {
+       "state": "pre",
+       "shortDetail": "11/12 - 12:00 AM EST",
+       "detail": "Thu, November 11th at 12:00 AM EST",
+       "description": "Scheduled",
+       "completed": false
+      }
+     },
+     "venue": {
+      "fullName": ""
+     },
+     "competitors": [
+      {
+       "score": "E",
+       "order": 1,
+       "athlete": {
+        "displayName": "C.T. Pan"
+       }
+      },
+      {
+       "score": "E",
+       "order": 2,
+       "athlete": {
+        "displayName": "Erik van Rooyen"
+       }
+      },
+      {
+       "score": "E",
+       "order": 3,
+       "athlete": {
+        "displayName": "Nick Hardy"
+       }
+      },
+      {
+       "score": "E",
+       "order": 4,
+       "athlete": {
+        "displayName": "Takumi Kanaya"
+       }
+      },
+      {
+       "score": "E",
+       "order": 5,
+       "athlete": {
+        "displayName": "Chandler Phillips"
+       }
+      },
+      {
+       "score": "E",
+       "order": 6,
+       "athlete": {
+        "displayName": "Mac Meissner"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

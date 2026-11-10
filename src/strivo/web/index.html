@@ -61,6 +61,7 @@ nav button.on{background:var(--acc);color:#fff;border-color:var(--acc);font-weig
 .wq{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;color:#fff;font:inherit;padding:10px 12px;outline:none}
 .wq:focus{border-color:var(--acc);box-shadow:0 0 0 3px #8b7dff44}
 .chip{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut);margin:3px 4px 0 0}
+.sg{display:block;cursor:pointer}.sg .gm{display:flex;gap:10px;align-items:center}.sg .tl{display:flex;align-items:center;gap:8px;min-width:0;height:28px}.sg .tl img,.sg .tl .lo{width:24px;height:24px;object-fit:contain;flex:none}.sg .tl .tn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}.sg .tl b{font-variant-numeric:tabular-nums;min-width:28px;text-align:right;font-size:16px}.sg .tl.lose{opacity:.55}.sg .st{flex:none;max-width:110px;text-align:right;font-size:12.5px;color:var(--mut)}.sg .st.live,.myt .live{color:var(--ok);font-weight:700}.sg .st .pulse{display:inline-block;width:8px;height:8px;margin-right:5px;vertical-align:middle}.sg .lgt{font-size:11px;margin-top:3px}.sg .wh{margin-top:4px}.star{color:var(--warn)}.spf{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.spf .wq{flex:1;min-width:140px;padding:7px 10px}.spf .btn.on{background:var(--acc);color:#fff;border-color:var(--acc)}.myt{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}.myt .mc{flex:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;max-width:200px;cursor:pointer}
 .chip.mine{background:#15803d;border-color:#4ade80;color:#fff;font-weight:600}
 .rl{position:fixed;inset:0;z-index:60;background:#000;color:#fff;font-family:var(--font)}
 .rl .feed{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -163,7 +164,7 @@ nav#nav button.on{color:var(--acc);background:none;font-weight:700;box-shadow:no
 <div id="sbprobe"></div><div id="ovtop"></div><main id="main"></main>
 <script>
 const $=s=>document.querySelector(s);
-const BAR=[["shows","📺","Watching"],["disc","✨","What to Watch"],["daily","📰","Daily"],["wish","🔖","Saved"],["more","☰","More"]];
+const BAR=[["shows","📺","Watching"],["disc","✨","What to Watch"],["daily","📰","Daily"],["sports","🏟️","Sports"],["wish","🔖","Saved"],["more","☰","More"]];
 const MORE=[["hist","History","Everything you watched, by day"],["vid","Videos","YouTube and other videos"],["live","Live TV","Live channels you watched"],["stat","Stats","Hours by app"],["dev","Devices","Your TVs and media servers, and their health"],["set","Settings","Services, country, what to watch, rules"]];
 const TABS=BAR.map(b=>[b[0],b[2]]).concat(MORE.map(m=>[m[0],m[1]]));
 let sub=localStorage.getItem("wl_sub")||"shows";let D=null,tab=localStorage.getItem("wl_tab")||"shows",sort=localStorage.getItem("wl_sort")||"recent",detail=null;
@@ -371,7 +372,7 @@ async function tvSheet(x){const old=document.querySelector(".tvs");if(old)old.re
    try{const r=await fetch("/api/tv/play",{method:"POST",body:JSON.stringify(Object.assign({dev:tv.id},body))});const j=await r.json();
     if(r.ok){d.remove();dong();toast(label+" on "+tv.name)}else box('<div class="t">Did not work</div><div class="s" style="margin:8px 0">'+esc(j.result||j.error||"TV did not respond")+'</div>')}catch(e){box('<div class="t">Did not work</div>')}};
   box('<div class="t" style="margin-bottom:8px">'+esc(tv.name)+'</div>'+(ex&&ex.trailer?'<button class="btn add" style="display:block;width:100%;margin:6px 0;padding:12px" id="tvt">▶ Play trailer</button>':'')+
-   (x.providers||[]).map((p,i)=>'<button class="btn" style="display:block;width:100%;text-align:left;margin:6px 0;padding:12px" data-p="'+i+'">'+(x.resume?'▶ Open '+esc(p)+' and pick up where you left off':'Open '+esc(p)+' (find the '+(x.type=="tv"?"show":"movie")+' there)')+'</button>').join("")+'<div class="s" style="margin-top:6px">'+(x.resume?'Opens '+esc(x.title)+'&#39;s app on the TV. It is usually first in the app&#39;s Continue Watching row.':'Opens the app on the TV. You pick the title with the remote.')+'</div>');
+   (x.providers||[]).map((p,i)=>'<button class="btn" style="display:block;width:100%;text-align:left;margin:6px 0;padding:12px" data-p="'+i+'">'+(x.resume?'▶ Open '+esc(p)+' and pick up where you left off':'Open '+esc(p)+' (find the '+(x.type=="tv"?"show":x.type=="game"?"game":"movie")+' there)')+'</button>').join("")+'<div class="s" style="margin-top:6px">'+(x.resume?'Opens '+esc(x.title)+'&#39;s app on the TV. It is usually first in the app&#39;s Continue Watching row.':'Opens the app on the TV. You pick the title with the remote.')+'</div>');
   const tt=d.querySelector("#tvt");if(tt)tt.onclick=()=>go({trailer:ex.trailer},"Trailer playing");
   d.querySelectorAll("[data-p]").forEach(pb=>pb.onclick=()=>{const p=x.providers[+pb.dataset.p];go({provider:p},p+" opened")})})}
 let mode=localStorage.getItem("wl_mode")=="list"?"list":"posters";const REELTABS=["shows","disc","daily","hist","wish"];
@@ -514,6 +515,7 @@ function render(){
  else if(tab=="set"){settingsPage();return}
  else if(tab=="dev"){devicesPage();return}
  else if(tab=="disc"){discPage();return}
+ else if(tab=="sports"){sportsPage();return}
  else if(tab=="daily"){const hr=t=>new Date(t*1e3).getHours();
   const F={all:s=>true,morning:s=>s.cat!="late"&&hr(s.last)>=5&&hr(s.last)<12,daytime:s=>s.cat!="late"&&hr(s.last)>=12&&hr(s.last)<18,news:s=>s.cat=="news",late:s=>s.cat=="late",game:s=>s.cat=="game"};
   const L=[["all","All"],["morning","Morning"],["daytime","Daytime"],["news","News"],["late","Late Night"],["game","Game Shows"]];if(!F[dsub])dsub="all";
@@ -553,7 +555,73 @@ function nav(){modeHead();const cur=MORE.some(m=>m[0]==tab)?"more":tab;
  const lb=(TABS.find(x=>x[0]==tab)||[0,"Strivo"])[1];$("header h1").textContent=lb;
  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>{bloop();tab=b.dataset.k;detail=null;sdetail=false;localStorage.setItem("wl_tab",tab);nav();render();window.scrollTo(0,0)})}
 function go(k){tab=k;detail=null;localStorage.setItem("wl_tab",tab);nav();render();window.scrollTo(0,0)}
-async function load(){try{D=await (await fetch("/api/data")).json()}catch(e){}nowBar();const hold=["wish","disc","set","more","dev"].includes(tab)&&document.querySelector("#wlist,#slist,#hlist,#glist,#setp,#morep,#devp");if(!detail&&!sdetail&&!document.querySelector("#rfeed .sl")&&!hold)render()}
+async function load(){try{D=await (await fetch("/api/data")).json()}catch(e){}nowBar();const hold=["wish","disc","set","more","dev","sports"].includes(tab)&&document.querySelector("#wlist,#slist,#hlist,#glist,#setp,#morep,#devp,#spp");if(!detail&&!sdetail&&!document.querySelector("#rfeed .sl")&&!hold)render()}
+// ---- Sports: live games across every service (docs/SPORTS.md)
+let SP=null,spLg=localStorage.getItem("wl_splg")||"all",spTeam=localStorage.getItem("wl_spteam")||"",spMine=localStorage.getItem("wl_spmine")=="1",spScores=localStorage.getItem("wl_spscores")=="1",spTimer=null;
+async function sportsPage(){if(!$("#spp"))$("#main").innerHTML='<div id="spp"><div class="empty">Loading games…</div></div>';
+ try{const r=await fetch("/api/sports");SP=r.ok?await r.json():null}catch(e){SP=null}drawSports();clearTimeout(spTimer);
+ spTimer=setTimeout(()=>{if(tab=="sports"&&$("#spp")&&!document.querySelector(".tvs,.sps"))sportsPage()},SP&&SP.games.some(g=>g.state=="in")?45000:300000)}
+const spKey=(g,t)=>g.league+":"+t.id;
+function spMy(){return new Set(((SP||{}).teams||[]).map(t=>t.league+":"+t.id))}
+function spWhen(g){const d=new Date(g.start),n=new Date();if(isNaN(d))return g.detail||"";
+ if(!g.teams.length)return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+ const t=d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});if(d.toDateString()==n.toDateString())return t;
+ const tm=new Date(n);tm.setDate(n.getDate()+1);return (d.toDateString()==tm.toDateString()?"Tomorrow":d.toLocaleDateString(undefined,{weekday:"short"}))+" "+t}
+function spStatus(g){if(g.state=="in")return '<span class="pulse"></span>'+esc(spScores?g.detail:"Live");if(g.state=="post")return esc(spScores?g.detail:"Final");return esc(spWhen(g))}
+function spWhere(g,max){return g.where.slice(0,max||4).map(w=>w.mine.length?'<span class="chip mine">'+esc(w.mine.join(" · "))+(w.mine.includes(w.channel)?'':' ('+esc(w.channel)+')')+'</span>':'<span class="chip">'+(w.local?'Local: ':'')+esc(w.channel)+'</span>').join("")||'<span class="chip">Channel not listed yet</span>'}
+function spRow(g,i,my,showLg){const sc=spScores&&g.state!="pre";
+ const body=g.teams.length?g.teams.map(t=>'<div class="tl'+(g.state=="post"&&sc&&!t.winner?' lose':'')+'">'+(t.logo?'<img src="'+esc(t.logo)+'" alt="" loading="lazy">':'<span class="lo"></span>')+'<span class="tn">'+esc(t.short||t.name)+(my.has(spKey(g,t))?' <span class="star">★</span>':'')+'</span>'+(sc?'<b>'+esc(t.score)+'</b>':'')+'</div>').join(""):
+  '<div class="t" style="white-space:normal">⛳ '+esc(g.name)+'</div>'+(g.state=="in"?'<div class="s">'+esc(g.detail)+'</div>':'')+(sc&&g.leaders.length?'<div class="s">'+g.leaders.slice(0,3).map(l=>esc(l.name)+' '+esc(l.score)).join(" · ")+'</div>':'');
+ return '<div class="row sg" data-g="'+i+'"><div class="gm"><div class="grow">'+body+'</div><div class="st'+(g.state=="in"?' live':'')+'">'+spStatus(g)+(showLg?'<div class="lgt">'+esc(g.league_name)+'</div>':'')+'</div></div><div class="wh">'+spWhere(g)+'</div></div>'}
+function drawSports(){const el=$("#spp");if(!el)return;
+ if(!SP){el.innerHTML='<div class="empty">Couldn\'t load the sports schedule. Check that Strivo can reach the internet.</div>';return}
+ const on=SP.leagues.filter(l=>l.on),my=spMy();if(spLg!="all"&&spLg!="my"&&!on.some(l=>l.id==spLg))spLg="all";if(spLg=="my"&&!my.size)spLg="all";
+ const isMy=g=>g.teams.some(t=>my.has(spKey(g,t)));
+ let gs=SP.games.filter(g=>spLg=="all"?true:spLg=="my"?isMy(g):g.league==spLg);
+ const tm={};gs.forEach(g=>g.teams.forEach(t=>{tm[spKey(g,t)]=t.name}));if(spTeam&&!tm[spTeam])spTeam="";
+ if(spTeam)gs=gs.filter(g=>g.teams.some(t=>spKey(g,t)==spTeam));if(spMine)gs=gs.filter(g=>g.mine.length);
+ const today=new Date().toDateString(),S=[["Live now",gs.filter(g=>g.state=="in")],["Later today",gs.filter(g=>g.state=="pre"&&new Date(g.start).toDateString()==today)],["This week",gs.filter(g=>g.state=="pre"&&new Date(g.start).toDateString()!=today)],["Final",gs.filter(g=>g.state=="post")]];
+ const n=k=>SP.games.filter(g=>k=="all"||g.league==k).length;
+ let h='<div class="chips"><button class="btn'+(spLg=="all"?" on":"")+'" data-lg="all">All · '+SP.games.length+'</button>'+(my.size?'<button class="btn'+(spLg=="my"?" on":"")+'" data-lg="my">★ My teams</button>':'')+on.map(l=>'<button class="btn'+(spLg==l.id?" on":"")+'" data-lg="'+esc(l.id)+'">'+esc(l.name)+' · '+n(l.id)+'</button>').join("")+'<button class="btn gear" id="splg" aria-label="Leagues and teams">⚙︎</button></div>';
+ h+='<div class="sortbar spf"><select id="spteam" class="wq" aria-label="Team"><option value="">All teams</option>'+Object.entries(tm).sort((a,b)=>a[1].localeCompare(b[1])).map(([k,v])=>'<option value="'+esc(k)+'"'+(k==spTeam?' selected':'')+'>'+esc(v)+'</option>').join("")+'</select><button class="btn'+(spMine?" on":"")+'" id="spmine">On my services</button><button class="btn'+(spScores?" on":"")+'" id="spsc">'+(spScores?'Scores on':'Scores hidden')+'</button></div>';
+ if(SP.errors&&SP.errors.length)h+='<div class="s" style="color:var(--warn);white-space:normal;margin-bottom:8px">'+SP.errors.map(esc).join(". ")+'.</div>';
+ if(my.size&&spLg=="all"&&!spTeam){const nx=[...my].map(k=>SP.games.find(g=>g.state!="post"&&g.teams.some(t=>spKey(g,t)==k))).filter(Boolean).filter((g,i,a)=>a.indexOf(g)==i);
+  if(nx.length)h+='<div class="day">My teams</div><div class="myt">'+nx.map(g=>'<div class="mc" data-g="'+SP.games.indexOf(g)+'"><div class="t">'+esc(g.short)+'</div><div class="s'+(g.state=="in"?' live':'')+'">'+spStatus(g)+'</div><div class="s">'+esc((g.mine[0]||(g.where[0]||{}).channel||""))+'</div></div>').join("")+'</div>'}
+ let any=false;S.forEach(([l,list])=>{if(!list.length)return;any=true;h+='<div class="day">'+l+' · '+list.length+'</div>'+list.slice(0,l=="This week"?120:200).map(g=>spRow(g,SP.games.indexOf(g),my,spLg=="all"||spLg=="my")).join("")});
+ if(!any)h+='<div class="empty">'+(spMine?'No games on your services right now. Turn off "On my services" to see everything.':on.length?'No games in the next week.':'Pick some leagues with ⚙︎.')+'</div>';
+ if(!(SP.services||[]).length)h+='<div class="s" style="white-space:normal;margin-top:8px">Tip: add your streaming services in More › Settings and Strivo will show which games you can watch.</div>';
+ h+='<div class="s" style="white-space:normal;margin:14px 0 4px;font-size:11.5px">Schedules from ESPN. Where-to-watch is a best guess for the US and can be off for local games.</div>';
+ el.innerHTML=h;
+ el.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{bloop();spLg=b.dataset.lg;spTeam="";localStorage.setItem("wl_splg",spLg);localStorage.setItem("wl_spteam","");drawSports();window.scrollTo(0,0)});
+ $("#spteam").onchange=e=>{spTeam=e.target.value;localStorage.setItem("wl_spteam",spTeam);drawSports()};
+ $("#spmine").onclick=()=>{bloop();spMine=!spMine;localStorage.setItem("wl_spmine",spMine?"1":"0");drawSports()};
+ $("#spsc").onclick=()=>{bloop();spScores=!spScores;localStorage.setItem("wl_spscores",spScores?"1":"0");drawSports()};
+ $("#splg").onclick=()=>{bloop();spLeagues()};
+ el.querySelectorAll("[data-g]").forEach(r=>r.onclick=()=>{bloop();spSheet(SP.games[+r.dataset.g])})}
+function spOverlay(){const old=document.querySelector(".sps");if(old)old.remove();const d=document.createElement("div");d.className="sps";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:90;display:flex;align-items:flex-end;justify-content:center";d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);return d}
+const spBox=h=>'<div style="background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box;max-height:85vh;overflow:auto">'+h+'<button class="btn" data-x style="width:100%;padding:10px;margin-top:10px">Close</button></div>';
+function spSheet(g){const d=spOverlay(),my=spMy();let reveal=spScores;
+ const draw=()=>{const sc=reveal&&g.state!="pre";
+  d.innerHTML=spBox('<div class="s">'+esc(g.league_name)+(g.venue?' · '+esc(g.venue):'')+'</div><div class="t" style="white-space:normal;font-size:18px;margin:2px 0 6px">'+esc(g.name)+'</div>'+
+   '<div class="s" style="white-space:normal">'+(g.state=="pre"?esc(spWhen(g)):sc?esc(g.detail):g.state=="in"?'Live now':'Final')+(sc&&g.teams.length?' · '+g.teams.map(t=>esc(t.abbr||t.short)+' '+esc(t.score)).join(", "):'')+'</div>'+
+   (g.state!="pre"&&!reveal?'<button class="btn" id="sprv" style="margin-top:8px">Show score</button>':'')+
+   (sc&&g.leaders.length?'<div class="s" style="white-space:normal;margin-top:6px">'+g.leaders.map(l=>esc(l.name)+' '+esc(l.score)).join(" · ")+'</div>':'')+
+   '<div class="day">Where to watch</div>'+(g.where.length?g.where.map(w=>'<div style="margin:6px 0"><b>'+esc(w.channel)+'</b>'+(w.local?' <span class="s">(local or team channel, depends where you live)</span>':'')+'<div>'+(w.services.length?w.services.map(s=>'<span class="chip'+(w.mine.includes(s)?' mine':'')+'">'+esc(s)+'</span>').join(""):'')+'</div></div>').join(""):'<div class="s">No channel listed yet.</div>')+
+   (g.mine.length?'<button class="btn add" id="spplay" style="display:block;width:100%;margin-top:10px;padding:12px;background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700">▶ Play on TV</button>':'<div class="s" style="white-space:normal;margin-top:8px">'+((ST||{}).my_services&&(ST.my_services||[]).length?'None of your services carry this game.':'Add your services in More › Settings to see which games you can watch.')+'</div>')+
+   (g.teams.length?'<div class="day">Teams</div>'+g.teams.map((t,i)=>'<button class="btn" data-fl="'+i+'" style="margin:4px 6px 0 0">'+(my.has(spKey(g,t))?'★ Following ':'☆ Follow ')+esc(t.short||t.name)+'</button>').join(""):''));
+  d.querySelector("[data-x]").onclick=()=>d.remove();
+  const rv=d.querySelector("#sprv");if(rv)rv.onclick=()=>{bloop();reveal=true;draw()};
+  const pl=d.querySelector("#spplay");if(pl)pl.onclick=()=>{bloop();d.remove();tvSheet({title:g.short,providers:g.mine,type:"game"})};
+  d.querySelectorAll("[data-fl]").forEach(b=>b.onclick=async()=>{bloop();const t=g.teams[+b.dataset.fl],k=spKey(g,t),f=my.has(k);
+   try{const p=await jpost("/api/sports/prefs",f?{unfollow:{league:g.league,id:t.id}}:{follow:{league:g.league,id:t.id,name:t.name,abbr:t.abbr,logo:t.logo}});SP.teams=p.teams;f?my.delete(k):my.add(k);if(!f)dong();toast(f?"Unfollowed "+t.name:"Following "+t.name);draw();drawSports()}catch(e){toast("Could not save")}})};
+ draw()}
+function spLeagues(){const d=spOverlay();const sel=new Set(SP.leagues.filter(l=>l.on).map(l=>l.id));
+ const draw=()=>{d.innerHTML=spBox('<div class="t">Leagues</div><div class="s" style="white-space:normal;margin-bottom:6px">Pick what shows up in Sports.</div><div class="set"><div class="svc">'+SP.leagues.map(l=>'<button class="btn'+(sel.has(l.id)?' on':'')+'" data-l="'+esc(l.id)+'">'+esc(l.name)+'</button>').join("")+'</div></div>'+
+  '<div class="day">Teams you follow</div>'+((SP.teams||[]).length?SP.teams.map((t,i)=>'<div class="ln" style="display:flex;align-items:center;gap:8px;margin:6px 0">'+(t.logo?'<img src="'+esc(t.logo)+'" alt="" style="width:22px;height:22px;object-fit:contain">':'')+'<span class="grow">'+esc(t.name)+'</span><button class="btn" data-uf="'+i+'">Unfollow</button></div>').join(""):'<div class="s" style="white-space:normal">None yet. Tap a game and press ☆ Follow.</div>'));
+  d.querySelector("[data-x]").onclick=()=>d.remove();
+  d.querySelectorAll("[data-l]").forEach(b=>b.onclick=async()=>{bloop();const k=b.dataset.l;sel.has(k)?sel.delete(k):sel.add(k);draw();try{await jpost("/api/sports/prefs",{leagues:[...sel]});sportsPage()}catch(e){toast("Could not save")}});
+  d.querySelectorAll("[data-uf]").forEach(b=>b.onclick=async()=>{bloop();const t=SP.teams[+b.dataset.uf];try{const p=await jpost("/api/sports/prefs",{unfollow:{league:t.league,id:t.id}});SP.teams=p.teams;draw();drawSports()}catch(e){toast("Could not save")}})};
+ draw()}
 // ---- Setup wizard, Devices page and extra settings (Strivo)
 let SU=null,wstep=0;
 const KINDS=[["appletv","Apple TV",""],["android","Google TV / Android TV","android"],["android","Fire TV","firetv"],["roku","Roku (experimental)",""],["plex","Plex server",""],["jellyfin","Jellyfin / Emby server",""]];
