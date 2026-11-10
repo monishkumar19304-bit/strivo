@@ -16,6 +16,7 @@
 
 <p align="center">
   <a href="#why-strivo">Why</a> ·
+  <a href="#our-philosophy-your-viewing-your-data">Philosophy</a> ·
   <a href="#what-it-does">What it does</a> ·
   <a href="#does-it-work-with-my-tv">Does it work with my TV?</a> ·
   <a href="#getting-started">Getting started</a> ·
@@ -37,6 +38,21 @@ Every watch tracker that tried to fix this asked you to **log it yourself**. Nob
 **Strivo's one rule: it has to be fully automatic.** It listens to the streaming box you already own, so your history builds itself. You just watch TV.
 
 > Strivo is **stream + vo**, a nod to the DVR that got it right.
+
+## Our philosophy: your viewing, your data
+
+Open any streaming app today and notice what it's built around. It isn't what you're watching. It's **what you watch next**. Autoplay, the next-episode countdown, the endless rows of "because you watched…": every screen is tuned to keep you in *that* app, on *their* catalog, for one more hour.
+
+To do that, each service keeps a detailed record of what you watch, when and for how long. They use it for themselves: to decide what you see, what to promote, and what to sell you. Apple TV is the least pushy of the boxes, because Apple's business is mostly the hardware, until you open Apple TV+, where it's selling too.
+
+Strivo turns that around:
+
+- **Your history belongs to you.** Strivo keeps one complete record of everything you watch, across every app, on a computer in your home. You can see it, search it, export it and delete it.
+- **Recommendations that work for you, not for a catalog.** Strivo doesn't own a library, run ads or earn commissions. Its only job is to help *you* find the next thing *you'd* enjoy, on any service you pay for.
+- **Local by default.** Nothing leaves your house unless you choose to share it. There's no Strivo account and no Strivo cloud.
+- **Share on your terms.** Local by default doesn't mean locked away. If you want to share your watch list with a friend, publish your year in TV, or connect another tool, that's your call, made deliberately, one choice at a time.
+
+Strivo can't stop the streaming services from seeing what you watch in their own apps. But it means **they're no longer the only ones who know**, and the most complete picture of your viewing finally belongs to you.
 
 ## What it does
 
