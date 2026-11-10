@@ -145,7 +145,7 @@ class App:
 
     def setup_state(self) -> dict:
         c = self.data.config()
-        return dict(version=__version__, setup_done=bool(c.get("setup_done")), tmdb_key_set=self.core.tmdb.configured,
+        return dict(version=__version__, rules_version=self.rules.version, setup_done=bool(c.get("setup_done")), tmdb_key_set=self.core.tmdb.configured,
                     country=c.get("country", "US"), services=c.get("services") or [], all_services=apps.streaming(),
                     default_tv=c.get("default_tv", ""),
                     devices=[dict(d, kind_label=getattr(self.collector.adapters.get(d["kind"]), "label", d["kind"]))

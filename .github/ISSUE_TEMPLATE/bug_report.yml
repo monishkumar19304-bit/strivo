@@ -35,10 +35,10 @@ body:
     id: version
     attributes:
       label: Strivo version
-      placeholder: "v0.1.0 (shown in Settings → About)"
+      placeholder: "0.1.0 (shown in More › Settings › About)"
   - type: textarea
     id: logs
     attributes:
       label: Logs
-      description: Settings → About → Copy diagnostics. Strip anything personal.
+      description: "Paste the output of `strivo doctor` (Docker: `docker exec strivo strivo doctor`) and any errors from `docker logs strivo`. Strip anything personal."
       render: text

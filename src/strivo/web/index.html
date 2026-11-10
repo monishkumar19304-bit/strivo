@@ -668,7 +668,12 @@ function extraSettings(S){const cs=COUNTRIES.some(c=>c[0]==S.country)?COUNTRIES:
   '<h3>Health</h3><div class="row" id="healthbox"><div class="s">Checking…</div></div>'+
   '<h3>Fixes</h3><div class="row"><div class="ln"><div>Compatibility fixes<div class="note">Streaming apps change what they report. Strivo checks GitHub daily for rules fixes (data, never code) and can install them for you.</div></div><select id="rupd">'+[["auto","Install automatically"],["ask","Ask me first"],["off","Don't check"]].map(o=>'<option value="'+o[0]+'"'+((S.rules_updates||"auto")==o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div></div>'+
   '<h3>Show and movie info</h3><div class="row"><div class="ln"><div>TMDB key<div class="note">'+(S.tmdb_key_set?'Set. Posters, episodes and picks come from TMDB.':'Not set. Posters and picks need a free TMDB key.')+'</div></div><button class="btn" id="tmdbset">'+(S.tmdb_key_set?"Change":"Add key")+'</button></div></div>'+
-  '<div class="note" style="margin:16px 0">Settings are shared by everyone in the house.</div><div class="note" style="margin:0 0 16px;opacity:.6">Strivo '+esc((SU&&SU.version)||"")+' · <a class="lnk" href="https://github.com/nickdnj/strivo" target="_blank" rel="noopener">github.com/nickdnj/strivo</a></div>'}
+  '<h3>About</h3><div class="row">'+
+  '<div class="ln"><div>Strivo version</div><span class="s">'+esc((SU&&SU.version)||"?")+'</span></div>'+
+  '<div class="ln"><div>Compatibility rules</div><span class="s">'+esc((SU&&SU.rules_version)||"?")+'</span></div>'+
+  '<div class="ln"><div>Source and help</div><a class="lnk" href="https://github.com/nickdnj/strivo" target="_blank" rel="noopener">github.com/nickdnj/strivo</a></div>'+
+  '<div class="ln"><div>License</div><span class="s">MIT · free and open source</span></div></div>'+
+  '<div class="note" style="margin:16px 0 24px">Settings are shared by everyone in the house.</div>'}
 function bindExtraSettings(m,S,draw){
  $("#ctry").onchange=e=>stSave({country:e.target.value},"Country saved. Refresh picks to update.");
  $("#nurl").onchange=e=>stSave({notify_url:e.target.value.trim()});

@@ -69,6 +69,9 @@ def test_static_and_empty_state(app):
     assert b"<title>Strivo</title>" in html and b"NiVo" not in html and b"data-theme=retro" not in html
     st = c.get("/api/setup")
     assert st["setup_done"] is False and st["tmdb_key_set"] is False and st["devices"] == []
+    from strivo import __version__
+    assert st["version"] == __version__ and st["rules_version"] == a.rules.version     # shown in Settings › About
+    assert b"<h3>About</h3>" in html and b"Screen: " not in html
     assert c.get("/api/data")["series"] == []
     assert json.loads(c.get("/manifest.webmanifest"))["name"] == "Strivo"
 
