@@ -9,6 +9,7 @@
 
 <p align="center">
   <a href="docs/ROADMAP.md"><img alt="Status: early development" src="https://img.shields.io/badge/status-early%20development-f5a524"></a>
+  <a href="https://github.com/nickdnj/strivo/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/nickdnj/strivo/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-6d5dfc"></a>
   <a href="docs/COMPATIBILITY.md"><img alt="Works with Apple TV, Google TV, Fire TV, Plex, Jellyfin" src="https://img.shields.io/badge/works%20with-Apple%20TV%20%C2%B7%20Google%20TV%20%C2%B7%20Fire%20TV%20%C2%B7%20Plex%20%C2%B7%20Jellyfin-2b2f55"></a>
   <a href="https://github.com/nickdnj/strivo/discussions"><img alt="Join the discussion" src="https://img.shields.io/badge/community-discussions-22c55e"></a>
@@ -101,10 +102,10 @@ Strivo works with the **box that runs your apps**, not the brand of TV. A Samsun
 | Your setup | Tracking | Play on TV | Status |
 |---|---|---|---|
 | 🍎 **Apple TV** | ✅ Automatic (most apps) | ✅ | **Working today** |
-| 🤖 **Google TV / Android TV**<br><sub>Google TV Streamer, Chromecast w/ Google TV, Nvidia Shield, Sony / TCL / Hisense / Philips Google TVs</sub> | ✅ Automatic (most apps) | ✅ | **Next up: we need testers** |
-| 🔥 **Fire TV**<br><sub>Fire TV Stick / Cube, Insignia / Toshiba Fire TV Edition</sub> | ✅ Automatic (most apps) | ✅ | **Next up: we need testers** |
-| 🎬 **Plex / Jellyfin / Emby** | ✅ Exact title and position, any TV | n/a | Planned |
-| 🟣 **Roku** | ⚠️ Only some apps report titles | ✅ | Being measured |
+| 🤖 **Google TV / Android TV**<br><sub>Google TV Streamer, Chromecast w/ Google TV, Nvidia Shield, Sony / TCL / Hisense / Philips Google TVs</sub> | ✅ Automatic (apps with a Now Playing card) | ✅ | **Built, checked on Google's emulator: we need testers** |
+| 🔥 **Fire TV**<br><sub>Fire TV Stick / Cube, Insignia / Toshiba Fire TV Edition</sub> | ✅ Automatic (expected, same as Google TV) | ✅ | **Built, untested on Fire OS: we need testers** |
+| 🎬 **Plex / Jellyfin / Emby** | ✅ Exact title and position, any TV | n/a | **Built, checked on real servers in Docker** |
+| 🟣 **Roku** | ⚠️ Only some apps report titles | ✅ | Experimental (checked on a fake Roku only) |
 | 📺 **Samsung / LG built-in apps** | ❌ App name only, never the title | Possible later | Not supported for tracking |
 
 **Known gap:** Netflix doesn't share what you're watching with the box, even on Apple TV. A Netflix history import is on the roadmap.
@@ -113,7 +114,7 @@ Strivo works with the **box that runs your apps**, not the brand of TV. A Samsun
 
 ## Getting started
 
-> ⚠️ **Strivo is in early development.** It runs every day in one household on Apple TV. The first public release (v0.1) is being prepared. ⭐ **Star or watch the repo** to hear when it's ready.
+> ⚠️ **Strivo is in early development.** It runs every day in one household on Apple TV. The code for every platform above is here and tested on emulators, real servers in Docker, and fakes ([what was checked, on what](docs/TESTING.md)); the first release (v0.1) is being prepared. ⭐ **Star or watch the repo** to hear when it's ready.
 
 You'll need:
 
@@ -125,10 +126,12 @@ Then, once v0.1 is out:
 
 ```bash
 docker run -d --name strivo --network host --restart unless-stopped \
-  -v strivo-data:/data ghcr.io/nickdnj/strivo:latest
+  -e TZ=America/New_York -v strivo-data:/data ghcr.io/nickdnj/strivo:latest
 ```
 
-Open **`http://strivo.local`** on your phone, follow the setup wizard, and add it to your home screen.
+Open **`http://strivo.local:8091`** on your phone, follow the setup wizard, and add it to your home screen.
+
+Want to try it before v0.1? `pip install .` from a clone, then `strivo serve`. Developers: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 📖 **[The full install guide](docs/INSTALL.md)**: hardware specs, Raspberry Pi, NAS, Home Assistant, and remote access.
 
@@ -168,10 +171,10 @@ More detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**
 
 | Phase | What | Status |
 |---|---|---|
-| **0 · Foundations** | Clean up the working household version; config and data folder; first public code | 🔜 Next |
-| **1 · Easy install** | Docker image, setup wizard, auto-discovery and pairing | Planned |
+| **0 · Foundations** | Clean up the working household version; config and data folder; first public code | ✅ Done |
+| **1 · Easy install** | Docker image, setup wizard, auto-discovery and pairing | 🔜 Built; polishing |
 | **2 · v0.1 launch** | Apple TV support, docs, screenshots, compatibility table | Planned |
-| **3 · More boxes** | Google TV / Android TV / Fire TV adapter, `strivo probe`, Plex & Jellyfin | Planned |
+| **3 · More boxes** | Google TV / Android TV / Fire TV adapter, `strivo probe`, Plex & Jellyfin | 🧪 Built; needs real-box testers |
 | **4 · Everywhere** | Home Assistant add-on, Raspberry Pi image, Roku (if titles hold up), Netflix history import | Ideas |
 
 👉 **[Full roadmap](docs/ROADMAP.md)**, and [tell us what matters to you](https://github.com/nickdnj/strivo/discussions/categories/ideas).

@@ -36,11 +36,16 @@ class Probe:
         self.apps: dict[str, dict] = defaultdict(lambda: defaultdict(lambda: dict(
             n=0, levels=defaultdict(int), position=False, duration=False, app_id=None)))
 
+    @staticmethod
+    def _key(device: Device) -> str:
+        return device.extra.get("server") or device.id   # media-server clients belong to their server
+
     def box(self, device: Device):
-        if device.id not in self.boxes:
-            self.boxes[device.id] = dict(kind=device.kind, model=device.model or "", os=device.os_version or "",
+        k = self._key(device)
+        if k not in self.boxes:
+            self.boxes[k] = dict(kind=device.kind, model=device.model or "", os=device.os_version or "",
                                          platform=device.platform or "")
-        return self.boxes[device.id]
+        return self.boxes[k]
 
     def add(self, device: Device, row: dict):
         self.box(device)
@@ -48,7 +53,7 @@ class Probe:
         if lvl is None:
             return
         app = row.get("app") or row.get("app_id") or "unknown app"
-        a = self.apps[device.id][app]
+        a = self.apps[self._key(device)][app]
         a["n"] += 1
         a["levels"][lvl] += 1
         a["position"] |= row.get("pos") is not None

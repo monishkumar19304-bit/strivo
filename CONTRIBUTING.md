@@ -27,15 +27,29 @@ Not sure which? Start a Discussion. We'll turn it into an issue if needed.
 
 ## Development setup
 
-*(Filled in when the public code lands in Phase 0.)*
-
 ```bash
 git clone https://github.com/nickdnj/strivo
 cd strivo
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-strivo serve --data ./dev-data
+pytest                                   # fast, no devices or network needed
+strivo serve --data ./dev-data           # http://localhost:8091 (dev-data/ is git-ignored)
 ```
+
+Handy commands while working on an adapter:
+
+```bash
+strivo discover --data ./dev-data        # what's on the network
+strivo now --data ./dev-data             # ask each configured box once what's playing
+strivo probe --data ./dev-data --minutes 2
+python tools/fake_roku.py                # a fake Roku to point Strivo at
+```
+
+No box to test with? **[docs/TESTING.md](docs/TESTING.md)** shows how to use Google's Android TV emulator, Jellyfin
+and Plex in Docker, and the fake Roku, and what has been verified so far.
+
+**TMDB:** tests use a fake TMDB. To see posters while developing, get your own free key at themoviedb.org and add
+it in the app (it's stored in your data folder's `secrets.json`, which is git-ignored with the rest of `dev-data/`).
 
 ## Pull requests
 
@@ -48,10 +62,11 @@ strivo serve --data ./dev-data
 ## Writing a device adapter
 
 1. Read [ARCHITECTURE.md → Device adapters](docs/ARCHITECTURE.md#device-adapters).
-2. Copy an existing adapter as a starting point.
+2. Copy an existing adapter as a starting point (`adapters/roku.py` is the simplest; register it in `adapters/__init__.py`).
 3. Implement `discover`, `pair`, `now_playing` and `launch`.
-4. Run `strivo probe` against your device and include the output in your PR.
-5. Add your device to [COMPATIBILITY.md](docs/COMPATIBILITY.md).
+4. Add fake-device tests (see `tests/fakes.py`); real captured output as a fixture is even better.
+5. Run `strivo probe` against your device and include the output in your PR.
+6. Add your device to [COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
 **The bar for a tracking adapter:** it must report the title on its own for the common apps. "App name only" devices can get "Play on TV" support, but not tracking.
 

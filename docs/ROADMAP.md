@@ -10,23 +10,23 @@ The guiding rules:
 
 ---
 
-## Phase 0 · Foundations 🔜
+## Phase 0 · Foundations ✅
 
 Turn the household version into a public codebase.
 
-- [ ] Move all settings into one config file plus the setup wizard (no hard-coded devices, paths or keys)
-- [ ] One data folder, so backups and moves are trivial
-- [ ] Split the code into **core** (history, queue, picks) and **device adapters**
-- [ ] Remove household-specific features
-- [ ] Neutral visual theme (no look-alike trade dress)
-- [ ] Basic tests and CI
+- [x] Move all settings into one config file plus the setup wizard (no hard-coded devices, paths or keys)
+- [x] One data folder, so backups and moves are trivial
+- [x] Split the code into **core** (history, queue, picks) and **device adapters**
+- [x] Remove household-specific features
+- [x] Neutral visual theme (no look-alike trade dress)
+- [x] Basic tests and CI
 
-## Phase 1 · Easy install
+## Phase 1 · Easy install 🔜
 
-- [ ] Docker image (`ghcr.io/nickdnj/strivo`) for x86 and ARM
-- [ ] First-run **setup wizard**: discover boxes, pair, TMDB key, country, services, TV names
-- [ ] `strivo.local` name on the home network
-- [ ] Health page: which boxes are online, last thing seen, recent errors
+- [x] Docker image (`ghcr.io/nickdnj/strivo`) for x86 and ARM *(built by CI; `:latest` published with v0.1)*
+- [x] First-run **setup wizard**: discover boxes, pair, TMDB key, country, services, TV names
+- [x] `strivo.local` name on the home network *(mDNS; needs testing on more routers)*
+- [x] Health page: which boxes are online, last thing seen, recent errors *(More › Devices)*
 
 ## Phase 2 · v0.1 launch
 
@@ -37,21 +37,25 @@ Turn the household version into a public codebase.
 
 ## Phase 3 · More boxes
 
-- [ ] **Google TV / Android TV / Fire TV adapter** (ADB over the network): the biggest group of homes that can be fully automatic
-- [ ] **`strivo probe`**: a diagnostic that records what each app reports, for compatibility reports
-- [ ] **Plex and Jellyfin** (webhooks and API)
+- [x] **Google TV / Android TV / Fire TV adapter** (ADB over the network): the biggest group of homes that can be fully automatic *(verified on Google's emulator; needs real-box testers, especially Fire TV)*
+- [x] **`strivo probe`**: a diagnostic that records what each app reports, for compatibility reports
+- [x] **Plex and Jellyfin** (webhooks and API) *(verified on real servers in Docker; Plex webhooks untested)*
 - [ ] Community-built compatibility table
 
 ## Phase 4 · Everywhere (ideas)
 
 - [ ] Home Assistant add-on
 - [ ] Raspberry Pi image (flash, plug in, done)
-- [ ] Roku adapter, if enough apps report titles
+- [ ] Roku adapter, if enough apps report titles *(experimental adapter exists; needs measurements from real Roku owners)*
 - [ ] Netflix viewing-history import
 - [ ] Multiple viewers per household (each person's own queue)
 - [ ] Optional one-tap "was it this show?" for app-only devices, as an extra
 - [ ] Translations and more countries
 
 ---
+
+Open work is tracked as [issues](https://github.com/nickdnj/strivo/issues); look for
+[`good first issue`](https://github.com/nickdnj/strivo/labels/good%20first%20issue) and
+[`help wanted`](https://github.com/nickdnj/strivo/labels/help%20wanted).
 
 Have an opinion on the order? **[Join the conversation in Discussions → Ideas](https://github.com/nickdnj/strivo/discussions/categories/ideas).**

@@ -1,6 +1,6 @@
 # Installing Strivo
 
-> **Status:** Strivo is in early development. The steps below describe how installation *will* work at v0.1. Today the code runs in one household. Follow [the roadmap](ROADMAP.md) or watch the repo to know when it's ready to try.
+> **Status:** early development. The code runs from source and the Docker image builds; the published image (`:latest`) arrives with v0.1. Apple TV is proven in daily use; the other platforms are built and checked on emulators and servers in Docker ([TESTING.md](TESTING.md)) and need real-device testers. Follow [the roadmap](ROADMAP.md) or watch the repo.
 
 Strivo is a small program that runs **on a computer in your home that's always on**. It quietly watches your streaming boxes, keeps your history and queue, and serves the app you use on your phone.
 
@@ -13,7 +13,7 @@ It does **not** run on the TV or the streaming box itself, and there is no Striv
 1. **Check your TV setup.** You need at least one supported box: Apple TV, Google TV / Android TV, Fire TV, or a Plex/Jellyfin server. See [Does it work with my TV?](COMPATIBILITY.md).
 2. **Pick a home for Strivo.** It needs an always-on computer (below). A $60–100 Raspberry Pi is the easiest.
 3. **Install it** with one of the paths below.
-4. **Open `http://strivo.local`** on your phone. The setup wizard finds your boxes, pairs them, and asks which streaming services you have.
+4. **Open `http://strivo.local:8091`** on your phone (or `http://<the computer's IP>:8091`). The setup wizard finds your boxes, pairs them, and asks which streaming services you have.
 5. **Add it to your home screen.** It works like an app.
 
 That's it. From then on, everything you watch is logged by itself.
@@ -58,7 +58,7 @@ About **$60–100** all in: a Raspberry Pi 4 or 5 (2 GB is plenty), the official
 
 - Flash the **Strivo image** onto the card with the free [Raspberry Pi Imager](https://www.raspberrypi.com/software/) *(planned)*.
 - Plug the Pi into your router and power.
-- Open `http://strivo.local` on your phone.
+- Open `http://strivo.local:8091` on your phone.
 
 No keyboard, monitor, or command line needed.
 
@@ -90,11 +90,14 @@ An Intel N100-class mini PC (about $120–180) if you want something sturdier th
 ### Docker (Mac, Windows, Linux, NAS)
 ```bash
 docker run -d --name strivo --network host --restart unless-stopped \
-  -v strivo-data:/data ghcr.io/nickdnj/strivo:latest
+  -e TZ=America/New_York -v strivo-data:/data ghcr.io/nickdnj/strivo:latest
 ```
-*(The image will be published with v0.1.)*
+*(`:latest` is published with v0.1. Until then, `:edge` is built from `main`, or build it yourself: `docker build -t strivo .`)*
 
-`--network host` is required so Strivo can discover and talk to your boxes.
+- `--network host` is required so Strivo can discover and talk to your boxes. (Docker Desktop on Mac/Windows has
+  limited host networking; a Raspberry Pi, Linux box or NAS is the smoothest home.)
+- Set `TZ` to your time zone so "last night" means last night.
+- The app listens on port **8091** (change with `-e STRIVO_PORT=...`).
 
 ### Docker Compose
 ```yaml
@@ -103,11 +106,21 @@ services:
     image: ghcr.io/nickdnj/strivo:latest
     network_mode: host
     restart: unless-stopped
+    environment:
+      - TZ=America/New_York
     volumes:
       - strivo-data:/data
 volumes:
   strivo-data:
 ```
+(The same file is in the repo as [`docker-compose.yml`](../docker-compose.yml).)
+
+### From source (any computer with Python 3.11+)
+```bash
+pip install git+https://github.com/nickdnj/strivo     # or: git clone … && pip install .
+strivo serve                                         # data goes to ~/.local/share/strivo
+```
+`strivo setup` does the setup in the terminal instead of the web wizard. `strivo --help` lists the rest.
 
 ### Raspberry Pi image *(planned)*
 Download the image from Releases and flash it with Raspberry Pi Imager.
@@ -130,6 +143,49 @@ When you first open Strivo it walks you through:
 4. **Pick your country and streaming services**, so recommendations only show what you can actually watch.
 5. **Name your TVs** ("Living Room", "Bedroom") and pick a default.
 
+You can add, rename, pause or remove boxes later under **More › Devices**, which also shows whether each box is
+connected and the last thing it reported.
+
+---
+
+## Setting up each kind of box
+
+### Apple TV
+Nothing to change on the Apple TV. Strivo asks for two 4-digit codes shown on the TV: one lets it see what's
+playing, the other lets "Play on TV" open apps.
+
+### Google TV / Android TV
+1. **Settings › System › About** (or Device Preferences › About), scroll to **Build**, and press it 7 times.
+2. **Settings › System › Developer options**: turn on **USB debugging** (and **Network debugging** / **ADB over
+   network** if your TV has it).
+3. Add the TV in Strivo. The TV asks *"Allow debugging?"*: tick **Always allow from this computer** and press **Allow**.
+
+Strivo uses ADB on port 5555. TVs that only offer *Wireless debugging* with a pairing code (some newer Google TV
+builds) aren't supported yet; see the issue tracker.
+
+### Fire TV
+1. **Settings › My Fire TV › About**: press your device name 7 times to unlock Developer options.
+2. **Settings › My Fire TV › Developer options**: turn on **ADB debugging**.
+3. Add it in Strivo and press **Allow** when the Fire TV asks.
+
+### Roku (experimental)
+**Settings › System › Advanced system settings › Control by mobile apps › Network access**: choose **Permissive**.
+Roku tells Strivo which channel is open, but only some channels say what's playing; `strivo probe` shows which.
+
+### Jellyfin / Emby
+1. **Dashboard › API Keys › +**, name it "Strivo", and paste the key into Strivo.
+2. That's enough: Strivo asks the server what's playing every few seconds, on every client.
+3. *Optional, for instant updates:* install **Webhook** from **Dashboard › Plugins › Catalog**, restart, then add a
+   **Generic** destination: URL `http://<strivo>:8091/api/webhook/jellyfin`, notification types *Playback Start*,
+   *Playback Progress* and *Playback Stop*, and paste the template shown in the setup wizard (also in
+   `strivo/adapters/jellyfin.py`).
+
+### Plex
+1. Add the server in Strivo. If your Plex server allows your home network without signing in
+   (**Settings › Network › List of IP addresses and networks that are allowed without auth**), no token is needed.
+   Otherwise paste your **X-Plex-Token** ([how to find it](https://support.plex.tv/articles/204059436)).
+2. *Optional, Plex Pass only:* **Settings › Webhooks › Add** `http://<strivo>:8091/api/webhook/plex`.
+
 ---
 
 ## Using it away from home (optional)
@@ -149,3 +205,5 @@ Everything Strivo knows lives in one data folder (`/data` in Docker). Back it up
 - **Setup questions:** [GitHub Discussions → Q&A](https://github.com/nickdnj/strivo/discussions)
 - **Something broken:** [open a bug report](https://github.com/nickdnj/strivo/issues/new/choose)
 - **Your device isn't listed:** run `strivo probe` and [share a compatibility report](COMPATIBILITY.md#share-a-report)
+- **A box shows "Not reachable":** check it's on and on the same network, then look at **More › Devices** for the
+  error. For Android boxes, debugging switches off after some system updates; turn it back on.
