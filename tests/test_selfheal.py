@@ -290,3 +290,12 @@ def test_connection_refused_is_offline_not_unpaired(data, rules):
     h = HealthTracker(data)
     live = {"a": dict(online=False, error="couldn't connect to A over ADB (ConnectionRefusedError: [Errno 61] Connection refused)")}
     assert h.boxes([dev("android", "A")], live)[0]["state"] == "offline"
+
+
+def test_version_order_prerelease_before_final():
+    """Regression: 0.1.0 must count as newer than 0.1.0.dev0, or a real release rejects every rules fix."""
+    order = ["0.1.0.dev0", "0.1.0a1", "0.1.0rc1", "0.1.0", "v0.1.1", "0.2.0.dev0", "0.2.0", "1.0"]
+    for lo, hi in zip(order, order[1:]):
+        assert rules_mod.newer(hi, lo) and not rules_mod.newer(lo, hi), (lo, hi)
+    assert not rules_mod.newer("0.1", "0.1.0") and not rules_mod.newer("0.1.0", "0.1")
+    assert rules_mod.newer("2026.11.10.2", "2026.11.10.1") and rules_mod.newer("2099.1.1.1", "2026.11.10.1")

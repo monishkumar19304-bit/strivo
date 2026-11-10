@@ -36,12 +36,22 @@ class RulesError(ValueError):
 
 
 def _vkey(v: str) -> tuple:
-    """Order versions like 2026.11.10.1 or 0.1.0.dev0 without extra dependencies."""
-    out = []
-    for part in re.split(r"[.\-+]", str(v)):
-        m = re.match(r"(\d*)(.*)", part)
-        out.append((int(m.group(1)) if m.group(1) else -1, m.group(2)))
-    return tuple(out)
+    """Order versions like 2026.11.10.1 or 0.1.0.dev0 without extra dependencies.
+
+    A pre-release (0.1.0.dev0, 0.1.0rc1) sorts before its final release (0.1.0), as in PEP 440.
+    """
+    m = re.match(r"v?(\d+(?:\.\d+)*)(.*)", str(v).strip())
+    if not m:
+        return ((), (-1, str(v)))
+    nums = [int(x) for x in m.group(1).split(".")]
+    while len(nums) > 1 and nums[-1] == 0:      # 0.1 == 0.1.0
+        nums.pop()
+    rest = m.group(2).lstrip(".-+")
+    if not rest:
+        return (tuple(nums), (1, 0, 0, ""))    # final release
+    pm = re.match(r"(dev|a|alpha|b|beta|rc|c|pre|preview)?\.?(\d*)", rest)
+    rank = {"dev": 0, "a": 1, "alpha": 1, "b": 2, "beta": 2, "rc": 3, "c": 3, "pre": 3, "preview": 3}.get(pm.group(1) or "", 0)
+    return (tuple(nums), (0, rank, int(pm.group(2) or 0), rest))
 
 
 def newer(a: str, b: str) -> bool:
