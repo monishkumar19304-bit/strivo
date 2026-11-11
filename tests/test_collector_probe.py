@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 
 from conftest import read_events
 from fakes import FakeAdapter, dev
@@ -57,6 +58,26 @@ def test_probe_classification_and_privacy():
                    "Personal Video", "Kids Room"):
         assert secret not in r, secret
     assert classify(dict(state=IDLE, app="Hulu", title="x")) is None
+
+
+def test_probe_suggests_redacted_title_rule_once():
+    p = Probe()
+    tv = dev("android", "Private Room", host="192.168.1.52")
+    for _ in range(2):
+        p.on_np(tv, NowPlaying(state=PLAYING, app="Some App",
+                               title="Secret Show | Season 2 | Episode 5"))
+    p.on_np(tv, NowPlaying(state=PLAYING, app="Some App",
+                           title="Already Parsed S2E6"))
+    report = p.report()
+    payload = p.as_json()
+    suggestions = payload["boxes"][0]["apps"]["Some App"]["title_rule_suggestions"]
+    assert len(suggestions) == 1
+    assert suggestions[0]["shape"] == "<show> | Season<season> | Episode<episode>"
+    assert suggestions[0]["rule"]["set"] == {"series": 1, "season": 2, "ep": 3}
+    assert re.match(suggestions[0]["rule"]["match"], "Secret Show | Season 2 | Episode 5")
+    assert "Secret Show" not in report and "Already Parsed" not in report
+    assert "title_rules" in report and "Some App" in report
+    assert "Secret Show" not in json.dumps(payload)
 
 
 def test_probe_from_existing_events(tmp_path):

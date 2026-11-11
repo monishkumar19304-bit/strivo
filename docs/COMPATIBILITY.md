@@ -97,7 +97,7 @@ This table only gets filled in with your help, and it's one of the most valuable
    strivo probe --minutes 10
    ```
 3. While it runs, play something for a minute in each app you use.
-4. It prints a short report: your box model, and for each app whether it reported the show, the episode, or nothing. **It contains no personal information**: no account names and no network addresses.
+4. It prints a short report: your box model, and for each app whether it reported the show, the episode, or nothing. If an episode-shaped title is not recognized, it also prints a redacted `title_rules` proposal using placeholders and structural separators only. **It contains no personal information**: no account names, network addresses, or show titles.
 5. Post it in **[Discussions → Compatibility reports](https://github.com/nickdnj/strivo/discussions/categories/compatibility-reports)**, or open a [Device report issue](https://github.com/nickdnj/strivo/issues/new?template=device_report.yml).
 
-Maintainers fold reports into the tables above.
+Maintainers can paste a proposed rule into `src/strivo/rules/compat.json`, but should test and review it first; probe suggestions are diagnostics, not automatic rule changes.

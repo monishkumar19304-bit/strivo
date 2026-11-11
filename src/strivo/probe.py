@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import time
 from collections import defaultdict
 
@@ -18,6 +19,8 @@ from .history import norm
 LEVELS = ["episode", "title", "channel", "video", "app-only"]
 LABEL = {"episode": "✅ show + episode", "title": "🟡 title only", "channel": "✅ live channel",
          "video": "✅ video title", "app-only": "⚪ app only (no title)"}
+_SEASON = re.compile(r"\b(Season|S)\s*(\d+)", re.I)
+_EPISODE = re.compile(r"\b(Episode|Ep\.?|E)\s*(\d+)", re.I)
 
 
 def classify(row: dict) -> str | None:
@@ -30,11 +33,57 @@ def classify(row: dict) -> str | None:
     return {"episode": "episode", "live": "channel", "video": "video"}.get(n["kind"], "title")
 
 
+def _separator(text: str) -> str | None:
+    """Turn a title boundary into a regex without retaining title text."""
+    m = re.search(r"\s*[^A-Za-z0-9\s]+[\s]*$", text)
+    if not m:
+        return r"\s*" if text and text[-1:].isspace() else ""
+    out = []
+    for ch in m.group(0):
+        out.append(r"\s*" if ch.isspace() else re.escape(ch))
+    return "".join(out)
+
+
+def _shape_separator(text: str) -> str:
+    m = re.search(r"\s*[^A-Za-z0-9\s]+[\s]*$", text)
+    if m:
+        return m.group(0)
+    m = re.search(r"\s+$", text)
+    return m.group(0) if m else ""
+
+
+def _rule_suggestion(title: str) -> dict | None:
+    """Build a redacted episode rule from a title's structural markers."""
+    season = _SEASON.search(title)
+    episode = _EPISODE.search(title, season.end() if season else 0)
+    if not season or not episode:
+        return None
+    before = _separator(title[:season.start()])
+    between = _separator(title[season.end():episode.start()])
+    if before is None or between is None:
+        return None
+    suffix = title[episode.end():]
+    has_ept = bool(suffix.strip())
+    match = "^(.+?)" + before + re.escape(season.group(1)) + r"\s*(\d+)" + between \
+        + re.escape(episode.group(1)) + r"\s*(\d+)"
+    shape = ("<show>" + _shape_separator(title[:season.start()]) + season.group(1) + "<season>" +
+             _shape_separator(title[season.end():episode.start()]) + episode.group(1) + "<episode>")
+    if has_ept:
+        shape += " " + "<episode title>"
+    if has_ept:
+        match += r"\s*(.*)"
+    match += "$"
+    rule = dict(field="title", match=match, kind="episode",
+                set=dict(series=1, season=2, ep=3, **({"ept": 4} if has_ept else {})))
+    return dict(shape=shape.strip(), rule=rule)
+
+
 class Probe:
     def __init__(self):
         self.boxes: dict[str, dict] = {}
         self.apps: dict[str, dict] = defaultdict(lambda: defaultdict(lambda: dict(
-            n=0, levels=defaultdict(int), position=False, duration=False, app_id=None)))
+            n=0, levels=defaultdict(int), position=False, duration=False, app_id=None,
+            rule_suggestions=[])))
 
     @staticmethod
     def _key(device: Device) -> str:
@@ -59,6 +108,12 @@ class Probe:
         a["position"] |= row.get("pos") is not None
         a["duration"] |= bool(row.get("total"))
         a["app_id"] = row.get("app_id") or a["app_id"]
+        n = norm(row)
+        if (n and n["kind"] == "title" and row.get("title") and row.get("season") is None
+                and row.get("episode") is None):
+            suggestion = _rule_suggestion(str(row["title"]).strip())
+            if suggestion and suggestion not in a["rule_suggestions"]:
+                a["rule_suggestions"].append(suggestion)
 
     def on_np(self, device: Device, np: NowPlaying):
         self.add(device, np.to_event())
@@ -86,6 +141,10 @@ class Probe:
                 ident = f" [{a['app_id']}]" if a["app_id"] and a["app_id"] != app else ""
                 out.append(f"  {app}{ident}: {LABEL[best]}" + (f" · {'+'.join(extra)}" if extra else "")
                            + f" · {a['n']} update{'s' if a['n'] != 1 else ''}")
+                for suggestion in a["rule_suggestions"]:
+                    out.append(f"    Suggested title_rules entry (shape: {suggestion['shape']}):")
+                    out.extend("    " + line for line in json.dumps(
+                        {app: [suggestion["rule"]]}, indent=2, ensure_ascii=False).splitlines())
             out.append("")
         out.append("Legend: ✅ tracked automatically · 🟡 tracked, but episode needs matching · ⚪ app only, not tracked")
         out.append("Share it: https://github.com/nickdnj/strivo/issues/new?template=device_report.yml")
@@ -94,7 +153,8 @@ class Probe:
     def as_json(self) -> dict:
         return dict(version=__version__, boxes=[dict(b, apps={k: dict(n=v["n"], levels=dict(v["levels"]),
                                                                        position=v["position"], duration=v["duration"],
-                                                                       app_id=v["app_id"])
+                                                                       app_id=v["app_id"],
+                                                                       title_rule_suggestions=list(v["rule_suggestions"]))
                                                               for k, v in (self.apps.get(i) or {}).items()})
                                                 for i, b in self.boxes.items()])
 
